@@ -141,6 +141,61 @@ app.get('/prof/delete', async (req, res) => {
 
 
 
+app.get('/emp/insert', async (req, res) => {
+  const { empNo, eName, job, selectDept } = req.query;
+
+  try {
+    await connection.execute(
+      // `INSERT INTO STUDENT (STU_NO, STU_NAME, STU_DEPT) VALUES (${stuNo}, '${name}', '${dept}')`,
+      `INSERT INTO EMP(EMPNO, ENAME, JOB, DEPTNO) VALUES(:empNo, :eName, :job, :selectDept)`,
+      [empNo, eName, job, selectDept],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing insert', error);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+
+
+
+
+app.get('/emp/info', async (req, res) => {
+  const { empNo } = req.query;
+  try {
+    const result = await connection.execute(
+      `SELECT E.*, EMPNO "empNo", ENAME "eName", JOB "job", DEPTNO "selectDept" `
+      + `FROM EMP E `
+      + `WHERE EMPNO = ${empNo} `
+    );
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    //리턴
+    res.json({
+        result : "success",
+        info : rows[0]
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
 
 // 서버 시작
 app.listen(3009, () => {
