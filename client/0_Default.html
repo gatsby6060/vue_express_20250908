@@ -16,7 +16,7 @@
         th{
             background-color: beige;
         }
-        tr:nth-child(even)s{
+        tr:nth-child(even){
             background-color: azure;
         }
 
@@ -40,11 +40,12 @@
             // 함수(메소드) - (key : function())
             fnList: function () {
                 let self = this;
+                let param = {};
                 $.ajax({
                     url: "http://localhost:3009/emp/list",
                     dataType: "json",
                     type: "GET",
-                    data: {},
+                    data: param,
                     success: function (data) {
 
                     }

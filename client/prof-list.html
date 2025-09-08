@@ -24,27 +24,23 @@
 </head>
 <body>
     <div id="app">
-        <!-- html코드는 id가 app인 태크 안엣 작업 -->
-         <!-- <div v-for="item in list"> {{item.ENAME}}</div>    -->
-
+        <!-- html코드는 id가 app인 태크 안에서 작업 -->
          <table>
             <tr>
-                <th>사번</th>
+                <th>교수번호</th>
                 <th>이름</th>
-                <th>직책</th>
+                <th>아이디</th>
+                <th>직급</th>
                 <th>급여</th>
-                <!-- <th>부서</th> -->
-                <th>부서</th>
                 <th>삭제</th>
             </tr>
             <tr v-for = "item in list">
-                <td>{{item.EMPNO}}</td>
-                <td>{{item.ENAME}}</td>
-                <td>{{item.JOB}}</td>
-                <td>{{item.SAL}}</td>
-                <!-- <td>{{item.DEPTNO}}</td> -->
-                <td>{{item.DNAME}}</td>
-                <td><button @click="fnRemove(item.EMPNO)">삭제</button></td>
+                <td>{{item.PROFNO}}</td>
+                <td>{{item.NAME}}</td>
+                <td>{{item.ID}}</td>
+                <td>{{item.POSITION}}</td>
+                <td>{{item.PAY}}</td>
+                <td><button @click="fnProfRemove(item.PROFNO)">삭제</button></td>
             </tr>
          </table>
     </div>
@@ -61,34 +57,34 @@
         },
         methods: {
             // 함수(메소드) - (key : function())
-            fnEmpList: function () {
+            fnList: function () {
                 let self = this;
                 $.ajax({
-                    url: "http://localhost:3009/emp/list",
+                    url: "http://localhost:3009/prof/list",
                     dataType: "json",
                     type: "GET",
                     data: {},
                     success: function (data) {
-                        console.log(data);
-                        self.list = data.empList; //서버에서 emplist로 응답 보냄 그래서 emplist로 함
+                        // console.log(data);
+                        self.list = data.profList; //서버에서 profList 응답 보냄 그래서 profList 함
                     }
                 });
             },
-            fnRemove : function(empNo){
+            fnProfRemove : function(ProfNo){
                 // alert(empNo);
                 let self = this;
                 if(!confirm("정말 삭제??")){    
                     return;
                 }
                 $.ajax({
-                    url: "http://localhost:3009/emp/delete",
+                    url: "http://localhost:3009/prof/delete",
                     dataType: "json",
                     type: "GET",
-                    data: {empNo : empNo}, // 키(명) : 밸류
+                    data: {profNo : ProfNo}, // 키(명) : 밸류
                     success: function (data) {
                         if(data.result =="success"){
                             alert("삭제되었습니다");
-                            self.fnEmpList();
+                            self.fnList();
                         }
                     }
                 });
@@ -98,7 +94,7 @@
         mounted() {
             // 처음 시작할 때 실행되는 부분
             let self = this;
-            self.fnEmpList();
+            self.fnList();
         }
     });
 
