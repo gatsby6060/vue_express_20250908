@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        table, tr, td, th{
+            border : 1px solid black;
+            border-collapse: collapse;
+            padding : 5px 10px;
+            text-align : center;
+        }
+        th{
+            background-color: beige;
+        }
+        tr:nth-child(even)s{
+            background-color: azure;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- html코드는 id가 app인 태크 안엣 작업 -->
+         <!-- {{jsonList[0].name}} -->
+          <div v-for="item in strList">
+            {{item}}
+          </div>
+          <div v-for="(item, index) in strList">
+            {{index+1}}. {{item}}
+          </div>
+          <div v-for="item in jsonList">
+            {{item.name}}, {{item.age}}
+          </div>
+
+          <table>
+            <tr>
+                <th>이름</th>
+                <th>이름2</th>
+                <th>나이</th>
+                <th>주소</th>
+            </tr>
+            <tr v-for="item in jsonList">
+                <td><a href="javascript:;" @click="fnInfo(item.name, item.age, item.addr)">{{item.name}}</a></td>
+                <td><a href="javascript:;" @click="fnInfo2(item)">{{item.name}}</a></td>
+                <td>{{item.age}}</td>
+                <td>
+                    <span v-if="item.age >= 25" style="color :blue;">{{item.addr}}</span>
+                    <span v-else>{{item.addr}}</span>
+                </td>
+            
+            </tr>
+          </table>
+
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                strList : ["자바","오라클","html","jquery"],
+                jsonList : [
+                    {"name":"홍길동", age:30, addr:"인천"},
+                    {"name":"김철수", age:25, addr:"서울"},
+                    {"name":"박영희", age:20, addr:"제주도"}
+                ]
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnUserList: function () {
+                let self = this;
+                $.ajax({
+                    url: "",
+                    dataType: "json",
+                    type: "GET",
+                    data: {},
+                    success: function (data) {
+
+                    }
+                });
+            },
+            fnInfo : function(name, age, addr){
+                alert(`${name}님의 나이는 ${age}, 주소는 ${addr} 입니다.`);
+            },
+            fnInfo2 : function(info){
+                // console.log(info);
+                alert(`${info.name}님의 나이는 ${info.age}, 주소는 ${info.addr} 입니다.`);
+            },
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+        }
+    });
+
+    app.mount('#app');
+</script>

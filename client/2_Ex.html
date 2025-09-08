@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- html코드는 id가 app인 태크 안엣 작업 -->
+         <div>
+            <span v-if="num >= 20" style="color:blue;">{{num}}</span>
+            <span v-else-if="num >= 10" style="color:red;">{{num}}</span>
+            <span v-else style="color:green">{{num}}</span>
+         </div>
+         <div>
+            <button @click="fnUp">증가</button>
+         </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                num : 1
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnUserList: function () {
+                let self = this;
+                $.ajax({
+                    url: "",
+                    dataType: "json",
+                    type: "GET",
+                    data: {},
+                    success: function (data) {
+
+                    }
+                });
+            },
+            fnUp : function(){
+                // name = "김철수"; //에러 
+                // 변수 혹은 함수 접근시 꼭 this를 붙여라
+                // this.name = "김철수"; // 아래처럼(self) 사용 권장
+                // 다만, ajax에서는 this가 부분적으로 적용이 되지 않으므로
+                // self 변수안에 this를 담아서 사용하는거를 권장
+                let self = this;
+                // self.num = self.num + 1;
+                // self.num += 1;
+                self.num++;
+                
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+        }
+    });
+
+    app.mount('#app');
+</script>

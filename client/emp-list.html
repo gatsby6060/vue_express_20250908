@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <style>
+        table, tr, td, th{
+            border : 1px solid black;
+            border-collapse: collapse;
+            padding : 5px 10px;
+            text-align : center;
+        }
+        th{
+            background-color: beige;
+        }
+        tr:nth-child(even){
+            background-color: azure;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- html코드는 id가 app인 태크 안엣 작업 -->
+         <!-- <div v-for="item in list"> {{item.ENAME}}</div>    -->
+
+         <table>
+            <tr>
+                <th>사번</th>
+                <th>이름</th>
+                <th>직책</th>
+                <th>급여</th>
+                <!-- <th>부서</th> -->
+                <th>부서명</th>
+            </tr>
+            <tr v-for = "item in list">
+                <td>{{item.EMPNO}}</td>
+                <td>{{item.ENAME}}</td>
+                <td>{{item.JOB}}</td>
+                <td>{{item.SAL}}</td>
+                <!-- <td>{{item.DEPTNO}}</td> -->
+                <td>{{item.DNAME}}</td>
+            </tr>
+         </table>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                list : []
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnEmpList: function () {
+                let self = this;
+                $.ajax({
+                    url: "http://localhost:3009/emp/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: {},
+                    success: function (data) {
+                        console.log(data);
+                        self.list = data.empList; //서버에서 emplist로 응답 보냄 그래서 emplist로 함
+                    }
+                });
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+            self.fnEmpList();
+        }
+    });
+
+    app.mount('#app');
+</script>
