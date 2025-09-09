@@ -41,10 +41,13 @@
             <tr>
                 <th>사번</th>
                 <td>
-                    <!-- <input type = "text" v-model="info.empNo">
-                    <button class="check-btn" >중복체크</button> -->
-                    <input type="text" v-model="info.empNo" :readonly="!!empNo" >
-                    <button class="check-btn" v-if="!info.empNo">중복체크</button>
+                    <span v-if="empNo == ''">
+                        <input type="text" v-model="info.empNo">
+                        <button class="check-btn">중복체크</button>
+                    </span>
+                    <span v-else>
+                        <input type="text" v-model="info.empNo" disabled>
+                    </span>
                 </td>
             </tr>
             <tr>
@@ -67,7 +70,8 @@
             </tr>
         </table>
         <div>
-            <button @click="fnAdd">추가</button>
+            <button v-if="empNo==''" @click="fnAdd">추가</button>
+            <button v-else @click="fnEdit">수정</button>
         </div>
     </div>
 </body>
@@ -118,6 +122,27 @@
                         console.log(data);
                         // self.info.empNo= data.info.EMPNO; //"10"
                         self.info = data.info;
+                    }
+                });
+            },
+            fnEdit : function(){
+                let self = this;
+
+                // let param = {
+                //     empNo : self.info.empNo,
+                //     eName : self.info.eName,
+                //     selectDept : self.info.selectDept
+                // };
+
+                let param = self.info;
+                $.ajax({
+                    url: "http://localhost:3009/emp/update",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        alert("수정되었습니다!");
+                        location.href="emp-list.html";
                     }
                 });
             }

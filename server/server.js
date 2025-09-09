@@ -197,6 +197,32 @@ app.get('/emp/info', async (req, res) => {
 
 
 
+
+
+app.get('/emp/update', async (req, res) => {
+  const {  job, eName, selectDept, empNo } = req.query;
+  console.log(empNo, job, eName, selectDept)
+  try {
+    await connection.execute(
+      `UPDATE EMP SET `
+      +` JOB = :job, ENAME = :eName, DEPTNO = :selectDept `
+      +` WHERE EMPNO = :empNo`,
+      [ job, eName, selectDept, empNo],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+
+
+
+
+
 // 서버 시작
 app.listen(3009, () => {
   console.log('Server is running on port 3009');
