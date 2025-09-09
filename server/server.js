@@ -223,6 +223,77 @@ app.get('/emp/update', async (req, res) => {
 
 
 
+
+
+
+app.get('/prof/info', async (req, res) => {
+  const { profNo } = req.query; //제발 클라이언트에서 보낼때 대소문자와 받을 때 대소문자 일치!!!!
+  console.log("서버의 profNo는~ "+ profNo );
+  try {
+    const result = await connection.execute(
+      `SELECT P.*, PROFNO "profNo", NAME "name", ID "id", POSITION "position", PAY "pay" `
+      + `FROM PROFESSOR P `
+      + `WHERE PROFNO = ${profNo} `
+    );
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    //리턴
+    res.json({
+        result : "success",
+        info : rows[0]
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
+
+
+
+
+app.get('/prof/update', async (req, res) => {
+  const { name, id, position, pay, profNo } = req.query;
+  // console.log(NAME, POSITON, DEPTNO, PROFNO);
+  try {
+    await connection.execute(
+      `UPDATE PROFESSOR SET `
+      +` NAME = :name, ID = :id, POSITION = :position, PAY = :pay `
+      +` WHERE PROFNO = :profNo`,
+      [ name, id, position, pay, profNo],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 // 서버 시작
 app.listen(3009, () => {
   console.log('Server is running on port 3009');

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <style>
+        #app{
+            width: 600px;
+            margin: 30px auto;
+        }
+        table, tr, td, th{
+            border : 1px solid black;
+            border-collapse: collapse;
+            padding : 5px 10px;
+            text-align : center;
+        }
+        th{
+            background-color: beige;
+            width: 150px;
+        }
+        td {
+            width: 300px;
+            text-align: left;
+        }
+        /* tr:nth-child(even){
+            background-color: azure;
+        } */
+        .check-btn{
+            margin-left: 15px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- html코드는 id가 app인 태크 안엣 작업 -->
+        <table>
+            <tr>
+                <th>교수번호</th>
+                <td>
+                    <span v-if="profNo == ''">
+                        <input type="text" v-model="info.profNo">
+                        <button class="check-btn">중복체크</button>
+                    </span>
+                    <span v-else>
+                        <input type="text" v-model="info.profNo" disabled>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>아이디</th>
+                <td><input type = "text" v-model="info.id"></td>
+            </tr>
+            <tr>
+                <th>직급</th>
+                <td><input type = "text" v-model="info.position"></td>
+            </tr>
+            <tr>
+                <th>급여</th>
+                <td><input type = "text" v-model="info.pay"></td>
+            </tr>
+
+        </table>
+        <div>
+            <button v-if="profNo==''" @click="fnAdd">추가</button>
+            <button v-else @click="fnEdit">수정</button>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                info : {
+
+                },
+                profNo : ""
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+         
+            fnInfo: function () {
+                let self = this;
+                console.log("여기는 self.info직전입니다");
+                console.log(self.info);
+                // let param = {};
+                $.ajax({
+                    url: "http://localhost:3009/prof/info",
+                    dataType: "json",
+                    type: "GET",
+                    data: {profNo : self.profNo},
+                    success: function (data) {
+                        console.log("!!!!!!!~~~~~~~~교수 상세 조회 성공~~~~~~~~~~~~~~~");
+                        console.log(data);
+                        // self.info.empNo= data.info.EMPNO; //"10"
+                        self.info = data.info;
+                    }
+                });
+            },
+            fnEdit : function(){
+                let self = this;
+
+                // let param = {
+                //     empNo : self.info.empNo,
+                //     eName : self.info.eName,
+                //     selectDept : self.info.selectDept
+                // };
+
+                let param = self.info;
+                console.log("서버에 보내기 직전의 self.info는 ~ "+ param );
+                $.ajax({
+                    url: "http://localhost:3009/prof/update",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        alert("수정되었습니다!");
+                        location.href="prof-list.html";
+                    }
+                });
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+            const queryParams = new URLSearchParams(window.location.search);
+            self.profNo = queryParams.get('profNo') || ''; 
+            console.log("마운티드쪽의 self.profNo는 " + self.profNo);
+            if(self.profNo != ""){
+                self.fnInfo();
+            }
+
+
+            
+        }
+    });
+
+    app.mount('#app');
+</script>
