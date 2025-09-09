@@ -93,10 +93,17 @@ app.get('/emp/delete', async (req, res) => {
 
 
 app.get('/prof/list', async (req, res) => {
-  const { } = req.query;
+  const { position } = req.query;
+  let query = "";
+  if(position != "" && position != null){
+    query += `WHERE POSITION = '${position}'`;
+  }
+  // console.log("당최?")
+  // console.log(query);
   try {
     const result = await connection.execute(
-        `SELECT * FROM PROFESSOR`
+        `SELECT * FROM PROFESSOR `
+        + query
     );
     const columnNames = result.metaData.map(column => column.name);
     // 쿼리 결과를 JSON 형태로 변환

@@ -25,6 +25,14 @@
 <body>
     <div id="app">
         <!-- html코드는 id가 app인 태크 안에서 작업 -->
+        <div>
+            <select id="posit-menu" v-model="position" @change="fnList">
+                <option value="">::: 전체 :::</option>
+                <option value="조교수">조교수</option>
+                <option value="전임강사">전임강사</option>
+                <option value="정교수">정교수</option>
+            </select>
+        </div> 
          <table>
             <tr>
                 <th>교수번호</th>
@@ -55,7 +63,8 @@
         data() {
             return {
                 // 변수 - (key : value)
-                list : []
+                list : [],
+                position : ""
             };
         },
         methods: {
@@ -66,10 +75,11 @@
                     url: "http://localhost:3009/prof/list",
                     dataType: "json",
                     type: "GET",
-                    data: {},
+                    data: {position : self.position},
                     success: function (data) {
                         // console.log(data);
                         self.list = data.profList; //서버에서 profList 응답 보냄 그래서 profList 함
+                                        //서버에서 응답 보낸걸 self.list에 넣음
                     }
                 });
             },
