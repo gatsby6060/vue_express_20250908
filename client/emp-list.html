@@ -7,6 +7,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <style>
+        #app{
+            margin: 50px;
+        }
         table, tr, td, th{
             border : 1px solid black;
             border-collapse: collapse;
@@ -19,6 +22,11 @@
         tr:nth-child(even){
             background-color: azure;
         }
+        #dept-menu{
+            margin-bottom: 10px;
+            text-align: center;
+            height: 30px;
+        }
 
     </style>
 </head>
@@ -26,7 +34,15 @@
     <div id="app">
         <!-- html코드는 id가 app인 태크 안엣 작업 -->
          <!-- <div v-for="item in list"> {{item.ENAME}}</div>    -->
-
+        <div>
+            <select id="dept-menu" v-model="deptNo" @change="fnEmpList">
+                <option value="">::: 전체 :::</option>
+                <option value="10">ACCOUNTING</option>
+                <option value="20">RESEARCH</option>
+                <option value="30">SALES</option>
+                <option value="40">OPERATIONS</option>
+            </select>
+        </div>
          <table>
             <tr>
                 <th>사번</th>
@@ -39,7 +55,9 @@
             </tr>
             <tr v-for = "item in list">
                 <td>{{item.EMPNO}}</td>
-                <td>{{item.ENAME}}</td>
+                <td>
+                    <a href="javascript:;" @click="fnView(item.EMPNO)"> {{item.ENAME}}</a>
+                </td>
                 <td>{{item.JOB}}</td>
                 <td>{{item.SAL}}</td>
                 <td>{{item.DNAME}}</td>
@@ -57,7 +75,8 @@
         data() {
             return {
                 // 변수 - (key : value)
-                list : []
+                list : [],
+                deptNo : ""
             };
         },
         methods: {
@@ -68,7 +87,7 @@
                     url: "http://localhost:3009/emp/list",
                     dataType: "json",
                     type: "GET",
-                    data: {},
+                    data: {deptNo : self.deptNo},
                     success: function (data) {
                         console.log(data);
                         self.list = data.empList; //서버에서 emplist로 응답 보냄 그래서 emplist로 함
@@ -97,6 +116,9 @@
             fnEdit : function(empNo){
                location.href="emp-edit.html?empNo="+empNo;
             },
+            fnView : function(empNo){
+                window.open(`emp-view.html?empNo=${empNo}`,"view","width=500,height=500");
+            }
         }, // methods
         mounted() {
             // 처음 시작할 때 실행되는 부분
