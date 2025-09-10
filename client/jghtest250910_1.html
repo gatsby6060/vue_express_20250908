@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의류고객관리시스템</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        table,
+        tr,
+        td,
+        th {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: beige;
+        }
+
+        tr:nth-child(even) {
+            background-color: azure;
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            /* 가로 가운데 */
+            align-items: center;
+            /* 세로 가운데 */
+            height: 100vh;
+            /* 화면 전체 높이 */
+            margin: 0;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <div id="app">
+        <!-- html코드는 id가 app인 태크 안엣 작업 -->
+
+            <table style="margin-top:50px">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <h1></h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            <div class="login-layout">
+                                <h2>의류사업 고객관리프로그램 로그인</h2>
+                                <div class="login-form">
+                                    <div class="login-input">
+                                        <div>
+                                            <input type="text" id="search" name="strSName" placeholder="ID"
+                                                class="form-control input-lg" style="margin-bottom:5px"
+                                                autocomplete="username" v-model="idd">
+                                           
+                                        </div>
+                                        <div>
+                                            <input type="password" id="strLoginPwd" name="strLoginPwd"
+                                                placeholder="비밀번호" autocomplete="current-password"
+                                                class="form-control input-lg" v-model="pwdd">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="login-bottom" style="padding-bottom:20px;color:red;text-align:left">
+                                        *ID를 입력하시고 비밀번호를 입력하세요
+                                        <div class="login-btn" style="margin-top:10px">
+                                            <button @click="fnLogin(idd,pwdd)">로그인</button>
+                                        </div>
+                                    </div>
+                                    <div class="login-bottom"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div class="clear"></div>
+                            <div class="copyright">
+                                <p class="m-t">Copyright © 전경환 All Rights Reserved.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        
+    </div>
+    
+</body>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                idd: "",
+                pwdd: ""
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnList: function () {
+                let self = this;
+                let param = {};
+                $.ajax({
+                    url: "http://localhost:3009/emp/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+
+                    }
+                });
+            },
+            fnLogin: function (id,pw) {
+                // alert("로그인함수 진입");
+                let self = this;
+                    // alert("id "+id);
+                    if (!id) {
+                    alert("아이디 입력!");
+                    return;
+                    }
+                    // alert("pw "+pw);
+                    if (!pw) {
+                    alert("비밀번호 입력!");
+                    return;
+                    }
+                    // alert("self.id는 "+ id);
+                let param = {
+                    idd_p1: id,
+                    pwdd_p2: pw
+                };
+                // alert("param.idd_p1 " + param.idd_p1);
+                // alert("아작스요청직전");
+                $.ajax({
+                    url: "http://localhost:3009/user/login",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        console.log("로그인 잘됨~")
+                        alert("로그인 잘됨");
+                        location.href="jghtest_250910_2_customerlist.html";
+                    }
+                });
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+
+        }
+    });
+
+    app.mount('#app');
+</script>
