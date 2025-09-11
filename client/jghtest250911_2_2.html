@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>클래식 회원 검색</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    /* ===== Layout / Theme ===== */
+    body{ margin:0; background:#f5f6f8; font-family:Arial, sans-serif; color:#222; }
+    #app{ display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:24px 12px; box-sizing:border-box; }
+    .container{
+      width:1100px; max-width:100%; background:#fff; border-radius:14px; padding:18px;
+      box-shadow:0 8px 22px rgba(0,0,0,.08); border:1px solid #eef2f7;
+    }
+    .title{ margin:0 0 12px; text-align:center; font-size:1.35rem; font-weight:800; color:#223; }
+
+    /* ===== Notice ===== */
+    .notice{
+      background:#f8fbff; border:1px solid #e6f0ff; color:#334; padding:12px 14px; border-radius:10px; line-height:1.6;
+    }
+    .warn{ color:#c62828; font-weight:800; }
+
+    /* ===== Section ===== */
+    .section{ margin-top:16px; }
+    .section__hd{
+      margin:0 0 10px; padding-bottom:6px; font-size:1.02rem; font-weight:800; color:#2b3a55; border-bottom:2px solid #e8eefc;
+    }
+
+    /* ===== Condition Chips ===== */
+    .chips{
+      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+      background:#fbfdff; border:1px solid #eef1f5; border-radius:12px; padding:12px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:6px;
+      background:#f3f6ff; border:1px solid #dee7ff; color:#2845a7;
+      padding:8px 10px; border-radius:999px; font-weight:700; font-size:.92rem;
+    }
+    .chip b{ color:#24324d; }
+
+    /* ===== Buttons ===== */
+    .btn{ display:inline-block; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:800;
+          background:#3a7afe; color:#fff; box-shadow:0 4px 10px rgba(58,122,254,.18); }
+    .btn:hover{ background:#2b68ea; }
+    .btn--ghost{ background:#fff; color:#3a7afe; border:1px solid #c8d4ff; box-shadow:none; }
+    .btn--ghost:hover{ background:#f4f7ff; }
+
+    /* ===== Table (Excel-like) ===== */
+    .table-wrap{
+      border:1px solid #e9edf3; border-radius:12px; overflow:auto; background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,.03);
+    }
+    table.member-table{ width:1400px; min-width:100%; border-collapse:collapse; table-layout:fixed; }
+    .member-table th, .member-table td{ border:1px solid #e5e9f2; padding:10px 12px; text-align:center; white-space:nowrap; }
+    .member-table thead th{ position:sticky; top:0; background:#f6f9ff; color:#2b3a55; z-index:1; font-weight:800; }
+    .member-table tbody tr:nth-child(even) td{ background:#fafcff; }
+    .member-table tbody tr:hover td{ background:#f0f6ff; }
+    .photo-cell img{
+      width:48px; height:56px; object-fit:cover; border-radius:6px; border:1px solid #eee;
+      box-shadow:0 2px 6px rgba(0,0,0,.05);
+    }
+
+    /* ===== Toolbar ===== */
+    .toolbar{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+    .stat{ color:#556; font-weight:700; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="container">
+    <h2 class="title">클래식 회원 검색</h2>
+
+    <!-- 안내 -->
+    <div class="notice">
+      클래식회원검색은 듀오 회원 중 <span class="warn">프로필 공개에 동의한 일부 회원정보만 노출</span>되며, 동성의 경우 검색되지 않습니다.
+    </div>
+
+    <!-- 선택 조건(칩) -->
+    <div class="section">
+      <div class="section__hd">선택하신 조건</div>
+      <div class="chips">
+        <span class="chip"><b>연령</b> {{ ageLabel }}</span>
+        <span class="chip"><b>직업</b> {{ condition.job || '무관' }}</span>
+        <span class="chip"><b>거주지</b> {{ condition.region || '무관' }}</span>
+        <span class="chip"><b>학력</b> {{ condition.edu || '무관' }}</span>
+
+        <span style="flex:1 0 auto"></span>
+        <button class="btn btn--ghost" @click="fnGoSearchPage">다시검색</button>
+      </div>
+    </div>
+
+    <!-- 목록(엑셀형 테이블) -->
+    <div class="section">
+      <div class="section__hd">회원 목록</div>
+      <div class="table-wrap">
+        <table class="member-table">
+          <thead>
+          <tr>
+            <th style="width:70px">사진</th>
+            <th style="width:120px">회원번호</th>
+            <th style="width:120px">이름</th>
+            <th style="width:100px">출생년</th>
+            <th style="width:120px">결혼경력</th>
+            <th style="width:180px">직업</th>
+            <th style="width:120px">거주지</th>
+            <th style="width:150px">프로필 열람일</th>
+            <th style="width:100px">액션</th>
+          </tr>
+          </thead>
+
+          <!-- DB 결과 -->
+          <tbody v-if="members.length > 0">
+          <tr v-for="m in members" :key="m.memberNo" @click="fnGoDetail(m.memberNo)" style="cursor:pointer;">
+            <td class="photo-cell"><img :src="m.photo || defaultPhoto" :alt="m.memberNo"></td>
+            <td>{{ m.memberNo }}</td>
+            <td>{{ m.name || '-' }}</td>
+            <td>{{ m.birthYear }}</td>
+            <td>{{ m.marital }}</td>
+            <td>{{ m.job }}</td>
+            <td>{{ m.region }}</td>
+            <td>{{ m.profileViewedAt || '-' }}</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail(m.memberNo)">보기</button></td>
+          </tr>
+          </tbody>
+
+          <!-- 결과 없으면: 동일한 테이블 모양의 더미 5행 -->
+          <tbody v-else>
+          <tr @click="fnGoDetail('F0001')" style="cursor:pointer;">
+            <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0001"></td>
+            <td>F0001</td><td>김가은</td><td>1992</td><td>초혼</td><td>교육/공무원직</td><td>서울권</td><td>2025.01.27</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0001')">보기</button></td>
+          </tr>
+          <tr @click="fnGoDetail('F0002')" style="cursor:pointer;">
+            <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0002"></td>
+            <td>F0002</td><td>이지훈</td><td>1988</td><td>초혼</td><td>전문/기술/의료직</td><td>경기권</td><td>2025.01.28</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0002')">보기</button></td>
+          </tr>
+          <tr @click="fnGoDetail('F0003')" style="cursor:pointer;">
+            <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0003"></td>
+            <td>F0003</td><td>박서윤</td><td>1994</td><td>초혼</td><td>일반사무직</td><td>충청권</td><td>2025.01.26</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0003')">보기</button></td>
+          </tr>
+          <tr @click="fnGoDetail('F0004')" style="cursor:pointer;">
+            <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0004"></td>
+            <td>F0004</td><td>최민수</td><td>1987</td><td>초혼</td><td>사업/특수직/기타</td><td>영남권</td><td>2025.01.25</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0004')">보기</button></td>
+          </tr>
+          <tr @click="fnGoDetail('F0005')" style="cursor:pointer;">
+            <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0005"></td>
+            <td>F0005</td><td>한지민</td><td>1990</td><td>초혼</td><td>전문/기술/의료직</td><td>서울권</td><td>2025.01.24</td>
+            <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0005')">보기</button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="stat">총 {{ members.length || 5 }}건 표시</div>
+        <button class="btn" @click="fnLoadMore" :disabled="loading || !hasMore">+ 더보기</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+<script>
+  const app = Vue.createApp({
+    data: function () {
+      return {
+        // 조건
+        condition: { ageMin:null, ageMax:null, job:null, region:null, edu:null },
+        // 리스트
+        members: [],
+        // 페이지네이션
+        page: 1, pageSize: 12, hasMore: true, loading: false,
+        // 기본 이미지
+        defaultPhoto: "/html/memberSearch/img/img_profile_none_w.jpg"
+      };
+    },
+    computed: {
+      ageLabel: function () {
+        var ageMin = this.condition.ageMin;
+        var ageMax = this.condition.ageMax;
+        if (!ageMin && !ageMax) return "무관";
+        if (ageMin && ageMax)   return ageMin + " ~ " + ageMax + "세";
+        if (ageMin)             return ageMin + "세 이상";
+        return ageMax + "세 이하";
+      }
+    },
+    methods: {
+      fnGoSearchPage: function () {
+        location.href = "classic_member_search.asp";
+      },
+      fnGoDetail: function (memberNo) {
+        location.href = "/profile/" + memberNo;
+      },
+      fnFetchMembers: function (reset) {
+        if (this.loading) return;
+        var self = this;
+        self.loading = true;
+
+        if (reset) {
+          self.page = 1;
+          self.members = [];
+          self.hasMore = true;
+        }
+
+        var url = "http://localhost:3009/api/members";
+        var params = {
+          ageMin: self.condition.ageMin || "",
+          ageMax: self.condition.ageMax || "",
+          job:    self.condition.job    || "",
+          region: self.condition.region || "",
+          edu:    self.condition.edu    || "",
+          page: self.page,
+          pageSize: self.pageSize
+        };
+
+        $.ajax({
+          url: url,
+          type: "GET",
+          dataType: "json",
+          data: params,
+          success: function (data) {
+            var list = (data && data.list) ? data.list : [];
+            var mapped = list.map(function (x) {
+              return {
+                memberNo: x.memberNo,
+                name: x.name,
+                birthYear: x.birthYear,
+                marital: x.marital,
+                job: x.job,
+                region: x.region,
+                profileViewedAt: x.profileViewedAt,
+                photo: x.photo
+              };
+            });
+
+            self.members = self.members.concat(mapped);
+            self.hasMore = !!(data && data.hasMore);
+            if (self.hasMore) {
+              self.page = self.page + 1;
+            }
+          },
+          error: function (xhr) {
+            console.error("회원 목록 API 오류:", (xhr && xhr.responseText) ? xhr.responseText : xhr);
+            alert("회원 목록을 불러오지 못했습니다.");
+          },
+          complete: function () {
+            self.loading = false;
+          }
+        });
+      },
+      fnLoadMore: function () {
+        this.fnFetchMembers(false);
+      },
+      fnInitConditionFromQuery: function () {
+        var params = new URLSearchParams(location.search);
+        var toNum = function (v) {
+          var n = Number(v); return isNaN(n) ? null : n;
+        };
+        this.condition.ageMin = params.get("ageMin") ? toNum(params.get("ageMin")) : null;
+        this.condition.ageMax = params.get("ageMax") ? toNum(params.get("ageMax")) : null;
+        this.condition.job    = params.get("job")    || null;
+        this.condition.region = params.get("region") || null;
+        this.condition.edu    = params.get("edu")    || null;
+      }
+    },
+    mounted: function () {
+      var self = this;
+      self.fnInitConditionFromQuery();
+      self.fnFetchMembers(true);
+    }
+  });
+
+  app.mount('#app');
+</script>
