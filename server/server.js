@@ -37,7 +37,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/emp/list', async (req, res) => {
-  const { deptNo } = req.query;
+  const { deptNo, pageSize, offset } = req.query;
+  // console.log("deptNo는 "+deptNo);
+  // console.log("pageSize는 "+pageSize);
+  // console.log("offset는 "+offset);
   let query = "";
   if(deptNo != "" && deptNo != null ){
     query += `WHERE E.DEPTNO = ${deptNo} `
@@ -47,7 +50,8 @@ app.get('/emp/list', async (req, res) => {
       `SELECT E.*,D.DNAME FROM EMP E `
       + `INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO `
       + query
-      + ` ORDER BY SAL DESC`
+      + ` ORDER BY SAL DESC `
+      + ` OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
     );
     const columnNames = result.metaData.map(column => column.name);
     // 쿼리 결과를 JSON 형태로 변환
@@ -59,10 +63,15 @@ app.get('/emp/list', async (req, res) => {
       });
       return obj;
     });
+
+    const count = await connection.execute(
+    `SELECT COUNT(*) FROM EMP E`
+    );
     //리턴
     res.json({
         result : "success",
-        empList : rows
+        empList : rows,
+        count : count.rows[0][0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -324,9 +333,6 @@ app.get('/prof/info', async (req, res) => {
 
 
 
-
-
-
 app.get('/prof/update', async (req, res) => {
   const { name, id, position, pay, profNo } = req.query;
   // console.log(NAME, POSITON, DEPTNO, PROFNO);
@@ -346,6 +352,107 @@ app.get('/prof/update', async (req, res) => {
     res.status(500).send('Error executing update');
   }
 });
+
+
+
+
+
+app.get('/board/add', async (req, res) => {
+  const { kind, title, contents, userId } = req.query;
+  // console.log("kind는 " + kind);
+  // console.log("title " + title);
+  // console.log("contents " + contents);
+  // console.log("userId " + userId);
+  try {
+    await connection.execute(
+      `INSERT INTO TBL_BOARD VALUES ( board_seq.nextval, :title, :contents, :userId , 0, 0, :kind, SYSDATE, SYSDATE ) `,
+      [title, contents, userId, kind],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing insert', error);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+
+
+
+app.get('/board/list', async (req, res) => {
+  const { pageSize, offset } = req.query;
+  
+  try {
+    const result = await connection.execute(
+      `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') AS CDATE FROM TBL_BOARD B `
+      +`OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
+    );
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+
+    const count = await connection.execute(
+      `SELECT COUNT(*) FROM TBL_BOARD B`
+    );
+    // console.log(count.rows[0][0]);
+    // 리턴
+    res.json({
+        result : "success",
+        boardList : rows,
+        count : count.rows[0][0]
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
+app.get('/board/view', async (req, res) => {
+   const { boardNo } = req.query;
+  //  console.log("boardNo는 "+boardNo);
+  try {
+    const result = await connection.execute(
+      `SELECT * `
+      + `FROM TBL_BOARD `
+      + `WHERE boardNo = ${boardNo} `
+    );
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    //리턴
+    res.json({
+        result : "success",
+        info : rows[0]
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
 
 
 

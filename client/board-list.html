@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        table,
+        tr,
+        td,
+        th {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: beige;
+        }
+
+        tr:nth-child(even) {
+            background-color: azure;
+        }
+
+        .index {
+            margin-right: 10px;
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- html 코드는 id가 app인 태그 안에서 작업 -->
+
+        <select v-model="pageSize" @change="fnList">
+            <option value="5">5개씩</option>
+            <option value="10">10개씩</option>
+            <option value="15">15개씩</option>
+            <option value="20">20개씩</option>
+        </select>
+
+        <table>
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>조회수</th>
+                <th>작성일</th>
+            </tr>
+            <tr v-for="item in list">
+                <td>{{item.BOARDNO}}</td>
+                <td><a href="javascript:;" @click="fnView(item.BOARDNO)">{{item.TITLE}}</a></td>
+                <td>{{item.USERID}}</td>
+                <td>{{item.CNT}}</td>
+                <td>{{item.CDATE}}</td>
+            </tr>
+        </table>
+
+        <a v-if="page != 1" class="index" href="javascript:;" @click="fnMove(-1)" >◀</a>
+
+        <a class="index" href="javascript:;" v-for="num in index" @click="fnPage(num)">
+            <!-- <span v-if="num == page" style="color:red ; font-weight : bold;">{{num}}</span> -->
+            <span v-if="num == page" style="color:red ; font-size : 25px; font-weight :bold;">{{num}}</span>
+            <span v-else>{{num}}</span>
+        </a>
+
+        <a v-if="page != index" class="index" href="javascript:;" @click="fnMove(1)">▶</a>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                list: [],
+                index: 0, //표현할 페이지 개수 (서버에서 받는 수)
+                pageSize: 5, //한 페이지에 보여줄 게시글 수
+                page: 1 //현재 페이지(위치)
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnList: function () {
+                let self = this;
+                let param = {
+                    pageSize: self.pageSize,
+                    offset: (self.page - 1) * self.pageSize //시작지점
+                };
+                $.ajax({
+                    url: "http://localhost:3009/board/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        self.list = data.boardList;
+                        console.log(data);
+                        self.index = Math.ceil(data.count / self.pageSize);
+                    }
+                });
+            },
+            fnView: function (boardNo) {
+                // alert("함수실행");
+                location.href = "board-view.html?boardNo=" + boardNo;
+                // window.open(`board-view.html?boardNo=${boardNo}`,"view","width=500,height=500");
+            },
+            fnPage: function (num) { //함수 따로 파버림
+                // alert("setPage실행 및 num은 " + num);
+                let self = this;
+                self.page = num; // 클릭한 번호로 현재 페이지 변경
+                self.fnList();
+            },
+            fnMove: function (move) {
+                let self = this;
+                self.page += move;
+                self.fnList();
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+            self.fnList();
+        }
+    });
+
+    app.mount('#app');
+</script>

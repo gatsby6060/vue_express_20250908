@@ -1,39 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-        <style>
-        #app{
+    <style>
+        #app {
             margin: 50px;
         }
-        table, tr, td, th{
-            border : 1px solid black;
+
+        table,
+        tr,
+        td,
+        th {
+            border: 1px solid black;
             border-collapse: collapse;
-            padding : 5px 10px;
-            text-align : center;
+            padding: 5px 10px;
+            text-align: center;
         }
-        th{
+
+        th {
             background-color: beige;
         }
-        tr:nth-child(even){
+
+        tr:nth-child(even) {
             background-color: azure;
         }
-        #dept-menu{
+
+        #dept-menu {
             margin-bottom: 10px;
             text-align: center;
             height: 30px;
         }
-
+        
+        .index {
+            margin-right: 10px;
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div id="app">
         <!-- html코드는 id가 app인 태크 안엣 작업 -->
-         <!-- <div v-for="item in list"> {{item.ENAME}}</div>    -->
+        <!-- <div v-for="item in list"> {{item.ENAME}}</div>    -->
         <div>
             <select id="dept-menu" v-model="deptNo" @change="fnEmpList">
                 <option value="">::: 전체 :::</option>
@@ -43,7 +59,7 @@
                 <option value="40">OPERATIONS</option>
             </select>
         </div>
-         <table>
+        <table>
             <tr>
                 <th>선택</th>
                 <th>사번</th>
@@ -54,7 +70,7 @@
                 <th>수정</th>
                 <th>삭제</th>
             </tr>
-            <tr v-for = "item in list">
+            <tr v-for="item in list">
                 <td><input type="checkbox" :value="item.EMPNO" v-model="selectItems"></td>
                 <td>{{item.EMPNO}}</td>
                 <td>
@@ -66,13 +82,22 @@
                 <td><button @click="fnEdit(item.EMPNO)">수정</button></td>
                 <td><button @click="fnRemove(item.EMPNO)">삭제</button></td>
             </tr>
-         </table>
+        </table>
+
+        <a v-if="page != 1" class="index" href="javascript:;" @click="fnMove(-1)" >◀</a>
+        <a class="index" href="javascript:;" v-for="num in index" @click="fnPage(num)">
+            <span v-if="num == page" style="color:red ; font-size : 25px; font-weight :bold;">{{num}}</span>
+            <span v-else>{{num}}</span>
+        </a>
+        <a v-if="page != index" class="index" href="javascript:;" @click="fnMove(1)">▶</a>    
+
         <div>
             <a href="emp-edit.html"><button>추가</button></a>
             <button @click="fnRemoveAll">선택삭제</button>
         </div>
     </div>
 </body>
+
 </html>
 
 <script>
@@ -80,70 +105,92 @@
         data() {
             return {
                 // 변수 - (key : value)
-                list : [],
-                deptNo : "",
-                selectItems : []
+                list: [],
+                deptNo: "",
+                selectItems: [],
+                index: 0, //표현할 페이지 개수 (서버에서 받는 수)
+                pageSize: 5, //한 페이지에 보여줄 게시글 수
+                page: 1 //현재 페이지(위치)
             };
         },
         methods: {
             // 함수(메소드) - (key : function())
             fnEmpList: function () {
                 let self = this;
+                let param = {
+                    deptNo: self.deptNo,
+                    pageSize: self.pageSize,
+                    offset: (self.page - 1) * self.pageSize //시작지점
+                };
                 $.ajax({
                     url: "http://localhost:3009/emp/list",
                     dataType: "json",
                     type: "GET",
-                    data: {deptNo : self.deptNo},
+                    // data: { deptNo: self.deptNo },
+                    data: param,
                     success: function (data) {
                         console.log(data);
                         self.list = data.empList; //서버에서 emplist로 응답 보냄 그래서 emplist로 함
+                        self.index = Math.ceil(data.count / self.pageSize);
                     }
                 });
             },
-            fnRemove : function(empNo){
+            fnRemove: function (empNo) {
                 // alert(empNo);
                 let self = this;
-                if(!confirm("정말 삭제??")){    
+                if (!confirm("정말 삭제??")) {
                     return;
                 }
                 $.ajax({
                     url: "http://localhost:3009/emp/delete",
                     dataType: "json",
                     type: "GET",
-                    data: {empNo : empNo}, // 키(명) : 밸류
+                    data: { empNo: empNo }, // 키(명) : 밸류
                     success: function (data) {
-                        if(data.result =="success"){
+                        if (data.result == "success") {
                             alert("삭제되었습니다");
                             self.fnEmpList();
                         }
                     }
                 });
             },
-            fnEdit : function(empNo){
-               location.href="emp-edit.html?empNo="+empNo;
+            fnEdit: function (empNo) {
+                location.href = "emp-edit.html?empNo=" + empNo;
             },
-            fnView : function(empNo){
-                window.open(`emp-view.html?empNo=${empNo}`,"view","width=500,height=500");
+            fnView: function (empNo) {
+                window.open(`emp-view.html?empNo=${empNo}`, "view", "width=500,height=500");
             },
-            fnRemoveAll : function(){
+            fnRemoveAll: function () {
                 // alert(empNo);
                 let self = this;
-                if(!confirm("정말 삭제??")){    
+                if (!confirm("정말 삭제??")) {
                     return;
                 }
                 $.ajax({
                     url: "http://localhost:3009/emp/deleteAll",
                     dataType: "json",
                     type: "GET",
-                    data: {removeList : self.selectItems}, // 키(명) : 밸류
-                    traditional : true,
+                    data: { removeList: self.selectItems }, // 키(명) : 밸류
+                    traditional: true,
                     success: function (data) {
-                        if(data.result =="success"){
+                        if (data.result == "success") {
                             alert("삭제되었습니다");
                             self.fnEmpList();
                         }
                     }
                 });
+            },
+            fnPage: function (num) { //함수 따로 파버림
+                // alert("setPage실행 및 num은 " + num);
+                let self = this;
+                self.page = num; // 클릭한 번호로 현재 페이지 변경
+                // alert(self.page);
+                self.fnEmpList();
+            },
+            fnMove: function (move) {
+                let self = this;
+                self.page += move;
+                self.fnEmpList();
             }
         }, // methods
         mounted() {
