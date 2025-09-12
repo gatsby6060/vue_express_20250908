@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>클래식 회원 검색</title>
+  <title>고객 목록 및 검색</title>
   <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <style>
-    /* ===== Layout / Theme ===== */
+    /* ===== 기존 디자인 그대로 ===== */
     body {
       margin: 0;
       background: #f5f6f8;
       font-family: Arial, sans-serif;
-      color: #222;
+      color: #222
     }
 
     #app {
@@ -22,7 +22,7 @@
       align-items: flex-start;
       min-height: 100vh;
       padding: 24px 12px;
-      box-sizing: border-box;
+      box-sizing: border-box
     }
 
     .container {
@@ -32,7 +32,7 @@
       border-radius: 14px;
       padding: 18px;
       box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
-      border: 1px solid #eef2f7;
+      border: 1px solid #eef2f7
     }
 
     .title {
@@ -40,27 +40,25 @@
       text-align: center;
       font-size: 1.35rem;
       font-weight: 800;
-      color: #223;
+      color: #223
     }
 
-    /* ===== Notice ===== */
     .notice {
       background: #f8fbff;
       border: 1px solid #e6f0ff;
       color: #334;
       padding: 12px 14px;
       border-radius: 10px;
-      line-height: 1.6;
+      line-height: 1.6
     }
 
     .warn {
       color: #c62828;
-      font-weight: 800;
+      font-weight: 800
     }
 
-    /* ===== Section ===== */
     .section {
-      margin-top: 16px;
+      margin-top: 16px
     }
 
     .section__hd {
@@ -70,9 +68,37 @@
       font-weight: 800;
       color: #2b3a55;
       border-bottom: 2px solid #e8eefc;
+      display: flex;
+      align-items: center
     }
 
-    /* ===== Condition Chips ===== */
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      background: #3a7afe;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(58, 122, 254, .18)
+    }
+
+    .btn:hover {
+      background: #2b68ea
+    }
+
+    .btn--ghost {
+      background: #fff;
+      color: #3a7afe;
+      border: 1px solid #c8d4ff;
+      box-shadow: none
+    }
+
+    .btn--ghost:hover {
+      background: #f4f7ff
+    }
+
     .chips {
       display: flex;
       flex-wrap: wrap;
@@ -81,7 +107,7 @@
       background: #fbfdff;
       border: 1px solid #eef1f5;
       border-radius: 12px;
-      padding: 12px;
+      padding: 12px
     }
 
     .chip {
@@ -94,55 +120,26 @@
       padding: 8px 10px;
       border-radius: 999px;
       font-weight: 700;
-      font-size: .92rem;
+      font-size: .92rem
     }
 
     .chip b {
-      color: #24324d;
+      color: #24324d
     }
 
-    /* ===== Buttons ===== */
-    .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      background: #3a7afe;
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(58, 122, 254, .18);
-    }
-
-    .btn:hover {
-      background: #2b68ea;
-    }
-
-    .btn--ghost {
-      background: #fff;
-      color: #3a7afe;
-      border: 1px solid #c8d4ff;
-      box-shadow: none;
-    }
-
-    .btn--ghost:hover {
-      background: #f4f7ff;
-    }
-
-    /* ===== Table (Excel-like) ===== */
     .table-wrap {
       border: 1px solid #e9edf3;
       border-radius: 12px;
       overflow: auto;
       background: #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, .03);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .03)
     }
 
     table.member-table {
       width: 1400px;
       min-width: 100%;
       border-collapse: collapse;
-      table-layout: fixed;
+      table-layout: fixed
     }
 
     .member-table th,
@@ -150,7 +147,7 @@
       border: 1px solid #e5e9f2;
       padding: 10px 12px;
       text-align: center;
-      white-space: nowrap;
+      white-space: nowrap
     }
 
     .member-table thead th {
@@ -159,15 +156,15 @@
       background: #f6f9ff;
       color: #2b3a55;
       z-index: 1;
-      font-weight: 800;
+      font-weight: 800
     }
 
     .member-table tbody tr:nth-child(even) td {
-      background: #fafcff;
+      background: #fafcff
     }
 
     .member-table tbody tr:hover td {
-      background: #f0f6ff;
+      background: #f0f6ff
     }
 
     .photo-cell img {
@@ -176,30 +173,43 @@
       object-fit: cover;
       border-radius: 6px;
       border: 1px solid #eee;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .05)
     }
 
-    .section__hd {
-      display: flex;
-      align-items: center;
-    }
-
-    .section__hd .btn {
-      margin-left: auto;
-      /* 버튼만 오른쪽으로 밀림 */
-    }
-
-    /* ===== Toolbar ===== */
     .toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
+      margin-top: 12px
     }
 
     .stat {
       color: #556;
-      font-weight: 700;
+      font-weight: 700
+    }
+
+    .pager a {
+      margin: 0 6px;
+      text-decoration: none;
+      color: #3a7afe;
+      font-weight: 800
+    }
+
+    .pager a.active {
+      color: #d33;
+      font-size: 1.05rem
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    select.page-select {
+      border: 1px solid #c8d4ff;
+      border-radius: 8px;
+      padding: 6px 8px
     }
   </style>
 </head>
@@ -209,12 +219,10 @@
     <div class="container">
       <h2 class="title">고객 목록 및 검색</h2>
 
-      <!-- 안내 -->
       <div class="notice">
         고객 검색 목록은 <span class="warn">프로필 공개에 동의한 회원정보만 노출</span>됩니다.
       </div>
 
-      <!-- 선택 조건(칩) -->
       <div class="section">
         <div class="section__hd">선택하신 조건</div>
         <div class="chips">
@@ -228,10 +236,11 @@
         </div>
       </div>
 
-      <!-- 목록(엑셀형 테이블) -->
       <div class="section">
-        <div class="section__hd">고객 목록 <button class="btn" @click="fnLoadMore" :disabled="loading || !hasMore">고객
-            추가</button></div>
+        <div class="section__hd">
+          고객 목록
+          <button class="btn" style="margin-left:auto" @click="fnCustAdd">고객 추가</button>
+        </div>
 
         <div class="table-wrap">
           <table class="member-table">
@@ -250,203 +259,164 @@
             </thead>
 
             <!-- DB 결과 -->
-            <tbody v-if="members.length > 0">
-              <tr v-for="m in members" :key="m.memberNo" @click="fnGoDetail(m.memberNo)" style="cursor:pointer;">
-                <td class="photo-cell"><img :src="m.photo || defaultPhoto" :alt="m.memberNo"></td>
-                <td>{{ m.memberNo }}</td>
-                <td>{{ m.name || '-' }}</td>
-                <td>{{ m.birthYear }}</td>
-                <td>{{ m.marital }}</td>
-                <td>{{ m.job }}</td>
-                <td>{{ m.region }}</td>
-                <td>{{ m.profileViewedAt || '-' }}</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail(m.memberNo)">보기</button></td>
+            <tbody v-if="list.length > 0">
+              <tr v-for="item in list" :key="item.MEMBER_NO" @click="fnGoDetail(item.MEMBER_NO)"
+                style="cursor:pointer;">
+                <td class="photo-cell"><img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"></td>
+                <td>{{ item.MEMBER_NO }}</td>
+                <td>{{ item.NAME || '-' }}</td>
+                <td>{{ item.BIRTH_YEAR || '-' }}</td>
+                <td>{{ item.MARITAL || '-' }}</td>
+                <td>{{ item.JOB || '-' }}</td>
+                <td>{{ item.ADDRESS || '-' }}</td>
+                <td>{{ item.PROFILE_VIEWED_AT || '-' }}</td>
+                <td><button class="btn btn--ghost" @click.stop="fnGoDetail(item.MEMBER_NO)">보기</button></td>
               </tr>
             </tbody>
 
-            <!-- 결과 없으면: 동일한 테이블 모양의 더미 5행 -->
+            <!-- 결과 없을 때 -->
             <tbody v-else>
-              <tr @click="fnGoDetail('F0001')" style="cursor:pointer;">
-                <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0001"></td>
-                <td>F0001</td>
-                <td>김가은</td>
-                <td>1992</td>
-                <td>초혼</td>
-                <td>교육/공무원직</td>
-                <td>서울권</td>
-                <td>2025.01.27</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0001')">보기</button></td>
-              </tr>
-              <tr @click="fnGoDetail('F0002')" style="cursor:pointer;">
-                <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0002"></td>
-                <td>F0002</td>
-                <td>이지훈</td>
-                <td>1988</td>
-                <td>초혼</td>
-                <td>전문/기술/의료직</td>
-                <td>경기권</td>
-                <td>2025.01.28</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0002')">보기</button></td>
-              </tr>
-              <tr @click="fnGoDetail('F0003')" style="cursor:pointer;">
-                <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0003"></td>
-                <td>F0003</td>
-                <td>박서윤</td>
-                <td>1994</td>
-                <td>초혼</td>
-                <td>일반사무직</td>
-                <td>충청권</td>
-                <td>2025.01.26</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0003')">보기</button></td>
-              </tr>
-              <tr @click="fnGoDetail('F0004')" style="cursor:pointer;">
-                <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0004"></td>
-                <td>F0004</td>
-                <td>최민수</td>
-                <td>1987</td>
-                <td>초혼</td>
-                <td>사업/특수직/기타</td>
-                <td>영남권</td>
-                <td>2025.01.25</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0004')">보기</button></td>
-              </tr>
-              <tr @click="fnGoDetail('F0005')" style="cursor:pointer;">
-                <td class="photo-cell"><img src="/html/memberSearch/img/img_profile_none_w.jpg" alt="F0005"></td>
-                <td>F0005</td>
-                <td>한지민</td>
-                <td>1990</td>
-                <td>초혼</td>
-                <td>전문/기술/의료직</td>
-                <td>서울권</td>
-                <td>2025.01.24</td>
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail('F0005')">보기</button></td>
+              <tr>
+                <td colspan="9">조회된 데이터가 없습니다.</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Toolbar -->
         <div class="toolbar">
-          <div class="stat">총 {{ members.length || 5 }}건 표시</div>
-          <div class="stat"> 페이징을 해야하낭....?</div>
-          <button class="btn" @click="fnLoadMore" :disabled="loading || !hasMore">+ 더보기</button>
+          <div class="stat">총 {{ count }}건 / {{ page }} 페이지</div>
+          <div class="toolbar-right">
+            <select class="page-select" v-model="pageSize" @change="fnList">
+              <option value="5">5개씩</option>
+              <option value="10">10개씩</option>
+              <option value="15">15개씩</option>
+              <option value="20">20개씩</option>
+            </select>
+
+            <div class="pager">
+              <a href="javascript:;" v-if="page != 1" @click="fnMove(-1)">◀</a>
+              <a class="index" href="javascript:;" v-for="num in index" :class="{active:num==page}"
+                @click="fnPage(num)">
+                <span v-if="num == page">{{num}}</span>
+                <span v-else>{{num}}</span>
+              </a>
+              <a href="javascript:;" v-if="page != index" @click="fnMove(1)">▶</a>
+            </div>
+
+            <button class="btn" @click="fnLoadMore" :disabled="page>=index">+ 더보기</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          list: [],            // 표에 그릴 데이터
+          count: 0,            // 총 건수
+          index: 0,            // 총 페이지 수
+          pageSize: 12,        // 한 페이지 크기
+          page: 1,             // 현재 페이지
+          condition: { ageMin: null, ageMax: null, job: null, region: null, edu: null },
+          defaultPhoto: "/html/memberSearch/img/img_profile_none_w.jpg"
+        };
+      },
+      computed: {
+        ageLabel() {
+          var a = this.condition.ageMin, b = this.condition.ageMax;
+          if (!a && !b) return "무관";
+          if (a && b) return a + " ~ " + b + "세";
+          if (a) return a + "세 이상";
+          return b + "세 이하";
+        }
+      },
+      methods: {
+        fnGoSearchPage: function () { location.href = "classic_member_search.asp"; },
+        fnGoDetail: function (memberNo) { location.href = "/profile/" + memberNo; },
+
+        // ★ 학원 스타일 리스트 조회
+        fnList: function () {
+          let self = this;
+          let param = {
+            pageSize: self.pageSize,
+            offset: (self.page - 1) * self.pageSize
+            // 필요시 조건 추가 가능: ageMin, ageMax, region 등
+          };
+          $.ajax({
+            url: "http://localhost:3009/cms/custlist",
+            dataType: "json",
+            type: "GET",
+            data: param,
+            success: function (data) {
+              // 서버가 list 또는 boardList로 내려줄 수 있으니 둘 다 대응
+              self.list = data.list || data.boardList || [];
+              self.count = data.count || 0;
+              self.index = Math.ceil(self.count / self.pageSize) || 1;
+            }
+          });
+        },
+
+        // 페이지 번호 클릭
+        fnPage: function (num) {
+          let self = this;
+          self.page = num;
+          self.fnList();
+        },
+
+        // ◀ / ▶ 이동
+        fnMove: function (move) {
+          let self = this;
+          self.page += move;
+          self.fnList();
+        },
+
+        // + 더보기: 다음 페이지 데이터 이어붙이기(옵션)
+        fnLoadMore: function () {
+          let self = this;
+          if (self.page >= self.index) return;
+          let next = self.page + 1;
+
+          let param = {
+            pageSize: self.pageSize,
+            offset: (next - 1) * self.pageSize
+          };
+          $.ajax({
+            url: "http://localhost:3009/cms/custlist",
+            dataType: "json",
+            type: "GET",
+            data: param,
+            success: function (data) {
+              let more = data.list || data.boardList || [];
+              self.list = self.list.concat(more);
+              self.page = next;
+            }
+          });
+        },
+
+        // 페이지 크기 변경
+        fnSetPageSize: function () {
+          let self = this;
+          self.page = 1;
+          self.fnList();
+        },
+
+        fnLogout: function () {
+          sessionStorage.removeItem("sessionId"); //내가 넣은 것 지우기
+          sessionStorage.removeItem("sessionStatus");  //내가 넣은 것 지우기
+          alert("로그아웃 되었습니다.");
+          location.href = "cms_login.html"
+        },
+
+      },
+      mounted() {
+        let self = this;
+        self.fnList();
+      }
+    });
+    app.mount('#app');
+  </script>
 </body>
 
 </html>
-
-<script>
-  const app = Vue.createApp({
-    data: function () {
-      return {
-        // 조건
-        condition: { ageMin: null, ageMax: null, job: null, region: null, edu: null },
-        // 리스트
-        members: [],
-        // 페이지네이션
-        page: 1, pageSize: 12, hasMore: true, loading: false,
-        // 기본 이미지
-        defaultPhoto: "/html/memberSearch/img/img_profile_none_w.jpg"
-      };
-    },
-    computed: {
-      ageLabel: function () {
-        var ageMin = this.condition.ageMin;
-        var ageMax = this.condition.ageMax;
-        if (!ageMin && !ageMax) return "무관";
-        if (ageMin && ageMax) return ageMin + " ~ " + ageMax + "세";
-        if (ageMin) return ageMin + "세 이상";
-        return ageMax + "세 이하";
-      }
-    },
-    methods: {
-      fnGoSearchPage: function () {
-        location.href = "classic_member_search.asp";
-      },
-      fnGoDetail: function (memberNo) {
-        location.href = "/profile/" + memberNo;
-      },
-      fnFetchMembers: function (reset) {
-        if (this.loading) return;
-        var self = this;
-        self.loading = true;
-
-        if (reset) {
-          self.page = 1;
-          self.members = [];
-          self.hasMore = true;
-        }
-
-        var url = "http://localhost:3009/api/members";
-        var params = {
-          ageMin: self.condition.ageMin || "",
-          ageMax: self.condition.ageMax || "",
-          job: self.condition.job || "",
-          region: self.condition.region || "",
-          edu: self.condition.edu || "",
-          page: self.page,
-          pageSize: self.pageSize
-        };
-
-        $.ajax({
-          url: url,
-          type: "GET",
-          dataType: "json",
-          data: params,
-          success: function (data) {
-            var list = (data && data.list) ? data.list : [];
-            var mapped = list.map(function (x) {
-              return {
-                memberNo: x.memberNo,
-                name: x.name,
-                birthYear: x.birthYear,
-                marital: x.marital,
-                job: x.job,
-                region: x.region,
-                profileViewedAt: x.profileViewedAt,
-                photo: x.photo
-              };
-            });
-
-            self.members = self.members.concat(mapped);
-            self.hasMore = !!(data && data.hasMore);
-            if (self.hasMore) {
-              self.page = self.page + 1;
-            }
-          },
-          error: function (xhr) {
-            console.error("회원 목록 API 오류:", (xhr && xhr.responseText) ? xhr.responseText : xhr);
-            alert("회원 목록을 불러오지 못했습니다.");
-          },
-          complete: function () {
-            self.loading = false;
-          }
-        });
-      },
-      fnLoadMore: function () {
-        this.fnFetchMembers(false);
-      },
-      fnInitConditionFromQuery: function () {
-        var params = new URLSearchParams(location.search);
-        var toNum = function (v) {
-          var n = Number(v); return isNaN(n) ? null : n;
-        };
-        this.condition.ageMin = params.get("ageMin") ? toNum(params.get("ageMin")) : null;
-        this.condition.ageMax = params.get("ageMax") ? toNum(params.get("ageMax")) : null;
-        this.condition.job = params.get("job") || null;
-        this.condition.region = params.get("region") || null;
-        this.condition.edu = params.get("edu") || null;
-      }
-    },
-    mounted: function () {
-      var self = this;
-      self.fnInitConditionFromQuery();
-      self.fnFetchMembers(true);
-    }
-  });
-
-  app.mount('#app');
-</script>

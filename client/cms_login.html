@@ -192,13 +192,14 @@
                 // alert("param.idd_p1 " + param.loginId);
                 // alert("param.pwd " + param.pwd);
                 // alert("ngrok " + ngrok);
-                alert("아작스요청직전");
+                // alert("아작스요청직전");
                 $.ajax({
                     // url: ngrok+"/cms_customer_list.html",
                     url: ngrok + "/cms/login",
                     // url: "https://41e2aa10981b.ngrok-free.app/cms/login",
                     // url: "http://localhost:3009/cms/login",
-                    headers: { // ngrok 경고(인터스티셜) 우회 
+                    headers: {
+                        // ngrok 경고(인터스티셜) 우회 
                         "ngrok-skip-browser-warning": "true", // 서버에게 JSON 원해요
                         //  "Accept": "application/json" 
                     },
@@ -208,6 +209,19 @@
                     success: function (data) {
                         // console.log("로그인 잘됨~");
                         alert("로그인 잘됨");
+
+                        if (data.length > 0) {
+                            alert(data[0].NAME + "님 환영합니다.");
+
+                            sessionStorage.setItem("sessionId", data[0].USERID);
+                            sessionStorage.setItem("sessionStatus", data[0].STATUS); //관리자권한부분같음
+                            // sessionStorage.setItem()
+
+                            location.href = "board-list.html" //리스트로 이동
+                        } else {
+                            alert("아이디/비밀번호를 확인해주세요.");
+                        }
+
                         location.href = "cms_customer_list.html";
                     }
                 });
