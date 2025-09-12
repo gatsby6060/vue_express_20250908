@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>고객 정보 수정</title>
+  <!-- 베이스: jQuery CDN + integrity 포함 -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"
+          integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+          crossorigin="anonymous"></script>
+  <!-- 베이스: Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- 외부에 보이는 스타일 유지 + v-cloak 플리커 방지 -->
+  <style>
+    [v-cloak]{ display:none; }
+
+    body { margin:0; background:#f5f6f8; font-family:Arial, sans-serif }
+    #app { display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:28px 12px; box-sizing:border-box }
+    .container { width:980px; max-width:100%; background:#fff; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.08); padding:22px }
+    .title { margin:0 0 16px; text-align:center; font-size:1.4rem; font-weight:800; color:#223 }
+    .section { margin-top:22px }
+    .section__hd { margin:0 0 10px; padding-bottom:6px; font-size:1.05rem; font-weight:800; color:#2b3a55; border-bottom:2px solid #e8eefc }
+    .grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px }
+    .card { background:#fff; border:1px solid #e9edf3; border-radius:12px; padding:12px }
+
+    /* 폼 필드(카드 내 일반 필드) */
+    .field { display:flex; gap:10px; align-items:center; margin:6px 0 }
+    .field label { width:100px; color:#566 }
+    .field input, .field textarea, .field select { flex:1; padding:8px; border:1px solid #e5e9f2; border-radius:8px; min-width:0; }
+
+    /* 테이블 공통: 레이아웃 붕괴 방지 */
+    .table-wrap{ overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    th, td { border:1px solid #e5e9f2; padding:8px 10px; text-align:center; vertical-align:middle; }
+    thead th { background:#f6f9ff; color:#2b3a55; font-weight:800 }
+    tbody tr:nth-child(even) td { background:#fafcff }
+
+    /* 테이블 셀 안의 입력요소가 셀을 넘지 않도록 강제 */
+    td input, td select, td textarea {
+      width:100%;
+      max-width:100%;
+      box-sizing:border-box;
+      padding:6px 8px;
+      border:1px solid #e5e9f2;
+      border-radius:8px;
+      margin:0;            /* 불필요한 여백 방지 */
+      min-width:0;         /* flex/shrink 시 줄바꿈 허용 */
+    }
+
+    /* 버튼 */
+    .btn-row { text-align:center; margin-top:16px }
+    .btn { display:inline-block; padding:10px 16px; border-radius:10px; border:none; background:#3a7afe; color:#fff; font-weight:800; cursor:pointer; box-shadow:0 4px 10px rgba(58,122,254,.18) }
+    .btn + .btn { margin-left:8px }
+    .btn--ghost { background:#eef3ff; color:#2b3a55 }
+    .mini { padding:6px 10px; border-radius:8px }
+    .danger { background:#ff5a5a }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    @media (max-width:760px) { .grid-2 { grid-template-columns:1fr } }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container" v-cloak>
+      <h2 class="title">고객 정보 수정</h2>
+
+      <!-- 기본 정보 -->
+      <div class="section">
+        <div class="section__hd">기본 정보</div>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <div class="field"><label>회원번호</label><input v-model="profile.memberNo" readonly></div>
+              <div class="field"><label>성명</label><input v-model="profile.name"></div>
+              <div class="field"><label>출생년</label><input v-model.number="profile.birthYear" type="number"></div>
+              <div class="field"><label>전화번호</label><input v-model="profile.phone"></div>
+              <div class="field"><label>이메일</label><input v-model="profile.email"></div>
+              <div class="field"><label>거주지</label><input v-model="profile.address"></div>
+            </div>
+            <div>
+              <div class="field" style="align-items:flex-start">
+                <label>나의 PR</label>
+                <textarea v-model="profile.pr" rows="7" placeholder="자기 소개를 입력하세요"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사진 -->
+      <div class="section">
+        <div class="section__hd">사진</div>
+        <div class="card">
+          <div class="field"><label>메인 사진 URL</label><input v-model="photos.main" placeholder="/lib/binaryread_photo.asp?..."></div>
+          <div class="photo-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
+            <input v-for="(s,i) in photos.sub" :key="'ps-'+i" v-model="photos.sub[i]" placeholder="보조 사진 URL" />
+          </div>
+          <div class="btn-row" style="margin-top:10px">
+            <button class="btn mini btn--ghost" @click="addSubPhoto">보조 사진 추가</button>
+            <button class="btn mini danger" @click="removeSubPhoto" :disabled="photos.sub.length===0">보조 사진 삭제</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신상 -->
+      <div class="section">
+        <div class="section__hd">신상 정보</div>
+        <div class="card">
+          <div class="grid-2">
+            <div class="field"><label>신장(cm)</label><input v-model.number="details.height" type="number"></div>
+            <div class="field"><label>체중(kg)</label><input v-model.number="details.weight" type="number"></div>
+            <div class="field"><label>혈액형</label><input v-model="details.bloodType"></div>
+            <div class="field"><label>종교</label><input v-model="details.religion"></div>
+            <div class="field"><label>취미</label><input v-model="details.hobby"></div>
+            <div class="field"><label>자격</label><input v-model="details.cert" placeholder="예) 정보처리기사, SQLD"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 학력 -->
+      <div class="section">
+        <div class="section__hd">학력 정보</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>구분</th><th>학교명</th><th>전공</th><th>입학년도</th><th>졸업년도</th><th>소재지</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(it,idx) in educations" :key="'edu-'+idx">
+                  <td><input v-model="it.level" placeholder="고등/대학교/대학원"></td>
+                  <td><input v-model="it.school"></td>
+                  <td><input v-model="it.major"></td>
+                  <td><input v-model="it.enter"></td>
+                  <td><input v-model="it.graduate"></td>
+                  <td><input v-model="it.area"></td>
+                  <td><button class="btn mini danger" @click="educations.splice(idx,1)">삭제</button></td>
+                </tr>
+                <tr v-if="educations.length===0">
+                  <td colspan="7">행이 없습니다. 추가를 눌러주세요.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-row"><button class="btn mini btn--ghost" @click="addEdu">학력 추가</button></div>
+        </div>
+      </div>
+
+      <!-- 직업 -->
+      <div class="section">
+        <div class="section__hd">직업 정보</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>회사</th><th>업종</th><th>직원수</th><th>부서</th><th>직위</th><th>소재지</th><th>입사년</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(it,idx) in jobs" :key="'job-'+idx">
+                  <td><input v-model="it.company"></td>
+                  <td><input v-model="it.industry"></td>
+                  <td><input v-model.number="it.headcount" type="number"></td>
+                  <td><input v-model="it.dept"></td>
+                  <td><input v-model="it.position"></td>
+                  <td><input v-model="it.area"></td>
+                  <td><input v-model="it.joined" placeholder="YYYY-MM"></td>
+                  <td><button class="btn mini danger" @click="jobs.splice(idx,1)">삭제</button></td>
+                </tr>
+                <tr v-if="jobs.length===0">
+                  <td colspan="8">행이 없습니다. 추가를 눌러주세요.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-row"><button class="btn mini btn--ghost" @click="addJob">직업 추가</button></div>
+        </div>
+      </div>
+
+      <!-- 가족 -->
+      <div class="section">
+        <div class="section__hd">가족 정보</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>관계</th><th>연령</th><th>직업</th><th>학력</th><th>결혼</th><th>동거</th><th>거주지</th><th>비고</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(it,idx) in families" :key="'fam-'+idx">
+                  <td><input v-model="it.relation"></td>
+                  <td><input v-model.number="it.age" type="number"></td>
+                  <td><input v-model="it.job"></td>
+                  <td><input v-model="it.education"></td>
+                  <td><input v-model="it.married"></td>
+                  <td><input v-model="it.together"></td>
+                  <td><input v-model="it.area"></td>
+                  <td><input v-model="it.note"></td>
+                  <td><button class="btn mini danger" @click="families.splice(idx,1)">삭제</button></td>
+                </tr>
+                <tr v-if="families.length===0">
+                  <td colspan="9">행이 없습니다. 추가를 눌러주세요.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-row"><button class="btn mini btn--ghost" @click="addFamily">가족 추가</button></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" @click="save">저장(수정)</button>
+        <button class="btn btn--ghost" @click="goList">목록으로</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 쿼리 파라미터 헬퍼
+    function getQuery(name) {
+      const m = new URLSearchParams(location.search).get(name);
+      return m ? decodeURIComponent(m) : "";
+    }
+
+    const app = Vue.createApp({
+      data() {
+        return {
+          memberNoParam: getQuery("memberNo"),
+          // 기본 화면이 비지 않도록 더미 데이터 설정
+          photos: {
+            main: "/html/myMeetingdiary/img/img-main-profile01.jpg",
+            sub: [
+              "/html/myMeetingdiary/img/img-main-profile01.jpg",
+              "/html/myMeetingdiary/img/img-main-profile01.jpg",
+              "/html/myMeetingdiary/img/img-main-profile01.jpg"
+            ]
+          },
+          profile: {
+            memberNo: "1100010222",
+            name: "전경환",
+            pr: "더미 데이터입니다.\n자기소개가 여기에 표시됩니다.",
+            address: "인천광역시 연수구 원인재로",
+            email: "uniline123@naver.com",
+            phone: "010-0000-0000",
+            birthYear: 1986
+          },
+          details: {
+            height: 170, weight: 67, bloodType: "B형", religion: "불교",
+            hobby: "산책, 유튜브", cert: "정보처리기사, SQLD"
+          },
+          educations: [
+            { level:"고등", school:"연수고", major:"인문계", enter:"2002", graduate:"2005", area:"인천" }
+          ],
+          jobs: [
+            { company:"더미회사", industry:"제조업", headcount:100, dept:"정보팀", position:"과장", area:"인천", joined:"2021-10" }
+          ],
+          families: [
+            { relation:"부", age:68, job:"제조업", education:"대학교", married:"기혼", together:"동거", area:"인천", note:"" }
+          ]
+        }
+      },
+      mounted() {
+        if (this.memberNoParam) {
+          this.fetchProfile(this.memberNoParam);
+        }
+      },
+      methods: {
+        addSubPhoto() { this.photos.sub.push(""); },
+        removeSubPhoto() { if (this.photos.sub.length > 0) this.photos.sub.pop(); },
+        addEdu() { this.educations.push({ level:"", school:"", major:"", enter:"", graduate:"", area:"" }); },
+        addJob() { this.jobs.push({ company:"", industry:"", headcount:null, dept:"", position:"", area:"", joined:"" }); },
+        addFamily() { this.families.push({ relation:"", age:null, job:"", education:"", married:"", together:"", area:"", note:"" }); },
+
+        fetchProfile(memberNo) {
+          $.ajax({
+            url: "http://localhost:3009/api/profile/" + encodeURIComponent(memberNo),
+            type: "GET", dataType: "json",
+            success: (data) => {
+              if (!data) { alert("데이터가 없습니다. 더미 화면을 유지합니다."); return; }
+              // 기본
+              this.profile.memberNo  = data.memberNo  ?? this.profile.memberNo;
+              this.profile.name      = data.name      ?? this.profile.name;
+              this.profile.pr        = data.pr        ?? this.profile.pr;
+              this.profile.address   = data.address   ?? this.profile.address;
+              this.profile.email     = data.email     ?? this.profile.email;
+              this.profile.phone     = data.phone     ?? this.profile.phone;
+              this.profile.birthYear = data.birthYear ?? this.profile.birthYear;
+              // 상세
+              this.details.height    = data.height    ?? this.details.height;
+              this.details.weight    = data.weight    ?? this.details.weight;
+              this.details.bloodType = data.bloodType ?? this.details.bloodType;
+              this.details.religion  = data.religion  ?? this.details.religion;
+              this.details.hobby     = data.hobby     ?? this.details.hobby;
+              this.details.cert      = (data.certList && data.certList.join(", ")) ?? this.details.cert;
+              // 배열
+              this.educations = data.educations ?? this.educations;
+              this.jobs       = data.jobs       ?? this.jobs;
+              this.families   = data.families   ?? this.families;
+              // 사진
+              if (data.photos){
+                this.photos.main = data.photos.main ?? this.photos.main;
+                this.photos.sub  = data.photos.sub  ?? this.photos.sub;
+              }
+            },
+            error: (xhr) => {
+              console.error(xhr?.responseText || xhr);
+              alert("불러오기 실패. 더미 화면을 유지합니다.");
+            }
+          });
+        },
+
+        validate() {
+          if (!this.profile.memberNo?.trim()) { alert("회원번호가 비어 있습니다."); return false; }
+          if (!this.profile.name?.trim()) { alert("성명이 비어 있습니다."); return false; }
+          return true;
+        },
+        payload() {
+          const certList = this.details.cert
+            ? this.details.cert.split(",").map(s => s.trim()).filter(Boolean)
+            : [];
+          return {
+            memberNo: this.profile.memberNo,
+            name: this.profile.name,
+            pr: this.profile.pr,
+            address: this.profile.address,
+            email: this.profile.email,
+            phone: this.profile.phone,
+            birthYear: this.profile.birthYear,
+            height: this.details.height,
+            weight: this.details.weight,
+            bloodType: this.details.bloodType,
+            religion: this.details.religion,
+            hobby: this.details.hobby,
+            certList,
+            educations: this.educations,
+            jobs: this.jobs,
+            families: this.families,
+            photos: { main: this.photos.main, sub: this.photos.sub }
+          };
+        },
+        save() {
+          if (!this.validate()) return;
+          const id = this.profile.memberNo;
+          $.ajax({
+            url: "http://localhost:3009/api/profile/" + encodeURIComponent(id),
+            type: "PUT",
+            data: JSON.stringify(this.payload()),
+            contentType: "application/json; charset=utf-8",
+            success: () => { alert("수정되었습니다."); this.goList(); },
+            error: (xhr) => { console.error(xhr?.responseText || xhr); alert("수정 실패"); }
+          });
+        },
+        goList() { location.href = "jghtest_250911_2_customerlist.html"; }
+      }
+    });
+
+    app.mount("#app");
+  </script>
+</body>
+</html>

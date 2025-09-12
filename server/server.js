@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const oracledb = require('oracledb');
 
+
 const app = express();
 app.use(cors());
 
@@ -457,6 +458,30 @@ app.get('/board/view', async (req, res) => {
 
 
 
+app.get('/cms/login', async (req, res) => {
+   console.log("1111111111111111111111111111111111111");
+  const { loginId, pwd } = req.query;
+  console.log("222222222222222222222222222222222222");
+  let query = `SELECT * FROM SYSTEM_USER WHERE LOGIN_ID = '${loginId}' AND PASSWORD = '${pwd}'`
+  try {
+    const result = await connection.execute(query);
+    const columnNames = result.metaData.map(column => column.name);
+
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
 
 
 

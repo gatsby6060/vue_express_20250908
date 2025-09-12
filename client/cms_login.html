@@ -27,7 +27,7 @@
             background-color: azure;
         }
 
-    
+
 
         /* ---- Tables ---- */
         table {
@@ -44,7 +44,7 @@
 
         tbody tr:nth-child(even) td {
             background: #edf4ff;
-        } 
+        }
 
 
         /* ---- Buttons ---- */
@@ -74,8 +74,6 @@
             color: #98a0aa;
             font-size: .9rem;
         }
-
-
     </style>
 </head>
 
@@ -111,11 +109,17 @@
 
                                     </div>
                                 </div>
-                                <div class="login-bottom" style="padding-bottom:20px;color:red;text-align:left ; text-align: center;">
+                                <div class="login-bottom"
+                                    style="padding-bottom:20px;color:red;text-align:left ; text-align: center;">
                                     *ID를 입력하시고 비밀번호를 입력하세요
                                     <div class="login-btn" style="margin-top:10px">
                                         <button class="btn" @click="fnLogin(idd,pwdd)">로그인</button>
-                                        <button class="btn" @click="fnForEmp(idd,pwdd)">시스템사용자(직원용) 등록</button>
+                                        <button class="btn" @click="">
+                                            <a href="cms_empuser_add.html" style="text-decoration:none; color:inherit;">
+                                                시스템사용자(직원용) 등록
+                                            </a>
+                                        </button>
+
                                     </div>
                                 </div>
                                 <div class="login-bottom"></div>
@@ -145,7 +149,8 @@
             return {
                 // 변수 - (key : value)
                 idd: "",
-                pwdd: ""
+                pwdd: "",
+                ngrok: "https://41e2aa10981b.ngrok-free.app"
             };
         },
         methods: {
@@ -153,8 +158,10 @@
             fnList: function () {
                 let self = this;
                 let param = {};
+                let ngrok = self.ngrok;
                 $.ajax({
-                    url: "http://localhost:3009/emp/list",
+                    // url: "http://localhost:3009/emp/list",
+                    url: ngrok + "/cms_customer_list.html",
                     dataType: "json",
                     type: "GET",
                     data: param,
@@ -166,6 +173,7 @@
             fnLogin: function (id, pw) {
                 // alert("로그인함수 진입");
                 let self = this;
+                let ngrok = self.ngrok;
                 // alert("id "+id);
                 if (!id) {
                     alert("아이디 입력!");
@@ -178,22 +186,45 @@
                 }
                 // alert("self.id는 "+ id);
                 let param = {
-                    idd_p1: id,
-                    pwdd_p2: pw
+                    loginId: id,
+                    pwd: pw
                 };
-                // alert("param.idd_p1 " + param.idd_p1);
-                // alert("아작스요청직전");
+                // alert("param.idd_p1 " + param.loginId);
+                // alert("param.pwd " + param.pwd);
+                // alert("ngrok " + ngrok);
+                alert("아작스요청직전");
                 $.ajax({
-                    url: "http://localhost:3009/user/login",
+                    // url: ngrok+"/cms_customer_list.html",
+                    url: ngrok + "/cms/login",
+                    // url: "https://41e2aa10981b.ngrok-free.app/cms/login",
+                    // url: "http://localhost:3009/cms/login",
+                    headers: { // ngrok 경고(인터스티셜) 우회 
+                        "ngrok-skip-browser-warning": "true", // 서버에게 JSON 원해요
+                        //  "Accept": "application/json" 
+                    },
                     dataType: "json",
                     type: "GET",
                     data: param,
                     success: function (data) {
-                        console.log("로그인 잘됨~")
+                        // console.log("로그인 잘됨~");
                         alert("로그인 잘됨");
-                        location.href = "jghtest_250910_2_customerlist.html";
+                        location.href = "cms_customer_list.html";
                     }
                 });
+                // const base = "https://41e2aa10981b.ngrok-free.app"; // 하나만 사용
+                // const base = "http://localhost:3009"; // 하나만 사용
+                // const url = base + "/cms/login";
+                // const params = { loginId: id, pwd: pw };
+                // console.log("→ AJAX", url + "?" + $.param(params));
+                // $.ajax({
+                //     url, type: "GET", dataType: "json", data: params,
+                //     crossDomain: true, cache: false, timeout: 10000
+                // })
+                //     .done(d => { console.log("✓ success", d); alert("로그인 잘됨"); })
+                //     .fail((xhr, status, err) => {
+                //         console.error("✗ fail", status, err, xhr.status, xhr.statusText, xhr.responseText);
+                //         alert(`AJAX 실패: ${xhr.status} ${xhr.statusText}\n${xhr.responseText || ""}`);
+                //     });
             }
         }, // methods
         mounted() {

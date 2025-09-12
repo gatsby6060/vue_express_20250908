@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>시스템 사용자 추가</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <style>
+    /* ===== Layout / Theme (통일) ===== */
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 24px 12px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 980px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid #eef2f7;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
+    }
+
+    .title {
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #223;
+    }
+
+    /* 안내 */
+    .notice {
+      background: #f8fbff;
+      border: 1px solid #e6f0ff;
+      color: #334;
+      padding: 12px 14px;
+      border-radius: 10px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .warn {
+      color: #c62828;
+      font-weight: 800;
+    }
+
+    /* 섹션 헤더 */
+    .section {
+      margin-top: 14px;
+    }
+
+    .section__hd {
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #2b3a55;
+      border-bottom: 2px solid #e8eefc;
+    }
+
+    /* 메시지 박스 */
+    .msg {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border: 1px solid #dde4f2;
+      border-radius: 10px;
+    }
+
+    .msg.ok {
+      background: #f1fff4;
+      border-color: #8bc48b;
+      color: #256b2c;
+    }
+
+    .msg.err {
+      background: #fff3f3;
+      border-color: #e58a8a;
+      color: #8a2626;
+    }
+
+    /* 버튼 */
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      background: #3a7afe;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(58, 122, 254, .18);
+    }
+
+    .btn:hover {
+      background: #2b68ea;
+    }
+
+    .btn--ghost {
+      background: #fff;
+      color: #3a7afe;
+      border: 1px solid #c8d4ff;
+      box-shadow: none;
+    }
+
+    .btn--ghost:hover {
+      background: #f4f7ff;
+    }
+
+    .btn-row {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .btn-row .btn {
+      margin: 0 4px;
+    }
+
+    /* 입력 공통 */
+    .field {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #e5e9f2;
+      background: #fbfdff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .95rem;
+    }
+
+    .field:focus {
+      outline: none;
+      border-color: #9bb5ff;
+      box-shadow: 0 0 0 3px rgba(58, 122, 254, .15);
+    }
+
+    .select {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #3a7afe 50%), linear-gradient(135deg, #3a7afe 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 12px) calc(1em + 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .help {
+      color: #556;
+      font-size: .85rem;
+      margin-top: 6px;
+    }
+
+    /* 라벨 칩 */
+    .label-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      color: #24324d;
+      background: #f3f6ff;
+      border: 1px solid #dee7ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .req-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d93636;
+    }
+
+    /* 테이블 폼(딱딱한 기본 테이블 대신 부드럽게) */
+    .table-wrap {
+      border: 1px solid #e9edf3;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .03);
+    }
+
+    table.table-form {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table-form th,
+    .table-form td {
+      padding: 12px;
+      vertical-align: middle;
+    }
+
+    .table-form tbody tr+tr td,
+    .table-form tbody tr+tr th {
+      border-top: 1px solid #eef2f7;
+    }
+
+    .table-form th {
+      background: #f7f9ff;
+      width: 180px;
+      text-align: left;
+      color: #415172;
+      font-weight: 800;
+      border-right: 1px solid #eef2f7;
+    }
+
+    .table-form td {
+      background: #fff;
+    }
+
+    /* 비밀번호 보기 체크 */
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .inline label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #445;
+      font-size: .92rem;
+    }
+
+    /* 반응형 */
+    @media (max-width:700px) {
+      .table-form th {
+        width: 120px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <h2 class="title">시스템 사용자 추가</h2>
+
+      <div class="notice">
+        시스템 사용자(결혼,소개 고객정보 회사 사원) 정보를 등록합니다. <span class="warn">필수 항목</span>을 정확히 입력해 주세요.
+      </div>
+
+      <div v-if="msg" class="msg" :class="{'ok': msgType==='ok', 'err': msgType==='err'}">{{ msg }}</div>
+
+      <div class="section">
+        <div class="section__hd">기본 정보</div>
+        <div class="table-wrap">
+          <table class="table-form">
+            <colgroup>
+              <col style="width:180px">
+              <col>
+              <col style="width:180px">
+              <col>
+            </colgroup>
+            <tbody>
+              <tr>
+                <th>
+                  <span class="label-chip"><span class="req-dot"></span>사원 이름</span>
+                </th>
+                <td><input type="text" class="field" v-model.trim="form.name" placeholder="홍길동"></td>
+                <th>
+                  <span class="label-chip"><span class="req-dot"></span> 아이디(로그인)</span>
+                </th>
+                <td class="inline"><input type="text" class="field" v-model.trim="form.loginId"
+                    placeholder="manager01"><label><button class="btn" @click="fnCheck">중복체크</button></label> </td>
+              </tr>
+
+              <tr>
+                <th>
+                  <span class="label-chip"><span class="req-dot"></span> 비밀번호</span>
+                </th>
+                <td>
+                  <input :type="showPw ? 'text':'password'" class="field" v-model="form.password"
+                    placeholder="영문/숫자 8자 이상">
+                  <div class="help">{{ pwHelp }}</div>
+                </td>
+                <th>
+                  <span class="label-chip"><span class="req-dot"></span> 비밀번호 확인</span>
+                </th>
+                <td class="inline">
+                  <input :type="showPw ? 'text':'password'" class="field" v-model="confirmPw" placeholder="비밀번호 재입력"
+                    style="flex:1;">
+                  <label><input type="checkbox" v-model="showPw"> 보기</label>
+                </td>
+              </tr>
+
+              <tr>
+                <th><span class="label-chip"><span class="req-dot"></span> 이메일</span></th>
+                <td><input type="text" class="field" v-model.trim="form.email" placeholder="name@company.com"></td>
+                <th><span class="label-chip"><span class="req-dot"></span> 휴대폰</span></th>
+                <td><input type="text" class="field" v-model.trim="form.phone" placeholder="010-0000-0000"></td>
+              </tr>
+
+              <!-- <tr>
+                <th><span class="label-chip"><span class="req-dot"></span> 지점/지역</span></th>
+                <td>
+                  <select class="field select" v-model="form.branch">
+                    <option value="">선택</option>
+                    <option>서울 본사</option>
+                    <option>경기 남부</option>
+                    <option>부산</option>
+                    <option>대전</option>
+                    <option>광주</option>
+                  </select>
+                </td>
+                <th><span class="label-chip"><span class="req-dot"></span> 직무/역할</span></th>
+                <td>
+                  <select class="field select" v-model="form.role">
+                    <option value="">선택</option>
+                    <option value="manager">매니저</option>
+                    <option value="supervisor">슈퍼바이저</option>
+                    <option value="admin">관리자</option>
+                  </select>
+                </td>
+              </tr> -->
+
+              <tr>
+                <th>입사일</th>
+                <td><input type="date" class="field" v-model="form.hiredAt"></td>
+                <th>상태</th>
+                <td>
+                  <select class="field select" v-model="form.status">
+                    <option value="active">재직</option>
+                    <option value="inactive">휴직</option>
+                    <option value="left">퇴사</option>
+                  </select>
+                </td>
+              </tr>
+
+              <tr>
+                <th>권한</th>
+                <td colspan="3" class="inline" style="gap:16px; flex-wrap:wrap;">
+                  <label><input type="checkbox" v-model="form.permissions.customerWrite"> 고객 등록</label>
+                  <label><input type="checkbox" v-model="form.permissions.customerEdit"> 고객 수정</label>
+                  <label><input type="checkbox" v-model="form.permissions.customerDelete"> 고객 삭제</label>
+                </td>
+              </tr>
+
+              <tr>
+                <th>비고 메모</th>
+                <td colspan="3"><textarea class="field" v-model="form.note" placeholder="추가하실 내용 있으면 추가하세요"
+                    style="height:90px;"></textarea></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" @click="fnSave">저장</button>
+        <button class="btn btn--ghost" @click="fnReset">초기화</button>
+        <button class="btn btn--ghost" @click="">
+          <a href="cms_login.html" style="text-decoration:none; color:inherit;">
+           로그인 화면으로
+          </a>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+
+<script>
+  const app = Vue.createApp({
+    data: function () {
+      return {
+        showPw: false,
+        confirmPw: "",
+        msg: "",
+        msgType: "", // 'ok' | 'err'
+        form: {
+          name: "",
+          loginId: "",
+          password: "",
+          email: "",
+          phone: "",
+          branch: "",
+          role: "",
+          hiredAt: new Date().toISOString().slice(0, 10),
+          status: "active",
+          note: "",
+          permissions: {
+            customerWrite: true,
+            customerEdit: true,
+            customerDelete: false
+          }
+        }
+      };
+    },
+    computed: {
+      pwHelp: function () {
+        var p = this.form.password || "";
+        var ok = p.length >= 8 && /[A-Za-z]/.test(p) && /\d/.test(p);
+        return ok ? "안전한 비밀번호입니다." : "8자 이상 & 숫자/문자 조합 권장";
+      }
+    },
+    methods: {
+      fnCheck: function () {
+        let self = this;
+        if (self.stuNo.length != 8) {
+          alert("학번은 8글자 입니다.");
+          return;
+        }
+        $.ajax({
+          url: "http://localhost:3009/search",
+          dataType: "json",
+          type: "GET",
+          data: { stuNo: self.stuNo },
+          success: function (data) {
+            console.log(data);
+            if (data.length == 0) {
+              alert("사용가능한 학번 입니다.");
+              self.checkFlg = true;
+            } else {
+              alert("이미 사용중인 학번 입니다.");
+            }
+          }
+        });
+      },
+
+      fnValidate: function () {
+        if (!this.form.name) return "이름을 입력하세요.";
+        if (!this.form.loginId) return "아이디를 입력하세요.";
+        if (!this.form.password) return "비밀번호를 입력하세요.";
+        if (this.form.password.length < 8 || !(/[A-Za-z]/.test(this.form.password) && /\d/.test(this.form.password)))
+          return "비밀번호는 8자 이상, 숫자/문자 혼합을 권장합니다.";
+        if (!this.confirmPw || this.confirmPw !== this.form.password) return "비밀번호 확인이 일치하지 않습니다.";
+        if (!this.form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) return "이메일 형식이 올바르지 않습니다.";
+        if (!this.form.phone || !/^\d{2,3}-\d{3,4}-\d{4}$/.test(this.form.phone)) return "휴대폰 형식이 올바르지 않습니다. 예) 010-1234-5678";
+        if (!this.form.branch) return "지점/지역을 선택하세요.";
+        if (!this.form.role) return "직무/역할을 선택하세요.";
+        return "";
+      },
+
+      fnSave: function () {
+        var err = this.fnValidate();
+        if (err) { this.msg = err; this.msgType = "err"; return; }
+        this.msg = ""; this.msgType = "";
+
+        // 실제 연동 (백엔드 붙일 때 주석 해제)
+        /*
+        var self = this;
+        var payload = JSON.stringify(this.form);
+        $.ajax({
+          url: "http://localhost:3009/api/users",
+          dataType: "json",
+          type: "POST",
+          contentType: "application/json",
+          data: payload,
+          success: function (data) {
+            self.msg = "사용자가 저장되었습니다."; self.msgType = "ok";
+            // location.href = "user_list.html";
+          },
+          error: function (xhr) {
+            console.error(xhr && xhr.responseText ? xhr.responseText : xhr);
+            self.msg = "저장 중 오류가 발생했습니다."; self.msgType = "err";
+          }
+        });
+        */
+
+        // 프론트 전용 시뮬레이션
+        this.msg = "저장되었습니다. (프론트 전용)"; this.msgType = "ok";
+      },
+
+      fnReset: function () {
+        this.msg = ""; this.msgType = ""; this.confirmPw = "";
+        this.form = {
+          name: "", loginId: "", password: "", email: "", phone: "",
+          branch: "", role: "", hiredAt: new Date().toISOString().slice(0, 10),
+          status: "active", note: "",
+          permissions: { customerWrite: true, customerEdit: true, customerDelete: false }
+        };
+      },
+
+      fnGoList: function () {
+        // 사용자 목록 페이지로 이동 (파일명은 프로젝트에 맞게)
+        location.href = "user_list.html";
+      },
+
+
+
+    },
+    mounted: function () {
+      var self = this;
+      // 필요 시 초기 로딩
+      // self.fnList();
+    }
+  });
+
+  app.mount('#app');
+</script>

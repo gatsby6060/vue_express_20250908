@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>고객 상세 정보 보기</title>
+  <!-- 베이스 기준: jQuery CDN + integrity 포함 -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+  <!-- 베이스 기준: Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- 외부에 보이는 디자인(스타일) 유지 -->
+  <style>
+    /* Layout */
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      font-family: Arial, sans-serif;
+    }
+
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 28px 12px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 980px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      padding: 22px;
+    }
+
+    .title {
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #223;
+    }
+
+    /* Section */
+    .section {
+      margin-top: 22px;
+    }
+
+    .section__hd {
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #2b3a55;
+      border-bottom: 2px solid #e8eefc;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid #e9edf3;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .profile {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+      border: 1px solid #e9edf3;
+      border-radius: 12px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .photo-main {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 10px;
+      border-radius: 12px;
+      border: 4px solid #f1f4ff;
+    }
+
+    .photo-sub {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .photo-sub img {
+      width: 100%;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #eef1f5;
+    }
+
+    .pr {
+      background: #f8f9fd;
+      border: 1px solid #eef1f8;
+      border-radius: 10px;
+      padding: 10px;
+      white-space: pre-line;
+      line-height: 1.6;
+      color: #334;
+    }
+
+    /* Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .info-item {
+      background: #f8fafc;
+      border: 1px solid #eef1f5;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .info-item b {
+      display: block;
+      color: #566;
+      margin-bottom: 4px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 1px solid #e5e9f2;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    thead th {
+      background: #f6f9ff;
+      color: #2b3a55;
+      font-weight: 800;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fafcff;
+    }
+
+    tbody tr:hover td {
+      background: #f0f6ff;
+    }
+
+    /* Buttons */
+    .btn-row {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #3a7afe;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(58, 122, 254, .18);
+    }
+
+    .btn+.btn {
+      margin-left: 8px;
+    }
+
+    .btn:hover {
+      background: #2b68ea;
+    }
+
+    /* Footer */
+    .text-muted {
+      text-align: center;
+      margin-top: 14px;
+      color: #666;
+    }
+
+    .copyright {
+      color: #98a0aa;
+      font-size: .9rem;
+    }
+
+    /* Responsive */
+    @media (max-width:760px) {
+      .profile {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- html코드는 id가 app인 태그 안에서 작업 -->
+    <div class="container">
+      <h2 class="title">고객 상세 정보 보기</h2>
+
+      <!-- 상단 프로필 -->
+      <div class="profile">
+        <div class="card">
+          <img :src="photos.main" alt="메인 사진" class="photo-main">
+          <div class="photo-sub">
+            <img v-for="(s,i) in photos.sub" :key="'sub-'+i" :src="s" alt="보조 사진">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section__hd">나의 PR</div>
+          <div class="pr">{{ profile.pr }}</div>
+
+          <div class="info-grid">
+            <div class="info-item"><b>회원번호</b>{{ profile.memberNo }}</div>
+            <div class="info-item"><b>성명</b>{{ profile.name }}</div>
+            <div class="info-item"><b>거주지</b>{{ profile.address }}</div>
+            <div class="info-item"><b>전화번호</b>{{ profile.phone }}</div>
+            <div class="info-item"><b>이메일</b>{{ profile.email }}</div>
+            <div class="info-item"><b>출생년</b>{{ profile.birthYear }}년</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신상 정보 -->
+      <div class="section">
+        <div class="section__hd">신상 정보</div>
+        <div class="info-grid">
+          <div class="info-item"><b>신장</b>{{ details.height }}cm</div>
+          <div class="info-item"><b>체중</b>{{ details.weight }}kg</div>
+          <div class="info-item"><b>혈액형</b>{{ details.bloodType }}</div>
+          <div class="info-item"><b>종교</b>{{ details.religion }}</div>
+          <div class="info-item"><b>취미</b>{{ details.hobby }}</div>
+          <div class="info-item"><b>자격</b>{{ details.cert }}</div>
+        </div>
+      </div>
+
+      <!-- 학력 정보 -->
+      <div class="section">
+        <div class="section__hd">학력 정보</div>
+        <table>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>학교명</th>
+              <th>전공</th>
+              <th>입학년도</th>
+              <th>졸업년도</th>
+              <th>소재지</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(edu, i) in educations" :key="'edu-'+i">
+              <td>{{ edu.level }}</td>
+              <td>{{ edu.school }}</td>
+              <td>{{ edu.major }}</td>
+              <td>{{ edu.enter }}</td>
+              <td>{{ edu.graduate }}</td>
+              <td>{{ edu.area }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 직업 정보 -->
+      <div class="section">
+        <div class="section__hd">직업 정보</div>
+        <table>
+          <thead>
+            <tr>
+              <th>회사</th>
+              <th>업종</th>
+              <th>직원수</th>
+              <th>부서</th>
+              <th>직위</th>
+              <th>소재지</th>
+              <th>입사년</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(job, j) in jobs" :key="'job-'+j">
+              <td>{{ job.company }}</td>
+              <td>{{ job.industry }}</td>
+              <td>{{ job.headcount }}</td>
+              <td>{{ job.dept }}</td>
+              <td>{{ job.position }}</td>
+              <td>{{ job.area }}</td>
+              <td>{{ job.joined }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 가족 정보 -->
+      <div class="section">
+        <div class="section__hd">가족 정보</div>
+        <table>
+          <thead>
+            <tr>
+              <th>관계</th>
+              <th>연령</th>
+              <th>직업</th>
+              <th>학력</th>
+              <th>결혼</th>
+              <th>동거</th>
+              <th>거주지</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(fam, k) in families" :key="'fam-'+k">
+              <td>{{ fam.relation }}</td>
+              <td>{{ fam.age }}</td>
+              <td>{{ fam.job }}</td>
+              <td>{{ fam.education }}</td>
+              <td>{{ fam.married }}</td>
+              <td>{{ fam.together }}</td>
+              <td>{{ fam.area }}</td>
+              <td>{{ fam.note }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="btn-row">
+        <button class="btn" @click="fnFetchProfile(profile.memberNo)">프로필 수정하기</button>
+        <button class="btn" @click="fnGoList">목록으로</button>
+      </div>
+
+      <div class="text-muted">
+        담당 데이터 입력자 : {{ manager.name }} / {{ manager.phone }} /
+        <a :href="'mailto:'+manager.email">{{ manager.email }}</a>
+      </div>
+      <div class="text-muted copyright">Copyright © 전경환 All Rights Reserved.</div>
+    </div>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          photos: {
+            main: "/lib/binaryread_photo.asp?memid=!!3331211122&photonum=1&size=0",
+            sub: [
+              "/lib/binaryread_photo.asp?memid=!!3331211122&photonum=1&size=0",
+              "/lib/binaryread_photo.asp?memid=!!3331211122&photonum=2&size=0",
+              "/html/myMeetingdiary/img/img-main-profile01.jpg"
+            ]
+          },
+          profile: {
+            memberNo: "1100010222",
+            name: "전경환",
+            pr: "고객의 특징입니다..\n순정파 스타일로 서로 마음이 맞으면 최선을 다해서 마음을 주는 스타일입니다.\n가끔 함께 야구장이나 공원 산책 좋아함",
+            address: "인천광역시 연수구 원인재로",
+            email: "uniline123@naver.com",
+            phone: "010-7125-2266",
+            birthYear: 1986
+          },
+          details: {
+            height: 170, weight: 67, bloodType: "B형", religion: "불교",
+            hobby: "산책, 유튜브 시청", cert: "정보처리기사, 운전면허, SQLD, ADsP"
+          },
+          educations: [
+            { level: "고등", school: "연수", major: "인문계", enter: "2002", graduate: "2005", area: "인천" },
+            { level: "대학교", school: "인천", major: "산업경영공학", enter: "2005", graduate: "2011", area: "인천" },
+            { level: "대학원", school: "가천대", major: "모바일소프트웨어학", enter: "2015", graduate: "2017", area: "성남" }
+          ],
+          jobs: [
+            { company: "(주)귀뚜라미홀딩스", industry: "중견기업(비상장, 관리)", headcount: 177, dept: "경영정보팀", position: "과장", area: "서울 마곡", joined: "2024-03" },
+            { company: "새롬씨앤씨", industry: "중소기업(비상장;관리)", headcount: 100, dept: "시스템정보팀", position: "과장", area: "", joined: "2021-10" }
+          ],
+          families: [
+            { relation: "부", age: 68, job: "현직|제조업", education: "대학교", married: "기혼", together: "동거", area: "인천", note: "" },
+            { relation: "모", age: 68, job: "현직|제조업", education: "대학(2,3년제)", married: "기혼", together: "동거", area: "인천", note: "" },
+            { relation: "여동생", age: 27, job: "현직|제조업", education: "대학교", married: "미혼", together: "동거", area: "인천", note: "" }
+          ],
+          manager: { name: "테스터", phone: "02-123-1234", email: "test@naver.com" }
+        };
+      },
+      methods: {
+        // 베이스 패턴: jQuery AJAX 사용
+        fnFetchProfile: function (memberNo) {
+          let self = this;
+          $.ajax({
+            url: "http://localhost:3009/api/profile/" + encodeURIComponent(memberNo),
+            dataType: "json",
+            type: "GET",
+            success: function (data) {
+              if (!data) { alert("데이터가 없습니다."); return; }
+              self.profile.memberNo = data.memberNo ?? self.profile.memberNo;
+              self.profile.name = data.name ?? self.profile.name;
+              self.profile.pr = data.pr ?? self.profile.pr;
+              self.profile.address = data.address ?? self.profile.address;
+              self.profile.email = data.email ?? self.profile.email;
+              self.profile.phone = data.phone ?? self.profile.phone;
+              self.profile.birthYear = data.birthYear ?? self.profile.birthYear;
+
+              self.details.height = data.height ?? self.details.height;
+              self.details.weight = data.weight ?? self.details.weight;
+              self.details.bloodType = data.bloodType ?? self.details.bloodType;
+              self.details.religion = data.religion ?? self.details.religion;
+              self.details.hobby = data.hobby ?? self.details.hobby;
+              self.details.cert = (data.certList && data.certList.join(", ")) ?? self.details.cert;
+
+              self.educations = data.educations ?? self.educations;
+              self.jobs = data.jobs ?? self.jobs;
+              self.families = data.families ?? self.families;
+
+              if (data.photos) {
+                self.photos.main = data.photos.main ?? self.photos.main;
+                self.photos.sub = data.photos.sub ?? self.photos.sub;
+              }
+              alert("프로필을 불러왔습니다.");
+            },
+            error: function (xhr) {
+              console.error(xhr?.responseText || xhr);
+              alert("프로필 불러오기에 실패했습니다.");
+            }
+          });
+        },
+        fnGoList: function () { location.href = "jghtest_250911_2_customerlist.html"; }
+      },
+      mounted() {
+        // 처음 시작할 때 실행되는 부분
+        let self = this;
+      }
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+
+</html>
