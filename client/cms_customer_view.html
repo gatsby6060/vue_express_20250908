@@ -218,23 +218,25 @@
       <!-- 상단 프로필 -->
       <div class="profile">
         <div class="card">
-          <img :src="photos.main" alt="메인 사진" class="photo-main">
-          <div class="photo-sub">
+          <!-- <img :src="photos.main" alt="메인 사진" class="photo-main"> -->
+          <img class="box2" :src="mainPhotoSrc()" width="170" height="200" style="cursor: pointer;" onclick="fnPopup2()">
+          <!-- <div class="photo-sub">
             <img v-for="(s,i) in photos.sub" :key="'sub-'+i" :src="s" alt="보조 사진">
-          </div>
+          </div> -->
         </div>
 
         <div class="card">
-          <div class="section__hd">나의 PR</div>
-          <div class="pr">{{ profile.pr }}</div>
+          <div class="section__hd">고객 소개</div>
+          <div class="pr">{{ info.PR }}</div>
 
           <div class="info-grid">
-            <div class="info-item"><b>회원번호</b>{{ profile.memberNo }}</div>
-            <div class="info-item"><b>성명</b>{{ profile.name }}</div>
-            <div class="info-item"><b>거주지</b>{{ profile.address }}</div>
-            <div class="info-item"><b>전화번호</b>{{ profile.phone }}</div>
-            <div class="info-item"><b>이메일</b>{{ profile.email }}</div>
-            <div class="info-item"><b>출생년</b>{{ profile.birthYear }}년</div>
+            <div class="info-item"><b>회원번호</b>{{ info.MEMBER_NO }}</div>
+            <div class="info-item"><b>성명</b>{{ info.NAME }}</div>
+            <div class="info-item"><b>거주지</b>{{ info.ADDRESS }}</div>
+            <div class="info-item"><b>전화번호</b>{{ info.PHONE }}</div>
+            <div class="info-item"><b>이메일</b>{{ info.EMAIL }}</div>
+            <div class="info-item"><b>출생년</b>{{ info.BIRTH_YEAR }}</div>
+
           </div>
         </div>
       </div>
@@ -243,12 +245,12 @@
       <div class="section">
         <div class="section__hd">신상 정보</div>
         <div class="info-grid">
-          <div class="info-item"><b>신장</b>{{ details.height }}cm</div>
-          <div class="info-item"><b>체중</b>{{ details.weight }}kg</div>
-          <div class="info-item"><b>혈액형</b>{{ details.bloodType }}</div>
-          <div class="info-item"><b>종교</b>{{ details.religion }}</div>
-          <div class="info-item"><b>취미</b>{{ details.hobby }}</div>
-          <div class="info-item"><b>자격</b>{{ details.cert }}</div>
+          <div class="info-item"><b>신장</b>{{ info.HEIGHT }}cm</div>
+          <div class="info-item"><b>체중</b>{{ info.WEIGHT }}kg</div>
+          <div class="info-item"><b>혈액형</b>{{ info.BLOOD_TYPE }}</div>
+          <div class="info-item"><b>종교</b>{{ info.RELIGION }}</div>
+          <div class="info-item"><b>취미</b>{{ info.HOBBY }}</div>
+          <!-- <div class="info-item"><b>자격</b>{{ info.HOBBY }}</div> -->
         </div>
       </div>
 
@@ -280,7 +282,7 @@
       </div>
 
       <!-- 직업 정보 -->
-      <div class="section">
+      <!-- <div class="section">
         <div class="section__hd">직업 정보</div>
         <table>
           <thead>
@@ -306,10 +308,10 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> -->
 
       <!-- 가족 정보 -->
-      <div class="section">
+      <!-- <div class="section">
         <div class="section__hd">가족 정보</div>
         <table>
           <thead>
@@ -337,11 +339,11 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> -->
 
       <!-- 버튼 -->
       <div class="btn-row">
-        <button class="btn" @click="fnFetchProfile(profile.memberNo)">프로필 수정하기</button>
+        <button class="btn" @click="fnViewProfile(profile.memberNo)">프로필 수정하기</button>
         <button class="btn" @click="fnGoList">목록으로</button>
       </div>
 
@@ -357,6 +359,8 @@
     const app = Vue.createApp({
       data() {
         return {
+          memberNo: "",
+          info: {},
           photos: {
             main: "/lib/binaryread_photo.asp?memid=!!3331211122&photonum=1&size=0",
             sub: [
@@ -367,7 +371,7 @@
           },
           profile: {
             memberNo: "1100010222",
-            name: "전경환",
+            name: "전경환테스트",
             pr: "고객의 특징입니다..\n순정파 스타일로 서로 마음이 맞으면 최선을 다해서 마음을 주는 스타일입니다.\n가끔 함께 야구장이나 공원 산책 좋아함",
             address: "인천광역시 연수구 원인재로",
             email: "uniline123@naver.com",
@@ -397,50 +401,70 @@
       },
       methods: {
         // 베이스 패턴: jQuery AJAX 사용
-        fnFetchProfile: function (memberNo) {
+        fnViewProfile: function () {
           let self = this;
           $.ajax({
-            url: "http://localhost:3009/api/profile/" + encodeURIComponent(memberNo),
+            url: "http://localhost:3009/cms/customerinfo/",
             dataType: "json",
             type: "GET",
+            data: { memberNo: self.memberNo },
             success: function (data) {
               if (!data) { alert("데이터가 없습니다."); return; }
-              self.profile.memberNo = data.memberNo ?? self.profile.memberNo;
-              self.profile.name = data.name ?? self.profile.name;
-              self.profile.pr = data.pr ?? self.profile.pr;
-              self.profile.address = data.address ?? self.profile.address;
-              self.profile.email = data.email ?? self.profile.email;
-              self.profile.phone = data.phone ?? self.profile.phone;
-              self.profile.birthYear = data.birthYear ?? self.profile.birthYear;
+              else {
+                // alert("데이터가 있습니다.");
+                // alert(JSON.stringify(data.info));
 
-              self.details.height = data.height ?? self.details.height;
-              self.details.weight = data.weight ?? self.details.weight;
-              self.details.bloodType = data.bloodType ?? self.details.bloodType;
-              self.details.religion = data.religion ?? self.details.religion;
-              self.details.hobby = data.hobby ?? self.details.hobby;
-              self.details.cert = (data.certList && data.certList.join(", ")) ?? self.details.cert;
-
-              self.educations = data.educations ?? self.educations;
-              self.jobs = data.jobs ?? self.jobs;
-              self.families = data.families ?? self.families;
-
-              if (data.photos) {
-                self.photos.main = data.photos.main ?? self.photos.main;
-                self.photos.sub = data.photos.sub ?? self.photos.sub;
+                self.info = data.info;
+                // alert("사진 띄우기 진입직전");
+                mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
+                // alert("사진 띄우기 탈출");
               }
-              alert("프로필을 불러왔습니다.");
-            },
-            error: function (xhr) {
-              console.error(xhr?.responseText || xhr);
-              alert("프로필 불러오기에 실패했습니다.");
+              
+
             }
           });
         },
-        fnGoList: function () { location.href = "jghtest_250911_2_customerlist.html"; }
+        mainPhotoSrc: function () {
+          // alert("사진 띄우기 진입1");
+          let self = this;
+            // alert("사진 띄우기 진입2");
+            // alert("MAIN_PHOTO_URL는 " + self.info.MAIN_PHOTO_URL);
+            let u = ".." + self.info.MAIN_PHOTO_URL;
+            // alert("MAIN_PHOTO_URL 앞에 .. 붙임 " + u);
+            // alert("사진 띄우기 진입3");
+            
+          if (!u) {
+            // alert("사진 띄우기 진입4");
+            return '/photos/noimg.jpg'
+            // alert("사진 띄우기 진입5");
+          };
+            // alert("사진 띄우기 진입6");
+          // if (/^https?:\/\//i.test(u)) return u;   // http(s)://...
+          // if (u.startsWith('/')) return u;         // /photos/cust010.jpg (캡처처럼)
+          return `${u}`; // cust010.jpg → /photos/cust010.jpg
+        },
+        fnGoList: function () { 
+          location.href = "cms_customer_list.html"; 
+        }
       },
       mounted() {
         // 처음 시작할 때 실행되는 부분
         let self = this;
+
+        const queryParams = new URLSearchParams(window.location.search);
+        self.memberNo = queryParams.get('memberNo') || ''; //get('MemberNo')는 내가 보낸, 요청한 파라미터 이름
+        console.log("MemberNo ===>", self.memberNo); //내가 보내준 (요청한) 값 출력 가능
+
+
+        //세션정보 꺼냄 꺼내자 마자 위에 선언한 변수 sessionId에 넣어버림 세션아이디의 값하고 info유저의 값하고 같을때만 버튼 보ㅈ줄꺼
+        this.sessionId = sessionStorage.getItem("sessionId"); //set할때 이름이 sessionID이었음 그걸 get으로 꺼냄
+
+        this.sessionStatus = sessionStorage.getItem("sessionStatus"); //로그인 할때 set했는데 그때 이름이  sessionStatus였음
+
+
+
+        self.fnViewProfile();
+        // self.mainPhotoSrc();
       }
     });
 

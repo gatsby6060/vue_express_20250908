@@ -103,7 +103,7 @@
                     type: "GET",
                     data: param,
                     success: function (data) {
-                        self.list = data.boardList;
+                        self.list = data.list;
                         console.log(data);
                         self.index = Math.ceil(data.count / self.pageSize);
                     }

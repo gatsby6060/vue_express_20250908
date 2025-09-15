@@ -40,7 +40,11 @@
       text-align: center;
       font-size: 1.35rem;
       font-weight: 800;
-      color: #223
+      color: #223;
+      display: flex;
+      /* 제목과 로그인 id를 한 줄 배치 */
+      justify-content: space-between;
+      /*좌측은 제목, 우측은 로그인 id*/
     }
 
     .notice {
@@ -136,7 +140,7 @@
     }
 
     table.member-table {
-      width: 1400px;
+      /* width: 1400px; */
       min-width: 100%;
       border-collapse: collapse;
       table-layout: fixed
@@ -145,7 +149,7 @@
     .member-table th,
     .member-table td {
       border: 1px solid #e5e9f2;
-      padding: 10px 12px;
+      padding: 2px 2px;
       text-align: center;
       white-space: nowrap
     }
@@ -211,13 +215,22 @@
       border-radius: 8px;
       padding: 6px 8px
     }
+
+    .login-id {
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 
 <body>
   <div id="app">
     <div class="container">
-      <h2 class="title">고객 목록 및 검색</h2>
+
+      <h2 class="title">고객 목록 및 검색
+        <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
+        <button class="btn" @click="fnLogout">로그아웃</button>
+      </h2>
 
       <div class="notice">
         고객 검색 목록은 <span class="warn">프로필 공개에 동의한 회원정보만 노출</span>됩니다.
@@ -253,15 +266,14 @@
                 <th style="width:120px">결혼경력</th>
                 <th style="width:180px">직업</th>
                 <th style="width:120px">거주지</th>
-                <th style="width:150px">프로필 열람일</th>
+                <!-- <th style="width:150px">프로필 열람일</th> -->
                 <th style="width:100px">액션</th>
               </tr>
             </thead>
 
             <!-- DB 결과 -->
             <tbody v-if="list.length > 0">
-              <tr v-for="item in list" :key="item.MEMBER_NO" @click="fnGoDetail(item.MEMBER_NO)"
-                style="cursor:pointer;">
+              <tr v-for="item in list" :key="item.MEMBER_NO" @click="fnView(item.MEMBER_NO)" style="cursor:pointer;">
                 <td class="photo-cell"><img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"></td>
                 <td>{{ item.MEMBER_NO }}</td>
                 <td>{{ item.NAME || '-' }}</td>
@@ -269,7 +281,7 @@
                 <td>{{ item.MARITAL || '-' }}</td>
                 <td>{{ item.JOB || '-' }}</td>
                 <td>{{ item.ADDRESS || '-' }}</td>
-                <td>{{ item.PROFILE_VIEWED_AT || '-' }}</td>
+                <!-- <td>{{ item.PROFILE_VIEWED_AT || '-' }}</td> -->
                 <td><button class="btn btn--ghost" @click.stop="fnGoDetail(item.MEMBER_NO)">보기</button></td>
               </tr>
             </tbody>
@@ -320,7 +332,9 @@
           pageSize: 12,        // 한 페이지 크기
           page: 1,             // 현재 페이지
           condition: { ageMin: null, ageMax: null, job: null, region: null, edu: null },
-          defaultPhoto: "/html/memberSearch/img/img_profile_none_w.jpg"
+          defaultPhoto: "../photos/noimg.jpg",
+          loginId: "",  // 화면에 표시할 로그인 아이디
+          sStatus: ""   //로그인 사용자의 권한상태?를 화면에 표현할까 고민중 
         };
       },
       computed: {
@@ -333,8 +347,17 @@
         }
       },
       methods: {
-        fnGoSearchPage: function () { location.href = "classic_member_search.asp"; },
-        fnGoDetail: function (memberNo) { location.href = "/profile/" + memberNo; },
+        fnGoSearchPage: function () {
+          alert("아직 구현 못했습니다.");
+          // location.href = "classic_member_search.asp"; 
+        },
+        fnGoDetail: function (memberNo) {
+          let self = this;
+          // alert(self.sId);
+          // alert(self.sStatus);
+          location.href = `cms_customer_view.html?memberNo=${memberNo}`;
+          // location.href = "/profile/" + memberNo; 
+        },
 
         // ★ 학원 스타일 리스트 조회
         fnList: function () {
@@ -409,9 +432,35 @@
           location.href = "cms_login.html"
         },
 
+        fnCustAdd: function () {
+          // location.href = "cms_customer_add.html";
+          let self = this; //로그인하면 값이 잇음 안하면 없음
+          console.log(self.sStatus); //로그인하면 값이 있음,   로그인 안하면 없음
+          if (self.sStatus != null) {
+            location.href = "cms_customer_add.html"
+          } else {
+            alert("로그인 후 이용해주세요");
+            location.href = "cms_login.html";
+          }
+        }
+
       },
       mounted() {
         let self = this;
+        let sId = sessionStorage.getItem("sessionId"); //서버에서 set할때 이름이 sessionID이었음 그걸 get으로 꺼냄
+        let sStatus = sessionStorage.getItem("sessionStatus");
+
+        self.loginId = sId || "";
+        self.sStatus = sStatus || "";
+
+        // (선택) 로그인 안 한 상태면 접근 차단하고 로그인 페이지로 보냄
+        if (!self.loginId) {
+          alert("로그인이 필요합니다.");
+          location.href = "cms_login.html"; // 실제 로그인 페이지 경로로 변경
+        }
+
+
+
         self.fnList();
       }
     });

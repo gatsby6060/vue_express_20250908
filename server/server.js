@@ -384,8 +384,13 @@ app.get('/board/add', async (req, res) => {
 
 
 app.get('/board/list', async (req, res) => {
-  const { pageSize, offset } = req.query;
-  
+  let { pageSize, offset } = req.query;
+  if( pageSize == null ){
+    pageSize = 5;
+  }
+  if( offset == null ){
+    offset = 1;
+  }
   try {
     const result = await connection.execute(
       `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') AS CDATE FROM TBL_BOARD B `
@@ -409,7 +414,7 @@ app.get('/board/list', async (req, res) => {
     // 리턴
     res.json({
         result : "success",
-        boardList : rows,
+        list : rows,
         count : count.rows[0][0]
     });
   } catch (error) {
@@ -543,6 +548,389 @@ app.get('/cms/custlist', async (req, res) => {
     res.status(500).send('Error executing query');
   }
 });
+
+
+
+//사라전 초기 서버 자료----------------------------------------------------------------------S
+
+//조회수 +1 업데이트 목적///////////////////////////////////////////////////////
+app.get('/cntupdate', async (req, res) => {
+  const { boardNo } = req.query;
+
+  try {
+    await connection.execute(
+      `UPDATE TBL_BOARD SET CNT = CNT+1 WHERE BOARDNO = :boardNo`,
+      [boardNo],
+      { autoCommit: true }
+    );
+    res.json({
+      result: "success"
+    });
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+//조회수 +1 업데이트 목적///////////////////////////////////////////////////////
+
+
+//인서트 목적------------------------------------------------------------S
+
+app.get('/board/insert', async (req, res) => {
+  const { title, userId, contents, kind } = req.query;
+  let query = `INSERT INTO TBL_BOARD `
+              +`VALUES(B_SEQ.NEXTVAL, '${title}', '${contents}', '${userId}', 0, 0, ${kind}, SYSDATE, SYSDATE)`;
+  console.log(query);
+  try {
+    await connection.execute(
+      query,
+      [],
+      { autoCommit: true }
+    );
+    res.json({
+      result: "success"
+    });
+  } catch (error) {
+    console.error('Error executing insert', error);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+//인서트 목적------------------------------------------------------------E
+
+
+
+//보드테이블 내용업데이트목적------------------------------------------------------S
+app.get('/board/update', async (req, res) => {
+  const { boardNo, title, userId, contents, kind } = req.query; //보낼때의 값을 잘 맞춰서 적어줘야 인식함
+  let query = `UPDATE TBL_BOARD SET `
+              + `TITLE = '${title}', ` 
+              + `CONTENTS = '${contents}', ` 
+              + `USERID = '${userId}', ` 
+              + `KIND = '${kind}', `
+              + `UDATETIME = SYSDATE `
+              + `WHERE BOARDNO = ${boardNo}`;
+  console.log(query);
+
+  try {
+    await connection.execute(
+      query,
+      [],
+      { autoCommit: true }
+    );
+    res.json({
+      result: "success"
+    });
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+//보드테이블 내용업데이트목적------------------------------------------------------E
+
+
+
+
+
+app.get('/login', async (req, res) => {
+  const { userId, pwd } = req.query; //보낼때의 이름 맞춰서...
+  let query = `SELECT * FROM TBL_USER WHERE USERID= '${userId}' AND PASSWORD = '${pwd}'`
+  try {
+    const result = await connection.execute(query);
+    const columnNames = result.metaData.map(column => column.name);
+
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
+
+
+app.get('/user/info', async (req, res) => {
+  const { userId } = req.query; //보낼때의 이름 맞춰서... 받을것은 userId임
+  console.log(userId);
+
+  let query = `SELECT * FROM TBL_USER WHERE USERID= '${userId}' `
+  try {
+    const result = await connection.execute(query);
+    const columnNames = result.metaData.map(column => column.name);
+
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+app.get('/search', async (req, res) => {
+  const { stuNo } = req.query;
+  try {
+    const result = await connection.execute(`SELECT * FROM STUDENT WHERE STU_NO = ${stuNo}`);
+    const columnNames = result.metaData.map(column => column.name);
+
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+app.get('/insert', async (req, res) => {
+  const { stuNo, name, dept } = req.query;
+
+  try {
+    await connection.execute(
+      `INSERT INTO STUDENT (STU_NO, STU_NAME, STU_DEPT) VALUES (:stuNo, :name, :dept)`,
+      [stuNo, name, dept],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing insert', error);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+app.get('/update', async (req, res) => {
+  const { stuNo, name, dept } = req.query;
+
+  try {
+    await connection.execute(
+      `UPDATE STUDENT SET STU_NAME = :name, STU_DEPT = :dept WHERE STU_NO = :stuNo`,
+      [name, dept, stuNo],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+
+
+app.get('/delete', async (req, res) => {
+  const { stuNo } = req.query;
+
+  try {
+    await connection.execute(
+      `DELETE FROM STUDENT WHERE STU_NO = :stuNo`,
+      [stuNo],
+      { autoCommit: true }
+    );
+    res.json({
+        result : "success"
+    });
+  } catch (error) {
+    console.error('Error executing delete', error);
+    res.status(500).send('Error executing delete');
+  }
+});
+
+// board
+app.get('/list', async (req, res) => {
+  const { option, keyword } = req.query;
+  
+  let subQuery = "";
+  if(option == "all"){
+    subQuery = `WHERE TITLE LIKE '%${keyword}%' OR USERID LIKE '%${keyword}%'`;
+  } else if(option == "title"){
+    subQuery = `WHERE TITLE LIKE '%${keyword}%'`;
+  } else if(option == "user"){
+    subQuery = `WHERE USERID LIKE '%${keyword}%'`;
+  }
+  let query = 
+      `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') CTIME `
+    + `FROM TBL_BOARD B ` + subQuery;
+  try {
+    const result = await connection.execute(query);
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json({
+        result : "success",
+        list : rows
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+//사라전 초기 서버 자료----------------------------------------------------------------------E
+
+
+
+
+
+
+
+
+
+
+
+
+app.get('/cms/customerinfo/', async (req, res) => {
+   const { memberNo } = req.query;
+   console.log("memberNo는 "+memberNo);
+  try {
+    const result = await connection.execute(
+      `SELECT * `
+      + `FROM tbl_cms_cust_profile `
+      + `WHERE MEMBER_NO = '${memberNo}' `
+    );
+    const columnNames = result.metaData.map(column => column.name);
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    //리턴
+    res.json({
+        result : "success",
+        info : rows[0]
+    });
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
+
+// 예: app.get 방식(네 스타일)
+app.get('/cms/customerinsert', async (req, res) => {
+  // 쿼리 파라미터 받기 (memberNo 없음: 트리거 자동 생성)
+  const {
+    loginId,
+    password,        // 미전달이면 트리거가 랜덤 생성
+    name,
+    pr,
+    address,
+    email,
+    phone,
+    birthYear,       // NUMBER(4,0)
+    height,          // NUMBER(5,2)
+    weight,          // NUMBER(5,2)
+    bloodType,
+    religion,
+    hobby,
+    mainPhotoUrl,
+    gender,          // 'M' | 'F' | 'N'  (없으면 'N'으로 세팅)
+    certs
+  } = req.query;
+
+  try {
+    // 숫자 컬럼은 숫자 변환(문자 보내도 Oracle이 암시변환될 때 NLS 이슈 대비)
+    const birthYearNum = (birthYear === undefined || birthYear === '') ? null : Number(birthYear);
+    const heightNum    = (height === undefined || height === '') ? null : Number(height);
+    const weightNum    = (weight === undefined || weight === '') ? null : Number(weight);
+
+    // gender 미지정 시 'N'
+    const genderVal = (gender && String(gender).trim() !== '')
+      ? String(gender).toUpperCase()
+      : 'N';
+
+    // INSERT: MEMBER_NO, CDATETIME, UDATETIME은 테이블 디폴트/트리거 사용
+    const sql = `
+      INSERT INTO TBL_CMS_CUST_PROFILE
+      (
+        LOGIN_ID, PASSWORD, NAME, PR, ADDRESS, EMAIL, PHONE,
+        BIRTH_YEAR, HEIGHT, WEIGHT, BLOOD_TYPE, RELIGION, HOBBY,
+        MAIN_PHOTO_URL, GENDER, CERTS
+      )
+      VALUES
+      (
+        :loginId, :password, :name, :pr, :address, :email, :phone,
+        :birthYear, :height, :weight, :bloodType, :religion, :hobby,
+        :mainPhotoUrl, :gender, :certs
+      )
+    `;
+
+    await connection.execute(
+      sql,
+      [
+        loginId || null,
+        // password: null이면 트리거가 자동 생성
+        (password && password.trim() !== '') ? password : null,
+        name || null,
+        pr || null,
+        address || null,
+        email || null,
+        phone || null,
+        birthYearNum,
+        heightNum,
+        weightNum,
+        bloodType || null,
+        religion || null,
+        hobby || null,
+        mainPhotoUrl || null,
+        genderVal,              // 기본 'N'
+        certs || null
+      ],
+      { autoCommit: true }
+    );
+
+    res.json({ result: "success" });
+  } catch (error) {
+    console.error('Error executing insert', error);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+
+
 
 
 

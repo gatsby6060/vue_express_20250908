@@ -1,196 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>고객 신규 등록</title>
-
-  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"
+          integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+          crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      background: #f5f6f8;
-      font-family: Arial, sans-serif
-    }
-
-    #app {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      padding: 28px 12px;
-      box-sizing: border-box
-    }
-
-    .container {
-      width: 980px;
-      max-width: 100%;
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
-      padding: 22px
-    }
-
-    .title {
-      margin: 0 0 16px;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #223
-    }
-
-    .section {
-      margin-top: 22px
-    }
-
-    .section__hd {
-      margin: 0 0 10px;
-      padding-bottom: 6px;
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #2b3a55;
-      border-bottom: 2px solid #e8eefc
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid #e9edf3;
-      border-radius: 12px;
-      padding: 12px
-    }
-
-    .field {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin: 6px 0
-    }
-
-    .field label {
-      width: 100px;
-      color: #566
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #e5e9f2;
-      border-radius: 8px
-    }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px
-    }
+    body { margin:0; background:#f5f6f8; font-family:Arial, sans-serif }
+    #app { display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:28px 12px; box-sizing:border-box }
+    .container { width:980px; max-width:100%; background:#fff; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.08); padding:22px }
+    .title { margin:0 0 16px; text-align:center; font-size:1.4rem; font-weight:800; color:#223 }
+    .section { margin-top:22px }
+    .section__hd { margin:0 0 10px; padding-bottom:6px; font-size:1.05rem; font-weight:800; color:#2b3a55; border-bottom:2px solid #e8eefc }
+    .grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px }
+    .card { background:#fff; border:1px solid #e9edf3; border-radius:12px; padding:12px }
+    .field { display:flex; gap:10px; align-items:center; margin:6px 0 }
+    .field label { width:100px; color:#566 }
+    .field input, .field textarea, .field select { flex:1; padding:8px; border:1px solid #e5e9f2; border-radius:8px }
+    .photo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px }
 
     /* ⬇️ 테이블이 컨테이너 밖으로 안 나가게 하는 핵심 */
-    .table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch
-    }
+    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch }
+    table { width:100%; border-collapse:collapse; table-layout:fixed } /* 고정 레이아웃 */
+    th, td { border:1px solid #e5e9f2; padding:8px 10px; text-align:center; word-break:break-word }
+    thead th { background:#f6f9ff; color:#2b3a55; font-weight:800 }
+    tbody tr:nth-child(even) td { background:#fafcff }
+    td input{ width:100%; min-width:0; box-sizing:border-box } /* 인풋이 셀을 넘지 않게 */
+    td button{ white-space:nowrap } /* 버튼 줄바꿈 방지 */
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed
-    }
+    .btn-row { text-align:center; margin-top:16px }
+    .btn { display:inline-block; padding:10px 16px; border-radius:10px; border:none; background:#3a7afe; color:#fff; font-weight:800; cursor:pointer; box-shadow:0 4px 10px rgba(58,122,254,.18) }
+    .btn + .btn { margin-left:8px }
+    .btn--ghost { background:#eef3ff; color:#2b3a55 }
+    .mini { padding:6px 10px; border-radius:8px }
+    .danger { background:#ff5a5a }
 
-    /* 고정 레이아웃 */
-    th,
-    td {
-      border: 1px solid #e5e9f2;
-      padding: 8px 10px;
-      text-align: center;
-      word-break: break-word
-    }
-
-    thead th {
-      background: #f6f9ff;
-      color: #2b3a55;
-      font-weight: 800
-    }
-
-    tbody tr:nth-child(even) td {
-      background: #fafcff
-    }
-
-    td input {
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box
-    }
-
-    /* 인풋이 셀을 넘지 않게 */
-    td button {
-      white-space: nowrap
-    }
-
-    /* 버튼 줄바꿈 방지 */
-
-    .btn-row {
-      text-align: center;
-      margin-top: 16px
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: none;
-      background: #3a7afe;
-      color: #fff;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(58, 122, 254, .18)
-    }
-
-    .btn+.btn {
-      margin-left: 8px
-    }
-
-    .btn--ghost {
-      background: #eef3ff;
-      color: #2b3a55
-    }
-
-    .mini {
-      padding: 6px 10px;
-      border-radius: 8px
-    }
-
-    .danger {
-      background: #ff5a5a
-    }
-
-    @media (max-width:760px) {
-      .grid-2 {
-        grid-template-columns: 1fr
-      }
-    }
+    @media (max-width:760px) { .grid-2 { grid-template-columns:1fr } }
   </style>
 </head>
-
 <body>
   <div id="app">
     <div class="container">
-      <h2 class="title">고객 신규 등록
-        <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
-        <span class="login-id" v-if="sStatus">로그인 권한상태 : {{ sStatus }}</span>
-        <button class="btn" @click="fnLogout">로그아웃</button>
-      </h2>
+      <h2 class="title">고객 신규 등록</h2>
 
       <!-- 기본 정보 -->
       <div class="section">
@@ -198,11 +53,9 @@
         <div class="card">
           <div class="grid-2">
             <div>
-              <div class="field"><label>회원번호</label><input v-model="profile.memberNo" placeholder="자동생성입니다." disabled>
-              </div>
+              <div class="field"><label>회원번호</label><input v-model="profile.memberNo" placeholder="자동생성입니다." disabled></div>
               <div class="field"><label>성명</label><input v-model="profile.name" placeholder="예) 전경환"></div>
-              <div class="field"><label>출생년</label><input v-model.number="profile.birthYear" type="number"
-                  placeholder="예) 1986"></div>
+              <div class="field"><label>출생년</label><input v-model.number="profile.birthYear" type="number" placeholder="예) 1986"></div>
               <div class="field"><label>전화번호</label><input v-model="profile.phone" placeholder="예) 010-0000-0000"></div>
               <div class="field"><label>이메일</label><input v-model="profile.email" placeholder="예) test@naver.com"></div>
               <div class="field"><label>거주지</label><input v-model="profile.address" placeholder="예) 인천광역시 ..."></div>
@@ -221,8 +74,7 @@
       <div class="section">
         <div class="section__hd">사진</div>
         <div class="card">
-          <div class="field"><label>메인 사진 URL</label><input v-model="photos.main"
-              placeholder="/lib/binaryread_photo.asp?..."></div>
+          <div class="field"><label>메인 사진 URL</label><input v-model="photos.main" placeholder="/lib/binaryread_photo.asp?..."></div>
           <div class="photo-grid">
             <input v-for="(s,i) in photos.sub" :key="'ps-'+i" v-model="photos.sub[i]" placeholder="보조 사진 URL" />
           </div>
@@ -241,13 +93,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>구분</th>
-                  <th>학교명</th>
-                  <th>전공</th>
-                  <th>입학년도</th>
-                  <th>졸업년도</th>
-                  <th>소재지</th>
-                  <th>관리</th>
+                  <th>구분</th><th>학교명</th><th>전공</th><th>입학년도</th><th>졸업년도</th><th>소재지</th><th>관리</th>
                 </tr>
               </thead>
               <tbody>
@@ -350,73 +196,62 @@
           profile: { memberNo: "", name: "", pr: "", address: "", email: "", phone: "", birthYear: null },
           details: { height: null, weight: null, bloodType: "", religion: "", hobby: "", cert: "" },
           educations: [],
-          // jobs: [],
-          // families: []
-
-          loginId: "",  // 화면에 표시할 로그인 아이디
-          sStatus: ""   //로그인 사용자의 권한상태?를 화면에 표현할까 고민중 
+          jobs: [],
+          families: []
         }
       },
       methods: {
-
-        save: function () {
-          let self = this;
-          let param = {
-            // profile은 단순 키-값이라 그대로
-
-            name: self.profile.name || "",
-            pr: self.profile.pr || "",
-            address: self.profile.address || "",
-            email: self.profile.email || "",
-            phone: self.profile.phone || "",
-            birthYear: self.profile.birthYear ?? "",
-
-            // photos: main은 그대로, sub는 콤마 문자열
-            mainPhoto: self.photos.main || "",
-            subPhotos: (self.photos.sub || []).join(","),
-
-            // details/educations는 JSON 문자열
-            details: JSON.stringify(self.details || {}),
-            educations: JSON.stringify(self.educations || [])
+        addSubPhoto() { this.photos.sub.push(""); },
+        removeSubPhoto() { if (this.photos.sub.length > 0) this.photos.sub.pop(); },
+        addEdu() { this.educations.push({ level: "", school: "", major: "", enter: "", graduate: "", area: "" }); },
+        addJob() { this.jobs.push({ company: "", industry: "", headcount: null, dept: "", position: "", area: "", joined: "" }); },
+        addFamily() { this.families.push({ relation: "", age: null, job: "", education: "", married: "", together: "", area: "", note: "" }); },
+        validate() {
+          // if (!this.profile.memberNo?.trim()) { alert("회원번호는 필수입니다."); return false; }
+          if (!this.profile.name?.trim()) { alert("성명은 필수입니다."); return false; }
+          return true;
+        },
+        payload() {
+          const certList = this.details.cert
+            ? this.details.cert.split(",").map(s => s.trim()).filter(Boolean)
+            : [];
+          return {
+            memberNo: this.profile.memberNo,
+            name: this.profile.name,
+            pr: this.profile.pr,
+            address: this.profile.address,
+            email: this.profile.email,
+            phone: this.profile.phone,
+            birthYear: this.profile.birthYear,
+            height: this.details.height,
+            weight: this.details.weight,
+            bloodType: this.details.bloodType,
+            religion: this.details.religion,
+            hobby: this.details.hobby,
+            certList,
+            educations: this.educations,
+            jobs: this.jobs,
+            families: this.families,
+            photos: { main: this.photos.main, sub: this.photos.sub }
           };
-
+        },
+        save() {
+          if (!this.validate()) return;
           $.ajax({
             url: "http://localhost:3009/cms/customerinsert",
-            dataType: "json",
-            type: "GET",
-            data: param,
-            success: function (data) {
-              alert("등록되었습니다.");
-              self.goList();
-            }
+            type: "POST",
+            data: JSON.stringify(this.payload()),
+            contentType: "application/json; charset=utf-8",
+            success: () => { 
+              alert("등록되었습니다."); 
+              this.goList(); },
+    
           });
         },
-        goList: function () {
-          location.href = "cms_customer_list.html";
-        },
-        addEdu() {
-          this.educations.push({ level: "", school: "", major: "", enter: "", graduate: "", area: "" });
-        },
-      },// methods
-
-      mounted() {
-        // 처음 시작할 때 실행되는 부분
-        let self = this;
-        let sId = sessionStorage.getItem("sessionId"); //서버에서 set할때 이름이 sessionID이었음 그걸 get으로 꺼냄
-        let sStatus = sessionStorage.getItem("sessionStatus");
-
-        self.loginId = sId || "";
-        self.sStatus = sStatus || "";
-
-        // (선택) 로그인 안 한 상태면 접근 차단하고 로그인 페이지로 보냄
-        if (!self.loginId) {
-          alert("로그인이 필요합니다.");
-          location.href = "cms_login.html"; // 실제 로그인 페이지 경로로 변경
-        }
+        goList() { location.href = "cms_customer_list.html"; }
       }
     });
     app.mount("#app");
   </script>
 </body>
-
 </html>
