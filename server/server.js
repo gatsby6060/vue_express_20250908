@@ -492,8 +492,15 @@ app.get('/cms/login', async (req, res) => {
  
   let query = `SELECT * FROM SYSTEM_USER WHERE LOGIN_ID = '${loginId}' AND PASSWORD = '${pwd}'`
   try {
-    const result = await connection.execute(query);
-    const columnNames = result.metaData.map(column => column.name);
+    let result = await connection.execute(query);
+    let columnNames = result.metaData.map(column => column.name);
+
+    if (result.rows.length <= 0) {
+      console.log("진입");
+       query = `SELECT MEMBER_NO AS LOGIN_ID , NAME FROM tbl_cms_cust_profile WHERE MEMBER_NO = '${loginId}' AND PASSWORD = '${pwd}'`
+        result = await connection.execute(query);
+        columnNames = result.metaData.map(column => column.name);
+    }
 
     // 쿼리 결과를 JSON 형태로 변환
     const rows = result.rows.map(row => {
