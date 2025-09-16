@@ -36,7 +36,7 @@
             text-align: center;
             height: 30px;
         }
-        
+
         .index {
             margin-right: 10px;
             text-decoration: none;
@@ -84,12 +84,12 @@
             </tr>
         </table>
 
-        <a v-if="page != 1" class="index" href="javascript:;" @click="fnMove(-1)" >◀</a>
+        <a v-if="page != 1" class="index" href="javascript:;" @click="fnMove(-1)">◀</a>
         <a class="index" href="javascript:;" v-for="num in index" @click="fnPage(num)">
             <span v-if="num == page" style="color:red ; font-size : 25px; font-weight :bold;">{{num}}</span>
             <span v-else>{{num}}</span>
         </a>
-        <a v-if="page != index" class="index" href="javascript:;" @click="fnMove(1)">▶</a>    
+        <a v-if="page != index" class="index" href="javascript:;" @click="fnMove(1)">▶</a>
 
         <div>
             <a href="emp-edit.html"><button>추가</button></a>
@@ -101,6 +101,7 @@
 </html>
 
 <script>
+
     const app = Vue.createApp({
         data() {
             return {
@@ -191,7 +192,9 @@
                 let self = this;
                 self.page += move;
                 self.fnEmpList();
-            }
+            },
+            
+
         }, // methods
         mounted() {
             // 처음 시작할 때 실행되는 부분
@@ -202,3 +205,40 @@
 
     app.mount('#app');
 </script>
+
+<!-- <script>
+    const userCode = "imp03303441";
+    IMP.init(userCode);
+    const app = Vue.createApp({
+        data() {
+            return {
+
+            };
+        },
+        methods: {
+            fnPayment() {
+                IMP.request_pay({
+                    pg: "html5_inicis",
+                    pay_method: "card",
+                    merchant_uid: "test1_" + new Date(),
+                    name: "테스트 결제",
+                    amount: 1,
+                    buyer_tel: "010-0000-0000",
+                }, function (rsp) { // callback
+                    if (rsp.success) {
+                        // 결제 성공 시
+                        alert("성공");
+                        console.log(rsp);
+                    } else {
+                        // 결제 실패 시
+                        alert("실패");
+                    }
+                });
+            }
+        },
+        mounted() {
+
+        }
+    });
+    app.mount('#app');
+</script> -->
