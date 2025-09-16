@@ -229,6 +229,7 @@
 
       <h2 class="title">고객 목록 및 검색
         <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
+        <button class="btn" @click="fnUserInfoUpdate" v-if="isEmpActive">사원본인정보수정</button>
         <button class="btn" @click="fnLogout">로그아웃</button>
       </h2>
 
@@ -252,7 +253,7 @@
       <div class="section">
         <div class="section__hd">
           고객 목록
-          <button class="btn" style="margin-left:auto" @click="fnCustAdd">고객 추가</button>
+          <button class="btn" style="margin-left:auto" @click="fnCustAdd" v-if="isEmpActive">고객 추가</button>
         </div>
 
         <div class="table-wrap">
@@ -267,13 +268,14 @@
                 <th style="width:180px">직업</th>
                 <th style="width:120px">거주지</th>
                 <!-- <th style="width:150px">프로필 열람일</th> -->
-                <th style="width:100px">액션</th>
+                <th style="width:100px" v-if="isEmpActive">수정</th>
               </tr>
             </thead>
 
             <!-- DB 결과 -->
             <tbody v-if="list.length > 0">
-              <tr v-for="item in list" :key="item.MEMBER_NO" @click="fnView(item.MEMBER_NO)" style="cursor:pointer;">
+              <tr v-for="item in list" :key="item.MEMBER_NO" @click="fnGoDetail(item.MEMBER_NO)"
+                style="cursor:pointer;">
                 <td class="photo-cell"><img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"></td>
                 <td>{{ item.MEMBER_NO }}</td>
                 <td>{{ item.NAME || '-' }}</td>
@@ -282,7 +284,12 @@
                 <td>{{ item.JOB || '-' }}</td>
                 <td>{{ item.ADDRESS || '-' }}</td>
                 <!-- <td>{{ item.PROFILE_VIEWED_AT || '-' }}</td> -->
-                <td><button class="btn btn--ghost" @click.stop="fnGoDetail(item.MEMBER_NO)">보기</button></td>
+                <!-- <td><button class="btn btn--ghost" @click.stop="fnGoDetail_잠시주석(item.MEMBER_NO)" v-if="isEmpActive">수정</button></td> -->
+                <td v-if="isEmpActive">
+                  <button class="btn btn--ghost" @click.stop="fnGoEdit(item.MEMBER_NO)" v-if="canEdit(item)">
+                    수정
+                  </button>
+                </td>
               </tr>
             </tbody>
 
@@ -329,22 +336,14 @@
           list: [],            // 표에 그릴 데이터
           count: 0,            // 총 건수
           index: 0,            // 총 페이지 수
-          pageSize: 12,        // 한 페이지 크기
+          pageSize: 5,        // 한 페이지 크기
           page: 1,             // 현재 페이지
           condition: { ageMin: null, ageMax: null, job: null, region: null, edu: null },
           defaultPhoto: "../photos/noimg.jpg",
           loginId: "",  // 화면에 표시할 로그인 아이디
-          sStatus: ""   //로그인 사용자의 권한상태?를 화면에 표현할까 고민중 
+          sStatus: "",   //로그인 사용자의 권한상태?를 화면에 표현할까 고민중 
+          isEmpActive: false      // 고객과 직원 간의 화면 제어에 바로 쓰는 플래그
         };
-      },
-      computed: {
-        ageLabel() {
-          var a = this.condition.ageMin, b = this.condition.ageMax;
-          if (!a && !b) return "무관";
-          if (a && b) return a + " ~ " + b + "세";
-          if (a) return a + "세 이상";
-          return b + "세 이하";
-        }
       },
       methods: {
         fnGoSearchPage: function () {
@@ -359,7 +358,7 @@
           // location.href = "/profile/" + memberNo; 
         },
 
-        // ★ 학원 스타일 리스트 조회
+        // 학원 스타일 리스트 조회
         fnList: function () {
           let self = this;
           let param = {
@@ -434,7 +433,7 @@
 
         fnCustAdd: function () {
           // location.href = "cms_customer_add.html";
-          let self = this; //로그인하면 값이 잇음 안하면 없음
+          let self = this;
           console.log(self.sStatus); //로그인하면 값이 있음,   로그인 안하면 없음
           if (self.sStatus != null) {
             location.href = "cms_customer_add.html"
@@ -442,7 +441,30 @@
             alert("로그인 후 이용해주세요");
             location.href = "cms_login.html";
           }
-        }
+        },
+
+        fnUserInfoUpdate: function () {
+          let self = this;
+          console.log(self.sStatus); //로그인하면 값이 있음,   로그인 안하면 없음
+          if (self.sStatus != null) {
+            location.href = `cms_empuser_edit.html?loginId=${this.loginId}`
+          } else {
+            alert("로그인 후 이용해주세요");
+            location.href = "cms_login.html";
+          }
+        },
+
+        canEdit(item) {
+          // 세션ID와 생성자 컬럼을 문자열로 비교 (null/공백 방어)
+          const my = (this.loginId || '').trim();
+          const owner = (String(item.CREATEBY || '')).trim();
+          return !!my && my === owner;
+        },
+        fnGoEdit(memberNo) {
+          // 수정 페이지로 이동 (원하는 경로로 바꿔도 됨)
+          location.href = `cms_customer_update.html?memberNo=${memberNo}`;
+        },
+
 
       },
       mounted() {
@@ -460,7 +482,7 @@
         }
 
 
-
+        self.isEmpActive = (self.sStatus === 'active');
         self.fnList();
       }
     });

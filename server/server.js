@@ -43,7 +43,7 @@ app.get('/emp/list', async (req, res) => {
   // console.log("pageSize는 "+pageSize);
   // console.log("offset는 "+offset);
   let query = "";
-  if(deptNo != "" && deptNo != null ){
+  if (deptNo != "" && deptNo != null) {
     query += `WHERE E.DEPTNO = ${deptNo} `
   }
   try {
@@ -66,13 +66,13 @@ app.get('/emp/list', async (req, res) => {
     });
 
     const count = await connection.execute(
-    `SELECT COUNT(*) FROM EMP E`
+      `SELECT COUNT(*) FROM EMP E`
     );
     //리턴
     res.json({
-        result : "success",
-        empList : rows,
-        count : count.rows[0][0]
+      result: "success",
+      empList: rows,
+      count: count.rows[0][0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -91,7 +91,7 @@ app.get('/emp/delete', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -103,9 +103,9 @@ app.get('/emp/deleteAll', async (req, res) => {
   const { removeList } = req.query;
   console.log(removeList);
   let query = "DELETE FROM EMP WHERE EMPNO IN (";
-  for(let i=0; i<removeList.length; i++){
+  for (let i = 0; i < removeList.length; i++) {
     query += removeList[i];
-    if(removeList.length-1 != i){query +=","}
+    if (removeList.length - 1 != i) { query += "," }
   }
   query += ")"
   console.log(query);
@@ -116,7 +116,7 @@ app.get('/emp/deleteAll', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -129,9 +129,9 @@ app.get('/prof/deleteAll', async (req, res) => {
   const { removeList } = req.query;
   console.log(removeList);
   let query = "DELETE FROM PROFESSOR WHERE PROFNO IN (";
-  for(let i=0; i<removeList.length; i++){
+  for (let i = 0; i < removeList.length; i++) {
     query += removeList[i];
-    if(removeList.length-1 != i){query +=","} //마지막이면 ,안찍으려고...
+    if (removeList.length - 1 != i) { query += "," } //마지막이면 ,안찍으려고...
   }
   query += ")"
   console.log(query);
@@ -142,7 +142,7 @@ app.get('/prof/deleteAll', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -156,15 +156,15 @@ app.get('/prof/deleteAll', async (req, res) => {
 app.get('/prof/list', async (req, res) => {
   const { position } = req.query;
   let query = "";
-  if(position != "" && position != null){
+  if (position != "" && position != null) {
     query += `WHERE POSITION = '${position}'`;
   }
   // console.log("당최?")
   // console.log(query);
   try {
     const result = await connection.execute(
-        `SELECT * FROM PROFESSOR `
-        + query
+      `SELECT * FROM PROFESSOR `
+      + query
     );
     const columnNames = result.metaData.map(column => column.name);
     // 쿼리 결과를 JSON 형태로 변환
@@ -178,8 +178,8 @@ app.get('/prof/list', async (req, res) => {
     });
     //리턴
     res.json({
-        result : "success",
-        profList : rows
+      result: "success",
+      profList: rows
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -192,7 +192,7 @@ app.get('/prof/list', async (req, res) => {
 
 app.get('/prof/delete', async (req, res) => {
   const { profNo } = req.query;
-  
+
   try {
     await connection.execute(
       // `INSERT INTO STUDENT (STU_NO, STU_NAME, STU_DEPT) VALUES (${stuNo}, '${name}', '${dept}')`,
@@ -202,7 +202,7 @@ app.get('/prof/delete', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing delete', error);
@@ -225,7 +225,7 @@ app.get('/emp/insert', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -259,8 +259,8 @@ app.get('/emp/info', async (req, res) => {
     });
     //리턴
     res.json({
-        result : "success",
-        info : rows[0]
+      result: "success",
+      info: rows[0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -274,18 +274,18 @@ app.get('/emp/info', async (req, res) => {
 
 
 app.get('/emp/update', async (req, res) => {
-  const {  job, eName, selectDept, empNo } = req.query;
+  const { job, eName, selectDept, empNo } = req.query;
   console.log(empNo, job, eName, selectDept)
   try {
     await connection.execute(
       `UPDATE EMP SET `
-      +` JOB = :job, ENAME = :eName, DEPTNO = :selectDept `
-      +` WHERE EMPNO = :empNo`,
-      [ job, eName, selectDept, empNo],
+      + ` JOB = :job, ENAME = :eName, DEPTNO = :selectDept `
+      + ` WHERE EMPNO = :empNo`,
+      [job, eName, selectDept, empNo],
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing update', error);
@@ -302,7 +302,7 @@ app.get('/emp/update', async (req, res) => {
 
 app.get('/prof/info', async (req, res) => {
   const { profNo } = req.query; //제발 클라이언트에서 보낼때 대소문자와 받을 때 대소문자 일치!!!!
-  console.log("서버의 profNo는~ "+ profNo );
+  console.log("서버의 profNo는~ " + profNo);
   try {
     const result = await connection.execute(
       `SELECT P.*, PROFNO "profNo", NAME "name", ID "id", POSITION "position", PAY "pay" `
@@ -321,8 +321,8 @@ app.get('/prof/info', async (req, res) => {
     });
     //리턴
     res.json({
-        result : "success",
-        info : rows[0]
+      result: "success",
+      info: rows[0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -340,13 +340,13 @@ app.get('/prof/update', async (req, res) => {
   try {
     await connection.execute(
       `UPDATE PROFESSOR SET `
-      +` NAME = :name, ID = :id, POSITION = :position, PAY = :pay `
-      +` WHERE PROFNO = :profNo`,
-      [ name, id, position, pay, profNo],
+      + ` NAME = :name, ID = :id, POSITION = :position, PAY = :pay `
+      + ` WHERE PROFNO = :profNo`,
+      [name, id, position, pay, profNo],
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing update', error);
@@ -371,7 +371,7 @@ app.get('/board/add', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -385,16 +385,16 @@ app.get('/board/add', async (req, res) => {
 
 app.get('/board/list', async (req, res) => {
   let { pageSize, offset } = req.query;
-  if( pageSize == null ){
-    pageSize = 5;
+  if (pageSize == null) {
+    pageSize = 1115;
   }
-  if( offset == null ){
+  if (offset == null) {
     offset = 1;
   }
   try {
     const result = await connection.execute(
       `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') AS CDATE FROM TBL_BOARD B `
-      +`OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
+      + `OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
     );
     const columnNames = result.metaData.map(column => column.name);
     // 쿼리 결과를 JSON 형태로 변환
@@ -413,9 +413,9 @@ app.get('/board/list', async (req, res) => {
     // console.log(count.rows[0][0]);
     // 리턴
     res.json({
-        result : "success",
-        list : rows,
-        count : count.rows[0][0]
+      result: "success",
+      list: rows,
+      count: count.rows[0][0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -427,8 +427,8 @@ app.get('/board/list', async (req, res) => {
 
 
 app.get('/board/view', async (req, res) => {
-   const { boardNo } = req.query;
-  //  console.log("boardNo는 "+boardNo);
+  const { boardNo } = req.query;
+  console.log("boardNo는 " + boardNo);
   try {
     const result = await connection.execute(
       `SELECT * `
@@ -447,8 +447,8 @@ app.get('/board/view', async (req, res) => {
     });
     //리턴
     res.json({
-        result : "success",
-        info : rows[0]
+      result: "success",
+      info: rows[0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -489,7 +489,7 @@ app.get('/login', async (req, res) => {
 app.get('/cms/login', async (req, res) => {
 
   const { loginId, pwd } = req.query;
- 
+
   let query = `SELECT * FROM SYSTEM_USER WHERE LOGIN_ID = '${loginId}' AND PASSWORD = '${pwd}'`
   try {
     let result = await connection.execute(query);
@@ -497,9 +497,9 @@ app.get('/cms/login', async (req, res) => {
 
     if (result.rows.length <= 0) {
       console.log("진입");
-       query = `SELECT MEMBER_NO AS LOGIN_ID , NAME FROM tbl_cms_cust_profile WHERE MEMBER_NO = '${loginId}' AND PASSWORD = '${pwd}'`
-        result = await connection.execute(query);
-        columnNames = result.metaData.map(column => column.name);
+      query = `SELECT MEMBER_NO AS LOGIN_ID , NAME FROM tbl_cms_cust_profile WHERE MEMBER_NO = '${loginId}' AND PASSWORD = '${pwd}'`
+      result = await connection.execute(query);
+      columnNames = result.metaData.map(column => column.name);
     }
 
     // 쿼리 결과를 JSON 형태로 변환
@@ -520,12 +520,12 @@ app.get('/cms/login', async (req, res) => {
 
 
 app.get('/cms/custlist', async (req, res) => {
-  const { pageSize = 5 , offset = 0 } = req.query;
+  const { pageSize = 5, offset = 0 } = req.query;
   try {
     const result = await connection.execute(
       `select * from TBL_CMS_CUST_PROFILE `
       + ` ORDER BY CDATETIME DESC NULLS LAST, MEMBER_NO DESC `
-      +`OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
+      + `OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
     );
 
     const columnNames = result.metaData.map(column => column.name);
@@ -537,7 +537,7 @@ app.get('/cms/custlist', async (req, res) => {
         obj[columnName] = row[index];
       });
       return obj;
-    }); 
+    });
 
     const count = await connection.execute(
       `SELECT COUNT(*) FROM TBL_CMS_CUST_PROFILE`
@@ -545,9 +545,9 @@ app.get('/cms/custlist', async (req, res) => {
     // console.log(count.rows[0][0]);
     // 리턴
     res.json({
-        result : "success",
-        list : rows,
-        count : count.rows[0][0]
+      result: "success",
+      list: rows,
+      count: count.rows[0][0]
     });
 
   } catch (e) {
@@ -586,7 +586,7 @@ app.get('/cntupdate', async (req, res) => {
 app.get('/board/insert', async (req, res) => {
   const { title, userId, contents, kind } = req.query;
   let query = `INSERT INTO TBL_BOARD `
-              +`VALUES(B_SEQ.NEXTVAL, '${title}', '${contents}', '${userId}', 0, 0, ${kind}, SYSDATE, SYSDATE)`;
+    + `VALUES(B_SEQ.NEXTVAL, '${title}', '${contents}', '${userId}', 0, 0, ${kind}, SYSDATE, SYSDATE)`;
   console.log(query);
   try {
     await connection.execute(
@@ -611,12 +611,12 @@ app.get('/board/insert', async (req, res) => {
 app.get('/board/update', async (req, res) => {
   const { boardNo, title, userId, contents, kind } = req.query; //보낼때의 값을 잘 맞춰서 적어줘야 인식함
   let query = `UPDATE TBL_BOARD SET `
-              + `TITLE = '${title}', ` 
-              + `CONTENTS = '${contents}', ` 
-              + `USERID = '${userId}', ` 
-              + `KIND = '${kind}', `
-              + `UDATETIME = SYSDATE `
-              + `WHERE BOARDNO = ${boardNo}`;
+    + `TITLE = '${title}', `
+    + `CONTENTS = '${contents}', `
+    + `USERID = '${userId}', `
+    + `KIND = '${kind}', `
+    + `UDATETIME = SYSDATE `
+    + `WHERE BOARDNO = ${boardNo}`;
   console.log(query);
 
   try {
@@ -725,7 +725,7 @@ app.get('/insert', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing insert', error);
@@ -744,7 +744,7 @@ app.get('/update', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing update', error);
@@ -763,7 +763,7 @@ app.get('/delete', async (req, res) => {
       { autoCommit: true }
     );
     res.json({
-        result : "success"
+      result: "success"
     });
   } catch (error) {
     console.error('Error executing delete', error);
@@ -774,17 +774,17 @@ app.get('/delete', async (req, res) => {
 // board
 app.get('/list', async (req, res) => {
   const { option, keyword } = req.query;
-  
+
   let subQuery = "";
-  if(option == "all"){
+  if (option == "all") {
     subQuery = `WHERE TITLE LIKE '%${keyword}%' OR USERID LIKE '%${keyword}%'`;
-  } else if(option == "title"){
+  } else if (option == "title") {
     subQuery = `WHERE TITLE LIKE '%${keyword}%'`;
-  } else if(option == "user"){
+  } else if (option == "user") {
     subQuery = `WHERE USERID LIKE '%${keyword}%'`;
   }
-  let query = 
-      `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') CTIME `
+  let query =
+    `SELECT B.*, TO_CHAR(CDATETIME, 'YYYY-MM-DD') CTIME `
     + `FROM TBL_BOARD B ` + subQuery;
   try {
     const result = await connection.execute(query);
@@ -799,8 +799,8 @@ app.get('/list', async (req, res) => {
       return obj;
     });
     res.json({
-        result : "success",
-        list : rows
+      result: "success",
+      list: rows
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -822,8 +822,8 @@ app.get('/list', async (req, res) => {
 
 
 app.get('/cms/customerinfo/', async (req, res) => {
-   const { memberNo } = req.query;
-   console.log("memberNo는 "+memberNo);
+  const { memberNo } = req.query;
+  // console.log("memberNo는 " + memberNo);
   try {
     const result = await connection.execute(
       `SELECT * `
@@ -842,8 +842,8 @@ app.get('/cms/customerinfo/', async (req, res) => {
     });
     //리턴
     res.json({
-        result : "success",
-        info : rows[0]
+      result: "success",
+      info: rows[0]
     });
   } catch (error) {
     console.error('Error executing query', error);
@@ -856,84 +856,463 @@ app.get('/cms/customerinfo/', async (req, res) => {
 
 
 // 예: app.get 방식(네 스타일)
+// app.get('/cms/customerinsert', async (req, res) => {
+//   // 쿼리 파라미터 받기 (memberNo 없음: 트리거 자동 생성)
+//   const {
+//     loginId,
+//     password,        // 미전달이면 트리거가 랜덤 생성
+//     name,
+//     pr,
+//     address,
+//     email,
+//     phone,
+//     birthYear,       // NUMBER(4,0)
+//     height,          // NUMBER(5,2)
+//     weight,          // NUMBER(5,2)
+//     bloodType,
+//     religion,
+//     hobby,
+//     mainPhotoUrl,
+//     gender,          // 'M' | 'F' | 'N'  (없으면 'N'으로 세팅)
+//     certs,
+//     createby,
+//     // educations
+//   } = req.query;
+
+//   try {
+//     // 숫자 컬럼은 숫자 변환(문자 보내도 Oracle이 암시변환될 때 NLS 이슈 대비)
+//     const birthYearNum = (birthYear === undefined || birthYear === '') ? null : Number(birthYear);
+//     const heightNum = (height === undefined || height === '') ? null : Number(height);
+//     const weightNum = (weight === undefined || weight === '') ? null : Number(weight);
+
+//     // gender 미지정 시 'N'
+//     const genderVal = (gender && String(gender).trim() !== '')
+//       ? String(gender).toUpperCase()
+//       : 'N';
+
+//     // INSERT: MEMBER_NO, CDATETIME, UDATETIME은 테이블 디폴트/트리거 사용
+//     const sql = `
+//       INSERT INTO TBL_CMS_CUST_PROFILE
+//       (
+//         LOGIN_ID, PASSWORD, NAME, PR, ADDRESS, EMAIL, PHONE,
+//         BIRTH_YEAR, HEIGHT, WEIGHT, BLOOD_TYPE, RELIGION, HOBBY,
+//         MAIN_PHOTO_URL, GENDER, CERTS, CREATEBY
+//       )
+//       VALUES
+//       (
+//         :loginId, :password, :name, :pr, :address, :email, :phone,
+//         :birthYear, :height, :weight, :bloodType, :religion, :hobby,
+//         :mainPhotoUrl, :gender, :certs, :createby
+//       )
+//     `;
+
+//     await connection.execute(
+//       sql,
+//       [
+//         loginId || null,
+//         // password: null이면 트리거가 자동 생성
+//         (password && password.trim() !== '') ? password : null,
+//         name || null,
+//         pr || null,
+//         address || null,
+//         email || null,
+//         phone || null,
+//         birthYearNum,
+//         heightNum,
+//         weightNum,
+//         bloodType || null,
+//         religion || null,
+//         hobby || null,
+//         mainPhotoUrl || null,
+//         genderVal,              // 기본 'N'
+//         certs || null,
+//         createby || null
+//       ],
+//       { autoCommit: true }
+//     );
+
+//     res.json({ result: "success" });
+//   } catch (error) {
+//     console.error('Error executing insert', error);
+//     res.status(500).send('Error executing insert');
+//   }
+// });
+
 app.get('/cms/customerinsert', async (req, res) => {
-  // 쿼리 파라미터 받기 (memberNo 없음: 트리거 자동 생성)
   const {
-    loginId,
-    password,        // 미전달이면 트리거가 랜덤 생성
-    name,
-    pr,
-    address,
-    email,
-    phone,
-    birthYear,       // NUMBER(4,0)
-    height,          // NUMBER(5,2)
-    weight,          // NUMBER(5,2)
-    bloodType,
-    religion,
-    hobby,
-    mainPhotoUrl,
-    gender,          // 'M' | 'F' | 'N'  (없으면 'N'으로 세팅)
-    certs
+    loginId, password, name, pr, address, email, phone,
+    birthYear, height, weight, bloodType, religion, hobby,
+    mainPhotoUrl, gender, certs, createby,
+    educations   // ★ 프론트에서 JSON.stringify([...]) 로 보냄
   } = req.query;
 
+  const toNum = v => (v === undefined || v === '' ? null : Number(v));
+  const txOpts = { autoCommit: false };
+
   try {
-    // 숫자 컬럼은 숫자 변환(문자 보내도 Oracle이 암시변환될 때 NLS 이슈 대비)
-    const birthYearNum = (birthYear === undefined || birthYear === '') ? null : Number(birthYear);
-    const heightNum    = (height === undefined || height === '') ? null : Number(height);
-    const weightNum    = (weight === undefined || weight === '') ? null : Number(weight);
-
-    // gender 미지정 시 'N'
-    const genderVal = (gender && String(gender).trim() !== '')
-      ? String(gender).toUpperCase()
-      : 'N';
-
-    // INSERT: MEMBER_NO, CDATETIME, UDATETIME은 테이블 디폴트/트리거 사용
-    const sql = `
-      INSERT INTO TBL_CMS_CUST_PROFILE
-      (
-        LOGIN_ID, PASSWORD, NAME, PR, ADDRESS, EMAIL, PHONE,
-        BIRTH_YEAR, HEIGHT, WEIGHT, BLOOD_TYPE, RELIGION, HOBBY,
-        MAIN_PHOTO_URL, GENDER, CERTS
-      )
-      VALUES
-      (
-        :loginId, :password, :name, :pr, :address, :email, :phone,
-        :birthYear, :height, :weight, :bloodType, :religion, :hobby,
-        :mainPhotoUrl, :gender, :certs
-      )
-    `;
-
-    await connection.execute(
-      sql,
-      [
-        loginId || null,
-        // password: null이면 트리거가 자동 생성
-        (password && password.trim() !== '') ? password : null,
-        name || null,
-        pr || null,
-        address || null,
-        email || null,
-        phone || null,
-        birthYearNum,
-        heightNum,
-        weightNum,
-        bloodType || null,
-        religion || null,
-        hobby || null,
-        mainPhotoUrl || null,
-        genderVal,              // 기본 'N'
-        certs || null
-      ],
-      { autoCommit: true }
+    // 1) 고객 INSERT + 새 MEMBER_NO 받기
+    const r1 = await connection.execute(
+      `INSERT INTO TBL_CMS_CUST_PROFILE
+       ( LOGIN_ID, PASSWORD, NAME, PR, ADDRESS, EMAIL, PHONE,
+         BIRTH_YEAR, HEIGHT, WEIGHT, BLOOD_TYPE, RELIGION, HOBBY,
+         MAIN_PHOTO_URL, GENDER, CERTS, CREATEBY )
+       VALUES
+       ( :loginId, :password, :name, :pr, :address, :email, :phone,
+         :birthYear, :height, :weight, :bloodType, :religion, :hobby,
+         :mainPhotoUrl, :gender, :certs, :createby )
+       RETURNING MEMBER_NO INTO :out_member_no`,
+      {
+        loginId: loginId || null,
+        password: (password && password.trim() !== '') ? password : null,
+        name: name || null,
+        pr: pr || null,
+        address: address || null,
+        email: email || null,
+        phone: phone || null,
+        birthYear: toNum(birthYear),
+        height: toNum(height),
+        weight: toNum(weight),
+        bloodType: bloodType || null,
+        religion: religion || null,
+        hobby: hobby || null,
+        mainPhotoUrl: mainPhotoUrl || null,
+        gender: (gender && String(gender).trim() !== '' ? String(gender).toUpperCase() : 'N'),
+        certs: certs || null,
+        createby: createby || null,
+        out_member_no: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 64 }
+      },
+      txOpts
     );
 
-    res.json({ result: "success" });
+    const memberNo = Array.isArray(r1.outBinds.out_member_no)
+      ? r1.outBinds.out_member_no[0]
+      : r1.outBinds.out_member_no;
+
+    // 2) 학력들 INSERT (있을 때만)
+    let insertedEdu = 0;
+    let eduArr = [];
+    try { eduArr = JSON.parse(educations || '[]'); } catch (_) {}
+
+    if (Array.isArray(eduArr) && eduArr.length > 0) {
+      const sqlEdu = `
+        INSERT INTO TBL_CMS_CUST_EDU
+        ( EDU_ID, MEMBER_NO, EDU_LEVEL, SCHOOLNO, SCHOOLNAME, MAJOR, ENTER_YEAR, GRAD_YEAR, AREA )
+        VALUES
+        ( NULL, :memberNo, :eduLevel, NULL, :schoolName, :major, :enterYear, :gradYear, :area )
+      `;
+      const bindsEdu = eduArr.map(e => ({
+        memberNo,
+        eduLevel: e.level || null,
+        schoolName: e.school || null,
+        major: e.major || null,
+        enterYear: toNum(e.enter),
+        gradYear: toNum(e.graduate),
+        area: e.area || null
+      }));
+      const r2 = await connection.executeMany(sqlEdu, bindsEdu, txOpts);
+      insertedEdu = r2.rowsAffected || 0;
+    }
+
+    await connection.commit();
+    res.json({ result: "success", memberNo, eduInserted: insertedEdu });
+  } catch (err) {
+    try { await connection.rollback(); } catch (_) {}
+    console.error('customerinsert tx error', err);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+
+
+// 고객 + 학력(1건) 동시 등록 (아주 단순 버전)
+app.get('/cms/customerinsert2', async (req, res) => {
+  // 프로필 기본 + 학력 1건만 받음
+  const {
+    name, phone, email, address, pr,
+    birthYear, height, weight, gender,
+    mainPhotoUrl,
+    createBy,                // 직원ID -> CREATEBY 컬럼
+
+    // 학력 1건
+    eduLevel, schoolName, major, enterYear, gradYear, area
+  } = req.query;
+
+  const toNum = v => (v == null || v === '' ? null : Number(v));
+
+  try {
+    // 1) 고객 프로필 INSERT + 생성된 MEMBER_NO 회수
+    const r1 = await connection.execute(
+      `INSERT INTO TBL_CMS_CUST_PROFILE
+       ( NAME, PHONE, EMAIL, ADDRESS, PR,
+         BIRTH_YEAR, HEIGHT, WEIGHT, GENDER, MAIN_PHOTO_URL, CREATEBY )
+       VALUES
+       ( :name, :phone, :email, :address, :pr,
+         :birthYear, :height, :weight, :gender, :mainPhotoUrl, :createBy )
+       RETURNING MEMBER_NO INTO :memberNo`,
+      {
+        name: name || null,
+        phone: phone || null,
+        email: email || null,
+        address: address || null,
+        pr: pr || null,
+        birthYear: toNum(birthYear),
+        height: toNum(height),
+        weight: toNum(weight),
+        gender: (gender || 'N').toUpperCase(),
+        mainPhotoUrl: mainPhotoUrl || null,
+        createBy: createBy || null,
+        memberNo: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 64 }
+      },
+      { autoCommit: false }   // 마지막에 한 번만 커밋
+    );
+
+    const memberNo = Array.isArray(r1.outBinds.memberNo)
+      ? r1.outBinds.memberNo[0]
+      : r1.outBinds.memberNo;
+
+    // 2) 학력 1건 INSERT (값이 있으면)
+    if (eduLevel || schoolName || major || enterYear || gradYear || area) {
+      await connection.execute(
+        `INSERT INTO TBL_CMS_CUST_EDU
+         ( EDU_ID, MEMBER_NO, EDU_LEVEL, SCHOOLNO, SCHOOLNAME, MAJOR, ENTER_YEAR, GRAD_YEAR, AREA )
+         VALUES
+         ( NULL, :memberNo, :eduLevel, NULL, :schoolName, :major, :enterYear, :gradYear, :area )`,
+        {
+          memberNo,
+          eduLevel: eduLevel || null,
+          schoolName: schoolName || null,
+          major: major || null,
+          enterYear: toNum(enterYear),
+          gradYear: toNum(gradYear),
+          area: area || null
+        },
+        { autoCommit: false }
+      );
+    }
+
+    await connection.commit();
+    res.json({ result: 'success', memberNo });
+  } catch (e) {
+    try { await connection.rollback(); } catch (_) {}
+    console.error('customerinsert2 error', e);
+    res.status(500).send('Error executing insert');
+  }
+});
+
+
+
+
+
+
+
+app.get('/cms/useridsearch', async (req, res) => {
+  const { loginId } = req.query;
+  try {
+    const result = await connection.execute(`SELECT * FROM system_user WHERE LOGIN_ID = '${loginId}'`);
+    const columnNames = result.metaData.map(column => column.name);
+
+    // 쿼리 결과를 JSON 형태로 변환
+    const rows = result.rows.map(row => {
+      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+      const obj = {};
+      columnNames.forEach((columnName, index) => {
+        obj[columnName] = row[index];
+      });
+      return obj;
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
+
+
+
+// 시스템 사용자 등록 복잡해서 주석처리
+// app.get('/cms/userinsert', async (req, res) => {
+//   let {
+//     loginId,
+//     password,
+//     name,
+//     email,
+//     phone,
+//     hiredAt,   
+//     status,
+//     note
+//   } = req.query;
+
+//   try {
+//     // 필요 컬럼만 우선 삽입 (없는 컬럼은 주석처리 후 스키마에 맞게 추가)
+//     let sql = `
+//      INSERT INTO SYSTEM_USER
+//      ( LOGIN_ID, PASSWORD, NAME, EMAIL, PHONE, HIRED_AT, STATUS, NOTE, CDATETIME, UDATETIME )
+//       VALUES
+//       ( :loginId, :password, :name, :email, :phone, TO_DATE(:hiredAt,'YYYY-MM-DD'), :status, :note, SYSDATE, SYSDATE )
+//      `;
+//     await connection.execute(
+//       sql,
+//       [
+//         loginId || null,
+//         (password && password.trim() !== '') ? password : null,
+//         name || null,
+//         email || null,
+//         phone || null,
+//         hiredAt || null,   
+//         status || 'active',
+//         note || null
+//       ],
+//       { autoCommit: true }
+//     );
+
+//     res.json({ result: 'success' });
+//   } catch (error) {
+//     console.error('Error executing insert', error);
+//     res.status(500).send('Error executing insert');
+//   }
+// });
+
+
+
+// 시스템 사용자 등록 - 학(최대한 단순)
+app.get('/cms/userinsert', async (req, res) => {
+  // 쿼리스트링 그대로 받기 (빈값 방지용 기본값만 살짝)
+  let {
+    loginId = '',
+    password = '',
+    name = '',
+    email = '',
+    phone = '',
+    hiredAt = '',   // 'YYYY-MM-DD'로 보낸다고 가정
+    status = 'active',
+    note = ''
+  } = req.query;
+
+  // 학원식: 문자열로 SQL 바로 구성 (간단/직관)
+  // HIRED_AT이 DATE 컬럼이면 TO_DATE 사용, 아니면 그냥 '${hiredAt}'
+  const query =
+    `INSERT INTO SYSTEM_USER
+     (LOGIN_ID, PASSWORD, NAME, EMAIL, PHONE, HIRED_AT, STATUS, NOTE, CDATETIME, UDATETIME)
+     VALUES
+     ('${loginId}', '${password}', '${name}', '${email}', '${phone}',
+      ${hiredAt ? `TO_DATE('${hiredAt}', 'YYYY-MM-DD')` : 'NULL'},
+      '${status}', '${note}', SYSDATE, SYSDATE)`;
+
+  try {
+    await connection.execute(query, [], { autoCommit: true });
+    res.json({ result: 'success' });
   } catch (error) {
     console.error('Error executing insert', error);
     res.status(500).send('Error executing insert');
   }
 });
+
+
+
+
+// 사용자 정보 수정 (업데이트)
+app.get('/cms/userupdate', async (req, res) => {
+  const { userId, name, email, phone, status, hiredAt, note } = req.query;
+
+  console.log("수정 요청:", req.query);
+
+  try {
+    // hiredAt이 값이 있으면 DATE로 변환, 없으면 NULL 처리
+    let hiredAtValue = hiredAt ? new Date(hiredAt) : null;
+
+    await connection.execute(
+      `UPDATE SYSTEM_USER 
+          SET NAME = :name,
+              EMAIL = :email,
+              PHONE = :phone,
+              STATUS = :status,
+              HIRED_AT = :hiredAt,
+              NOTE = :note
+        WHERE LOGIN_ID = :userId`,
+      [name, email, phone, status, hiredAtValue, note, userId],
+      { autoCommit: true }
+    );
+
+    res.json({ result: "success" });
+
+  } catch (error) {
+    console.error('Error executing update', error);
+    res.status(500).send('Error executing update');
+  }
+});
+
+
+
+
+// 직원 status 조회 (active / inactive / left)
+app.get('/cms/userstatus', async (req, res) => {
+  const { loginId } = req.query;
+  try {
+    const result = await connection.execute(
+      `SELECT STATUS FROM SYSTEM_USER WHERE LOGIN_ID = :id`,
+      [loginId]
+    );
+    // rows 기본 포맷이 배열형이라 첫 컬럼만 뽑습니다.
+    const status = (result.rows && result.rows.length > 0) ? result.rows[0][0] : null;
+
+    // 프론트에서 쓰기 좋게 단순 JSON
+    res.json({ status }); // e.g. { status: "active" }
+  } catch (err) {
+    console.error('Error executing userstatus', err);
+    res.status(500).send('Error executing userstatus');
+  }
+});
+
+
+
+
+
+// 학력 조회
+app.get('/cms/customeredu', async (req, res) => {
+  const { memberNo } = req.query;
+  // console.log("/cms/customeredu진입 " + memberNo);
+  if (!memberNo) return res.json({ result: "success", list: [] });
+
+  try {
+    const result = await connection.execute(
+      `SELECT
+          EDU_ID,
+          MEMBER_NO,
+          EDU_LEVEL,
+          SCHOOLNO,
+          SCHOOLNAME,
+          MAJOR,
+          ENTER_YEAR,
+          GRAD_YEAR,
+          AREA
+       FROM TBL_CMS_CUST_EDU
+       WHERE MEMBER_NO = :memberNo
+       ORDER BY ENTER_YEAR DESC NULLS LAST, GRAD_YEAR DESC NULLS LAST, EDU_ID DESC`,
+      [memberNo]
+    );
+
+    const cols = result.metaData.map(c => c.name);
+    const rows = result.rows.map(r => {
+      const o = {};
+      cols.forEach((name, i) => { o[name] = r[i]; });
+      return o;
+    });
+
+    res.json({ result: "success", list: rows });
+    // 만약 프론트가 '배열'만 원하면 ↓로 바꿔도 됨
+    // res.json(rows);
+  } catch (err) {
+    console.error('customeredu error:', err);
+    res.status(500).send('Error executing query');
+  }
+});
+
+
+
 
 
 

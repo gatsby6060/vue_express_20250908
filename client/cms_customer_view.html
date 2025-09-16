@@ -219,7 +219,8 @@
       <div class="profile">
         <div class="card">
           <!-- <img :src="photos.main" alt="메인 사진" class="photo-main"> -->
-          <img class="box2" :src="mainPhotoSrc()" width="170" height="200" style="cursor: pointer;" onclick="fnPopup2()">
+          <img class="box2" :src="mainPhotoSrc()" width="170" height="200" style="cursor: pointer;"
+            onclick="fnPopup2()">
           <!-- <div class="photo-sub">
             <img v-for="(s,i) in photos.sub" :key="'sub-'+i" :src="s" alt="보조 사진">
           </div> -->
@@ -247,10 +248,11 @@
         <div class="info-grid">
           <div class="info-item"><b>신장</b>{{ info.HEIGHT }}cm</div>
           <div class="info-item"><b>체중</b>{{ info.WEIGHT }}kg</div>
-          <div class="info-item"><b>혈액형</b>{{ info.BLOOD_TYPE }}</div>
-          <div class="info-item"><b>종교</b>{{ info.RELIGION }}</div>
-          <div class="info-item"><b>취미</b>{{ info.HOBBY }}</div>
+          <!-- <div class="info-item"><b>혈액형</b>{{ info.BLOOD_TYPE }}</div> -->
+          <!-- <div class="info-item"><b>종교</b>{{ info.RELIGION }}</div> -->
+          <!-- <div class="info-item"><b>취미</b>{{ info.HOBBY }}</div> -->
           <!-- <div class="info-item"><b>자격</b>{{ info.HOBBY }}</div> -->
+          <div class="info-item"><b>성별</b>{{ info.GENDER }}</div>
         </div>
       </div>
 
@@ -268,7 +270,7 @@
               <th>소재지</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="educations.length > 0">
             <tr v-for="(edu, i) in educations" :key="'edu-'+i">
               <td>{{ edu.level }}</td>
               <td>{{ edu.school }}</td>
@@ -276,6 +278,11 @@
               <td>{{ edu.enter }}</td>
               <td>{{ edu.graduate }}</td>
               <td>{{ edu.area }}</td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr>
+              <td colspan="6">학력 정보가 없습니다.</td>
             </tr>
           </tbody>
         </table>
@@ -348,8 +355,9 @@
       </div>
 
       <div class="text-muted">
-        담당 데이터 입력자 : {{ manager.name }} / {{ manager.phone }} /
-        <a :href="'mailto:'+manager.email">{{ manager.email }}</a>
+        담당 데이터 입력자 : {{ info.CREATEBY }}
+         <!-- / {{ manager.phone }} / -->
+        <!-- <a :href="'mailto:'+manager.email">{{ manager.email }}</a> -->
       </div>
       <div class="text-muted copyright">Copyright © 전경환 All Rights Reserved.</div>
     </div>
@@ -371,36 +379,38 @@
           },
           profile: {
             memberNo: "1100010222",
-            name: "전경환테스트",
-            pr: "고객의 특징입니다..\n순정파 스타일로 서로 마음이 맞으면 최선을 다해서 마음을 주는 스타일입니다.\n가끔 함께 야구장이나 공원 산책 좋아함",
-            address: "인천광역시 연수구 원인재로",
+            name: "더미테스트",
+            pr: "더미고객의 특징입니다..\n순정파 스타일로 서로 마음이 맞으면 최선을 다해서 마음을 주는 스타일입니다.\n가끔 함께 야구장이나 공원 산책 좋아함",
+            address: "더미인천광역시 연수구 원인재로",
             email: "uniline123@naver.com",
             phone: "010-7125-2266",
-            birthYear: 1986
+            birthYear: 9999
           },
-          details: {
-            height: 170, weight: 67, bloodType: "B형", religion: "불교",
-            hobby: "산책, 유튜브 시청", cert: "정보처리기사, 운전면허, SQLD, ADsP"
-          },
+          // details: {
+          //   height: 170, weight: 67, bloodType: "B형", religion: "불교",
+          //   hobby: "산책, 유튜브 시청", cert: "정보처리기사, 운전면허, SQLD, ADsP"
+          // },
           educations: [
-            { level: "고등", school: "연수", major: "인문계", enter: "2002", graduate: "2005", area: "인천" },
-            { level: "대학교", school: "인천", major: "산업경영공학", enter: "2005", graduate: "2011", area: "인천" },
-            { level: "대학원", school: "가천대", major: "모바일소프트웨어학", enter: "2015", graduate: "2017", area: "성남" }
+            //   { level: "더미고등학교", school: "더미연수", major: "더미인문계", enter: "2002", graduate: "2005", area: "인천" },
+            //   { level: "더미대학교", school: "더미인천", major: "더미산업경영공학", enter: "2005", graduate: "2011", area: "인천" },
+            //   { level: "더미대학원", school: "더미가천대", major: "더미모바일소프트웨어학", enter: "2015", graduate: "2017", area: "성남" }
           ],
-          jobs: [
-            { company: "(주)귀뚜라미홀딩스", industry: "중견기업(비상장, 관리)", headcount: 177, dept: "경영정보팀", position: "과장", area: "서울 마곡", joined: "2024-03" },
-            { company: "새롬씨앤씨", industry: "중소기업(비상장;관리)", headcount: 100, dept: "시스템정보팀", position: "과장", area: "", joined: "2021-10" }
-          ],
-          families: [
-            { relation: "부", age: 68, job: "현직|제조업", education: "대학교", married: "기혼", together: "동거", area: "인천", note: "" },
-            { relation: "모", age: 68, job: "현직|제조업", education: "대학(2,3년제)", married: "기혼", together: "동거", area: "인천", note: "" },
-            { relation: "여동생", age: 27, job: "현직|제조업", education: "대학교", married: "미혼", together: "동거", area: "인천", note: "" }
-          ],
-          manager: { name: "테스터", phone: "02-123-1234", email: "test@naver.com" }
+          // jobs: [
+          //   { company: "(주)귀뚜라미홀딩스", industry: "중견기업(비상장, 관리)", headcount: 177, dept: "경영정보팀", position: "과장", area: "서울 마곡", joined: "2024-03" },
+          //   { company: "새롬씨앤씨", industry: "중소기업(비상장;관리)", headcount: 100, dept: "시스템정보팀", position: "과장", area: "", joined: "2021-10" }
+          // ],
+          // families: [
+          //   { relation: "부", age: 68, job: "현직|제조업", education: "대학교", married: "기혼", together: "동거", area: "인천", note: "" },
+          //   { relation: "모", age: 68, job: "현직|제조업", education: "대학(2,3년제)", married: "기혼", together: "동거", area: "인천", note: "" },
+          //   { relation: "여동생", age: 27, job: "현직|제조업", education: "대학교", married: "미혼", together: "동거", area: "인천", note: "" }
+          // ],
+          manager: {
+            name: "더미테스터", phone: "더미02-123-1234", email: "더미test@naver.com"
+          }
         };
       },
       methods: {
-        // 베이스 패턴: jQuery AJAX 사용
+        // 고객 기초? 정보 : jQuery AJAX 사용
         fnViewProfile: function () {
           let self = this;
           $.ajax({
@@ -419,32 +429,58 @@
                 mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
                 // alert("사진 띄우기 탈출");
               }
-              
+
 
             }
           });
         },
+        // ⬇️ 고객 학력 불러오기 
+        fnLoadEducations: function () {
+          let self = this;
+          $.ajax({
+            url: "http://localhost:3009/cms/customeredu",
+            dataType: "json",
+            type: "GET",
+            data: { memberNo: self.memberNo },
+            success: function (res) {
+              // alert(JSON.stringify(res));
+              // 서버가 배열로 주는 경우/객체에 list로 주는 경우 모두 대응
+              const rows = Array.isArray(res) ? res : (res.list || []);
+              // 오라클 컬럼은 대문자일 수 있으니 안전 매핑
+              self.educations = rows.map(r => ({
+                level: r.EDU_LEVEL || r.LEVEL || "",
+                school: r.SCHOOLNAME || r.SCHOOL || "",
+                major: r.MAJOR || "",
+                enter: r.ENTER_YEAR || r.ENTER || "",
+                graduate: r.GRAD_YEAR || r.GRADUATE || "",
+                area: r.AREA || ""
+              }));
+            },
+          });
+        },
+
+
         mainPhotoSrc: function () {
           // alert("사진 띄우기 진입1");
           let self = this;
-            // alert("사진 띄우기 진입2");
-            // alert("MAIN_PHOTO_URL는 " + self.info.MAIN_PHOTO_URL);
-            let u = ".." + self.info.MAIN_PHOTO_URL;
-            // alert("MAIN_PHOTO_URL 앞에 .. 붙임 " + u);
-            // alert("사진 띄우기 진입3");
-            
+          // alert("사진 띄우기 진입2");
+          // alert("MAIN_PHOTO_URL는 " + self.info.MAIN_PHOTO_URL);
+          let u = ".." + self.info.MAIN_PHOTO_URL;
+          // alert("MAIN_PHOTO_URL 앞에 .. 붙임 " + u);
+          // alert("사진 띄우기 진입3");
+
           if (!u) {
             // alert("사진 띄우기 진입4");
             return '/photos/noimg.jpg'
             // alert("사진 띄우기 진입5");
           };
-            // alert("사진 띄우기 진입6");
+          // alert("사진 띄우기 진입6");
           // if (/^https?:\/\//i.test(u)) return u;   // http(s)://...
           // if (u.startsWith('/')) return u;         // /photos/cust010.jpg (캡처처럼)
           return `${u}`; // cust010.jpg → /photos/cust010.jpg
         },
-        fnGoList: function () { 
-          location.href = "cms_customer_list.html"; 
+        fnGoList: function () {
+          location.href = "cms_customer_list.html";
         }
       },
       mounted() {
@@ -464,6 +500,7 @@
 
 
         self.fnViewProfile();
+        self.fnLoadEducations();
         // self.mainPhotoSrc();
       }
     });

@@ -1,125 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>고객 정보 수정</title>
-  <!-- 베이스: jQuery CDN + integrity 포함 -->
-  <script src="https://code.jquery.com/jquery-3.7.1.js"
-          integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-          crossorigin="anonymous"></script>
-  <!-- 베이스: Vue 3 CDN -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-  <!-- 외부에 보이는 스타일 유지 + v-cloak 플리커 방지 -->
   <style>
-    [v-cloak]{ display:none; }
+    [v-cloak] {
+      display: none;
+    }
 
-    body { margin:0; background:#f5f6f8; font-family:Arial, sans-serif }
-    #app { display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:28px 12px; box-sizing:border-box }
-    .container { width:980px; max-width:100%; background:#fff; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.08); padding:22px }
-    .title { margin:0 0 16px; text-align:center; font-size:1.4rem; font-weight:800; color:#223 }
-    .section { margin-top:22px }
-    .section__hd { margin:0 0 10px; padding-bottom:6px; font-size:1.05rem; font-weight:800; color:#2b3a55; border-bottom:2px solid #e8eefc }
-    .grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px }
-    .card { background:#fff; border:1px solid #e9edf3; border-radius:12px; padding:12px }
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      font-family: Arial, sans-serif;
+    }
 
-    /* 폼 필드(카드 내 일반 필드) */
-    .field { display:flex; gap:10px; align-items:center; margin:6px 0 }
-    .field label { width:100px; color:#566 }
-    .field input, .field textarea, .field select { flex:1; padding:8px; border:1px solid #e5e9f2; border-radius:8px; min-width:0; }
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 28px 12px;
+      box-sizing: border-box;
+    }
 
-    /* 테이블 공통: 레이아웃 붕괴 방지 */
-    .table-wrap{ overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; table-layout:fixed; }
-    th, td { border:1px solid #e5e9f2; padding:8px 10px; text-align:center; vertical-align:middle; }
-    thead th { background:#f6f9ff; color:#2b3a55; font-weight:800 }
-    tbody tr:nth-child(even) td { background:#fafcff }
+    .container {
+      width: 980px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      padding: 22px;
+    }
 
-    /* 테이블 셀 안의 입력요소가 셀을 넘지 않도록 강제 */
-    td input, td select, td textarea {
-      width:100%;
-      max-width:100%;
-      box-sizing:border-box;
-      padding:6px 8px;
-      border:1px solid #e5e9f2;
-      border-radius:8px;
-      margin:0;            /* 불필요한 여백 방지 */
-      min-width:0;         /* flex/shrink 시 줄바꿈 허용 */
+    .title {
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #223;
+    }
+
+    .section {
+      margin-top: 22px;
+    }
+
+    .section__hd {
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #2b3a55;
+      border-bottom: 2px solid #e8eefc;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e9edf3;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    /* 상단 레이아웃 - 상세와 동일 */
+    .profile {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+      border: 1px solid #e9edf3;
+      border-radius: 12px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .photo-main {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 10px;
+      border-radius: 12px;
+      border: 4px solid #f1f4ff;
+    }
+
+    .pr {
+      background: #f8f9fd;
+      border: 1px solid #eef1f8;
+      border-radius: 10px;
+      padding: 10px;
+      line-height: 1.6;
+      color: #334;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    .field label {
+      width: 100px;
+      color: #566;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #e5e9f2;
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    /* Info grid (수정용) */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .info-item {
+      background: #f8fafc;
+      border: 1px solid #eef1f5;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .info-item b {
+      display: block;
+      color: #566;
+      margin-bottom: 4px;
+    }
+
+    /* 표(학력) */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid #e5e9f2;
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    thead th {
+      background: #f6f9ff;
+      color: #2b3a55;
+      font-weight: 800;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fafcff;
+    }
+
+    td input {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     /* 버튼 */
-    .btn-row { text-align:center; margin-top:16px }
-    .btn { display:inline-block; padding:10px 16px; border-radius:10px; border:none; background:#3a7afe; color:#fff; font-weight:800; cursor:pointer; box-shadow:0 4px 10px rgba(58,122,254,.18) }
-    .btn + .btn { margin-left:8px }
-    .btn--ghost { background:#eef3ff; color:#2b3a55 }
-    .mini { padding:6px 10px; border-radius:8px }
-    .danger { background:#ff5a5a }
-    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn-row {
+      text-align: center;
+      margin-top: 16px;
+    }
 
-    @media (max-width:760px) { .grid-2 { grid-template-columns:1fr } }
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #3a7afe;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(58, 122, 254, .18);
+    }
+
+    .btn+.btn {
+      margin-left: 8px;
+    }
+
+    .btn:hover {
+      background: #2b68ea;
+    }
+
+    .btn--ghost {
+      background: #eef3ff;
+      color: #2b3a55;
+    }
+
+    .mini {
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .danger {
+      background: #ff5a5a;
+    }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .text-muted {
+      text-align: center;
+      margin-top: 14px;
+      color: #666;
+    }
+
+    .copyright {
+      color: #98a0aa;
+      font-size: .9rem;
+    }
+
+    @media (max-width:760px) {
+      .profile {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div id="app">
-    <div class="container" v-cloak>
+  <div id="app" v-cloak>
+    <div class="container">
       <h2 class="title">고객 정보 수정</h2>
 
-      <!-- 기본 정보 -->
-      <div class="section">
-        <div class="section__hd">기본 정보</div>
+      <!-- 상단 프로필 (상세와 동일 레이아웃, 좌측은 미리보기, 우측은 입력폼) -->
+      <div class="profile">
+        <!-- 사진 -->
         <div class="card">
+          <img :src="photoPreview" alt="메인 사진" class="photo-main" onerror="this.src='/photos/noimg.jpg'">
+          <div class="field"><label>메인 사진 URL</label><input v-model="form.mainPhotoUrl" @input="updatePreview"
+              placeholder="/photos/cust010.jpg 또는 http(s)://..."></div>
+        </div>
+
+        <!-- 기본 정보 + PR -->
+        <div class="card">
+          <div class="section__hd">기본 정보</div>
           <div class="grid-2">
             <div>
-              <div class="field"><label>회원번호</label><input v-model="profile.memberNo" readonly></div>
-              <div class="field"><label>성명</label><input v-model="profile.name"></div>
-              <div class="field"><label>출생년</label><input v-model.number="profile.birthYear" type="number"></div>
-              <div class="field"><label>전화번호</label><input v-model="profile.phone"></div>
-              <div class="field"><label>이메일</label><input v-model="profile.email"></div>
-              <div class="field"><label>거주지</label><input v-model="profile.address"></div>
+              <div class="field"><label>회원번호</label><input v-model="form.memberNo" readonly></div>
+              <div class="field"><label>성명</label><input v-model.trim="form.name" placeholder="이름"></div>
+              <div class="field"><label>출생년</label><input v-model.number="form.birthYear" type="number"
+                  placeholder="예) 1988"></div>
+              <div class="field"><label>전화번호</label><input v-model.trim="form.phone" placeholder="010-...."></div>
+              <div class="field"><label>이메일</label><input v-model.trim="form.email" placeholder="test@..."></div>
+              <div class="field"><label>거주지</label><input v-model.trim="form.address" placeholder="인천..."></div>
             </div>
             <div>
               <div class="field" style="align-items:flex-start">
                 <label>나의 PR</label>
-                <textarea v-model="profile.pr" rows="7" placeholder="자기 소개를 입력하세요"></textarea>
+                <textarea v-model="form.pr" rows="7" placeholder="자기소개를 입력하세요" style="white-space:pre-line;"></textarea>
+              </div>
+              <div class="field">
+                <label>성별</label>
+                <select v-model="form.gender">
+                  <option value="N">선택안함(N)</option>
+                  <option value="M">남(M)</option>
+                  <option value="F">여(F)</option>
+                </select>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 사진 -->
-      <div class="section">
-        <div class="section__hd">사진</div>
-        <div class="card">
-          <div class="field"><label>메인 사진 URL</label><input v-model="photos.main" placeholder="/lib/binaryread_photo.asp?..."></div>
-          <div class="photo-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
-            <input v-for="(s,i) in photos.sub" :key="'ps-'+i" v-model="photos.sub[i]" placeholder="보조 사진 URL" />
-          </div>
-          <div class="btn-row" style="margin-top:10px">
-            <button class="btn mini btn--ghost" @click="addSubPhoto">보조 사진 추가</button>
-            <button class="btn mini danger" @click="removeSubPhoto" :disabled="photos.sub.length===0">보조 사진 삭제</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 신상 -->
+      <!-- 신상 정보 -->
       <div class="section">
         <div class="section__hd">신상 정보</div>
-        <div class="card">
-          <div class="grid-2">
-            <div class="field"><label>신장(cm)</label><input v-model.number="details.height" type="number"></div>
-            <div class="field"><label>체중(kg)</label><input v-model.number="details.weight" type="number"></div>
-            <div class="field"><label>혈액형</label><input v-model="details.bloodType"></div>
-            <div class="field"><label>종교</label><input v-model="details.religion"></div>
-            <div class="field"><label>취미</label><input v-model="details.hobby"></div>
-            <div class="field"><label>자격</label><input v-model="details.cert" placeholder="예) 정보처리기사, SQLD"></div>
+        <div class="info-grid">
+          <div class="info-item">
+            <b>신장(cm)</b>
+            <input v-model.number="form.height" type="number" placeholder="예) 175">
           </div>
+          <div class="info-item">
+            <b>체중(kg)</b>
+            <input v-model.number="form.weight" type="number" placeholder="예) 70">
+          </div>
+          <!-- 필요하면 아래 항목도 열어 사용 가능
+        <div class="info-item"><b>혈액형</b><input v-model="form.bloodType"></div>
+        <div class="info-item"><b>종교</b><input v-model="form.religion"></div>
+        <div class="info-item"><b>취미</b><input v-model="form.hobby"></div>
+        -->
         </div>
       </div>
 
-      <!-- 학력 -->
+      <!-- 학력 정보 -->
       <div class="section">
         <div class="section__hd">학력 정보</div>
         <div class="card">
@@ -127,241 +323,237 @@
             <table>
               <thead>
                 <tr>
-                  <th>구분</th><th>학교명</th><th>전공</th><th>입학년도</th><th>졸업년도</th><th>소재지</th><th>관리</th>
+                  <th>구분</th>
+                  <th>학교명</th>
+                  <th>전공</th>
+                  <th>입학년도</th>
+                  <th>졸업년도</th>
+                  <th>소재지</th>
+                  <th>관리</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(it,idx) in educations" :key="'edu-'+idx">
-                  <td><input v-model="it.level" placeholder="고등/대학교/대학원"></td>
-                  <td><input v-model="it.school"></td>
-                  <td><input v-model="it.major"></td>
-                  <td><input v-model="it.enter"></td>
-                  <td><input v-model="it.graduate"></td>
-                  <td><input v-model="it.area"></td>
+                  <td><input v-model.trim="it.level" placeholder="고등/대학교/대학원"></td>
+                  <td><input v-model.trim="it.school"></td>
+                  <td><input v-model.trim="it.major"></td>
+                  <td><input v-model.trim="it.enter" placeholder="YYYY"></td>
+                  <td><input v-model.trim="it.graduate" placeholder="YYYY"></td>
+                  <td><input v-model.trim="it.area"></td>
                   <td><button class="btn mini danger" @click="educations.splice(idx,1)">삭제</button></td>
                 </tr>
                 <tr v-if="educations.length===0">
-                  <td colspan="7">행이 없습니다. 추가를 눌러주세요.</td>
+                  <td colspan="7">행이 없습니다. 아래 버튼으로 추가하세요.</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="btn-row"><button class="btn mini btn--ghost" @click="addEdu">학력 추가</button></div>
-        </div>
-      </div>
-
-      <!-- 직업 -->
-      <div class="section">
-        <div class="section__hd">직업 정보</div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>회사</th><th>업종</th><th>직원수</th><th>부서</th><th>직위</th><th>소재지</th><th>입사년</th><th>관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(it,idx) in jobs" :key="'job-'+idx">
-                  <td><input v-model="it.company"></td>
-                  <td><input v-model="it.industry"></td>
-                  <td><input v-model.number="it.headcount" type="number"></td>
-                  <td><input v-model="it.dept"></td>
-                  <td><input v-model="it.position"></td>
-                  <td><input v-model="it.area"></td>
-                  <td><input v-model="it.joined" placeholder="YYYY-MM"></td>
-                  <td><button class="btn mini danger" @click="jobs.splice(idx,1)">삭제</button></td>
-                </tr>
-                <tr v-if="jobs.length===0">
-                  <td colspan="8">행이 없습니다. 추가를 눌러주세요.</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="btn-row">
+            <button class="btn mini btn--ghost" @click="addEdu">학력 추가</button>
           </div>
-          <div class="btn-row"><button class="btn mini btn--ghost" @click="addJob">직업 추가</button></div>
         </div>
       </div>
 
-      <!-- 가족 -->
-      <div class="section">
-        <div class="section__hd">가족 정보</div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>관계</th><th>연령</th><th>직업</th><th>학력</th><th>결혼</th><th>동거</th><th>거주지</th><th>비고</th><th>관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(it,idx) in families" :key="'fam-'+idx">
-                  <td><input v-model="it.relation"></td>
-                  <td><input v-model.number="it.age" type="number"></td>
-                  <td><input v-model="it.job"></td>
-                  <td><input v-model="it.education"></td>
-                  <td><input v-model="it.married"></td>
-                  <td><input v-model="it.together"></td>
-                  <td><input v-model="it.area"></td>
-                  <td><input v-model="it.note"></td>
-                  <td><button class="btn mini danger" @click="families.splice(idx,1)">삭제</button></td>
-                </tr>
-                <tr v-if="families.length===0">
-                  <td colspan="9">행이 없습니다. 추가를 눌러주세요.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="btn-row"><button class="btn mini btn--ghost" @click="addFamily">가족 추가</button></div>
-        </div>
-      </div>
-
+      <!-- 버튼 -->
       <div class="btn-row">
-        <button class="btn" @click="save">저장(수정)</button>
-        <button class="btn btn--ghost" @click="goList">목록으로</button>
+        <button class="btn" @click="save" :disabled="!canEdit">저장(수정)</button>
+        <button class="btn btn--ghost" @click="goDetail">상세로</button>
+        <div class="text-muted" v-if="!canEdit" style="margin-top:8px;">작성자만 수정할 수 있습니다. (작성자: {{ ownerId || '-' }})
+        </div>
       </div>
+
+      <div class="text-muted">
+        담당 데이터 입력자 : {{ ownerId || '-' }}
+      </div>
+      <div class="text-muted copyright">Copyright © 전경환 All Rights Reserved.</div>
     </div>
   </div>
 
   <script>
-    // 쿼리 파라미터 헬퍼
-    function getQuery(name) {
-      const m = new URLSearchParams(location.search).get(name);
-      return m ? decodeURIComponent(m) : "";
-    }
+    function qp(name) { const v = new URLSearchParams(location.search).get(name); return v ? decodeURIComponent(v) : ""; }
 
     const app = Vue.createApp({
       data() {
         return {
-          memberNoParam: getQuery("memberNo"),
-          // 기본 화면이 비지 않도록 더미 데이터 설정
-          photos: {
-            main: "/html/myMeetingdiary/img/img-main-profile01.jpg",
-            sub: [
-              "/html/myMeetingdiary/img/img-main-profile01.jpg",
-              "/html/myMeetingdiary/img/img-main-profile01.jpg",
-              "/html/myMeetingdiary/img/img-main-profile01.jpg"
-            ]
+          memberNo: qp('memberNo') || '',
+          // 로그인 세션
+          sessionId: sessionStorage.getItem('sessionId') || '',
+          sessionStatus: sessionStorage.getItem('sessionStatus') || '',
+          // 소유자(작성자)
+          ownerId: '',
+
+          // 폼
+          form: {
+            memberNo: '',
+            name: '',
+            pr: '',
+            address: '',
+            email: '',
+            phone: '',
+            birthYear: null,
+            height: null,
+            weight: null,
+            gender: 'N',
+            mainPhotoUrl: ''
+            // bloodType:'', religion:'', hobby:''
           },
-          profile: {
-            memberNo: "1100010222",
-            name: "전경환",
-            pr: "더미 데이터입니다.\n자기소개가 여기에 표시됩니다.",
-            address: "인천광역시 연수구 원인재로",
-            email: "uniline123@naver.com",
-            phone: "010-0000-0000",
-            birthYear: 1986
-          },
-          details: {
-            height: 170, weight: 67, bloodType: "B형", religion: "불교",
-            hobby: "산책, 유튜브", cert: "정보처리기사, SQLD"
-          },
-          educations: [
-            { level:"고등", school:"연수고", major:"인문계", enter:"2002", graduate:"2005", area:"인천" }
-          ],
-          jobs: [
-            { company:"더미회사", industry:"제조업", headcount:100, dept:"정보팀", position:"과장", area:"인천", joined:"2021-10" }
-          ],
-          families: [
-            { relation:"부", age:68, job:"제조업", education:"대학교", married:"기혼", together:"동거", area:"인천", note:"" }
-          ]
+
+          // 학력
+          educations: [],
+
+          // 미리보기
+          photoPreview: '/photos/noimg.jpg',
+
+          // 권한
+          canEdit: false
         }
       },
       mounted() {
-        if (this.memberNoParam) {
-          this.fetchProfile(this.memberNoParam);
+        if (!this.sessionId) {
+          alert('로그인이 필요합니다.');
+          location.href = 'cms_login.html';
+          return;
         }
+        if (!this.memberNo) {
+          alert('memberNo 파라미터가 없습니다.');
+          history.back();
+          return;
+        }
+        this.loadAll();
       },
       methods: {
-        addSubPhoto() { this.photos.sub.push(""); },
-        removeSubPhoto() { if (this.photos.sub.length > 0) this.photos.sub.pop(); },
-        addEdu() { this.educations.push({ level:"", school:"", major:"", enter:"", graduate:"", area:"" }); },
-        addJob() { this.jobs.push({ company:"", industry:"", headcount:null, dept:"", position:"", area:"", joined:"" }); },
-        addFamily() { this.families.push({ relation:"", age:null, job:"", education:"", married:"", together:"", area:"", note:"" }); },
+        updatePreview() {
+          const u = this.form.mainPhotoUrl || '';
+          if (!u) { this.photoPreview = '/photos/noimg.jpg'; return; }
+          // 상세처럼 상대경로면 앞에 .. 붙여 쓰고 싶다면 아래 한 줄을 켜도 됨
+          // this.photoPreview = u.startsWith('http') || u.startsWith('/') ? u : ('..' + u);
+          this.photoPreview = u;
+        },
+        addEdu() { this.educations.push({ level: '', school: '', major: '', enter: '', graduate: '', area: '' }); },
 
-        fetchProfile(memberNo) {
-          $.ajax({
-            url: "http://localhost:3009/api/profile/" + encodeURIComponent(memberNo),
-            type: "GET", dataType: "json",
-            success: (data) => {
-              if (!data) { alert("데이터가 없습니다. 더미 화면을 유지합니다."); return; }
-              // 기본
-              this.profile.memberNo  = data.memberNo  ?? this.profile.memberNo;
-              this.profile.name      = data.name      ?? this.profile.name;
-              this.profile.pr        = data.pr        ?? this.profile.pr;
-              this.profile.address   = data.address   ?? this.profile.address;
-              this.profile.email     = data.email     ?? this.profile.email;
-              this.profile.phone     = data.phone     ?? this.profile.phone;
-              this.profile.birthYear = data.birthYear ?? this.profile.birthYear;
-              // 상세
-              this.details.height    = data.height    ?? this.details.height;
-              this.details.weight    = data.weight    ?? this.details.weight;
-              this.details.bloodType = data.bloodType ?? this.details.bloodType;
-              this.details.religion  = data.religion  ?? this.details.religion;
-              this.details.hobby     = data.hobby     ?? this.details.hobby;
-              this.details.cert      = (data.certList && data.certList.join(", ")) ?? this.details.cert;
-              // 배열
-              this.educations = data.educations ?? this.educations;
-              this.jobs       = data.jobs       ?? this.jobs;
-              this.families   = data.families   ?? this.families;
-              // 사진
-              if (data.photos){
-                this.photos.main = data.photos.main ?? this.photos.main;
-                this.photos.sub  = data.photos.sub  ?? this.photos.sub;
+        async loadAll() {
+          try {
+            // 1) 프로필
+            await $.ajax({
+              url: 'http://localhost:3009/cms/customerinfo/',
+              type: 'GET', dataType: 'json',
+              data: { memberNo: this.memberNo },
+              success: (res) => {
+                const info = res?.info || {};
+                this.ownerId = info.CREATEBY || '';
+                this.form.memberNo = info.MEMBER_NO || this.memberNo;
+                this.form.name = info.NAME || '';
+                this.form.pr = info.PR || '';
+                this.form.address = info.ADDRESS || '';
+                this.form.email = info.EMAIL || '';
+                this.form.phone = info.PHONE || '';
+                this.form.birthYear = info.BIRTH_YEAR || null;
+                this.form.height = info.HEIGHT || null;
+                this.form.weight = info.WEIGHT || null;
+                this.form.gender = info.GENDER || 'N';
+                this.form.mainPhotoUrl = info.MAIN_PHOTO_URL || '';
+                this.updatePreview();
+
+                // 권한: 작성자만
+                this.canEdit = (this.sessionId && this.sessionId === this.ownerId);
               }
-            },
-            error: (xhr) => {
-              console.error(xhr?.responseText || xhr);
-              alert("불러오기 실패. 더미 화면을 유지합니다.");
-            }
-          });
+            });
+
+            // 2) 학력
+            await $.ajax({
+              url: 'http://localhost:3009/cms/customeredu',
+              type: 'GET', dataType: 'json',
+              data: { memberNo: this.memberNo },
+              success: (res) => {
+                const rows = Array.isArray(res) ? res : (res.list || []);
+                this.educations = rows.map(r => ({
+                  level: r.EDU_LEVEL || r.LEVEL || '',
+                  school: r.SCHOOLNAME || r.SCHOOL || '',
+                  major: r.MAJOR || '',
+                  enter: r.ENTER_YEAR || r.ENTER || '',
+                  graduate: r.GRAD_YEAR || r.GRADUATE || '',
+                  area: r.AREA || ''
+                }));
+              }
+            });
+          } catch (e) {
+            console.error(e);
+            alert('데이터 로딩 실패');
+          }
         },
 
         validate() {
-          if (!this.profile.memberNo?.trim()) { alert("회원번호가 비어 있습니다."); return false; }
-          if (!this.profile.name?.trim()) { alert("성명이 비어 있습니다."); return false; }
+          if (!this.canEdit) { alert('수정 권한이 없습니다.'); return false; }
+          if (!this.form.name?.trim()) { alert('성명을 입력하세요.'); return false; }
           return true;
         },
-        payload() {
-          const certList = this.details.cert
-            ? this.details.cert.split(",").map(s => s.trim()).filter(Boolean)
-            : [];
-          return {
-            memberNo: this.profile.memberNo,
-            name: this.profile.name,
-            pr: this.profile.pr,
-            address: this.profile.address,
-            email: this.profile.email,
-            phone: this.profile.phone,
-            birthYear: this.profile.birthYear,
-            height: this.details.height,
-            weight: this.details.weight,
-            bloodType: this.details.bloodType,
-            religion: this.details.religion,
-            hobby: this.details.hobby,
-            certList,
-            educations: this.educations,
-            jobs: this.jobs,
-            families: this.families,
-            photos: { main: this.photos.main, sub: this.photos.sub }
-          };
+
+        // 서버가 요구하는 키로 변환(학력)
+        eduPayload() {
+          return this.educations.map(e => ({
+            EDU_LEVEL: e.level || null,
+            SCHOOLNAME: e.school || null,
+            MAJOR: e.major || null,
+            ENTER_YEAR: e.enter ? Number(e.enter) : null,
+            GRAD_YEAR: e.graduate ? Number(e.graduate) : null,
+            AREA: e.area || null
+          }));
         },
-        save() {
+
+        async save() {
           if (!this.validate()) return;
-          const id = this.profile.memberNo;
-          $.ajax({
-            url: "http://localhost:3009/api/profile/" + encodeURIComponent(id),
-            type: "PUT",
-            data: JSON.stringify(this.payload()),
-            contentType: "application/json; charset=utf-8",
-            success: () => { alert("수정되었습니다."); this.goList(); },
-            error: (xhr) => { console.error(xhr?.responseText || xhr); alert("수정 실패"); }
-          });
+
+          try {
+            // 1) 프로필 업데이트
+            await $.ajax({
+              url: 'http://localhost:3009/cms/customerupdate',
+              type: 'GET', dataType: 'json',
+              data: {
+                memberNo: this.form.memberNo,
+                name: this.form.name,
+                pr: this.form.pr,
+                address: this.form.address,
+                email: this.form.email,
+                phone: this.form.phone,
+                birthYear: this.form.birthYear ?? '',
+                height: this.form.height ?? '',
+                weight: this.form.weight ?? '',
+                gender: this.form.gender || 'N',
+                mainPhotoUrl: this.form.mainPhotoUrl || ''
+                // bloodType: this.form.bloodType || '',
+                // religion : this.form.religion  || '',
+                // hobby    : this.form.hobby     || ''
+              }
+            });
+
+            // 2) 학력 통째 갈아끼우기
+            await $.ajax({
+              url: 'http://localhost:3009/cms/customeredu/replace',
+              type: 'GET', dataType: 'json',
+              // GET + JSON 문자열(현 서버 스타일 맞춤)
+              data: {
+                memberNo: this.form.memberNo,
+                list: JSON.stringify(this.eduPayload())
+              },
+              traditional: true
+            });
+
+            alert('수정되었습니다.');
+            this.goDetail();
+          } catch (err) {
+            console.error(err);
+            alert('수정 실패');
+          }
         },
-        goList() { location.href = "jghtest_250911_2_customerlist.html"; }
+
+        goDetail() {
+          location.href = `cms_customer_view.html?memberNo=${encodeURIComponent(this.form.memberNo)}`;
+        }
       }
     });
 
-    app.mount("#app");
+    app.mount('#app');
   </script>
 </body>
+
 </html>

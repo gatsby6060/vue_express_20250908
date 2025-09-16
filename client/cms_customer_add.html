@@ -210,9 +210,13 @@
             <div>
               <div class="field" style="align-items:flex-start">
                 <label>고객 PR</label>
-                <textarea v-model="profile.pr" rows="7" placeholder="자기 소개를 입력하세요"></textarea>
+                <textarea v-model="profile.pr" rows="6" placeholder="자기 소개를 입력하세요"></textarea>
               </div>
+              <div class="field"><label>성별</label><input v-model="profile.sex" placeholder="예) M, F..."></div>
+              <div class="field"><label>키</label><input v-model="profile.height" placeholder="예) 180"></div>
+              <div class="field"><label>몸무게</label><input v-model="profile.weight" placeholder="예) 80"></div>
             </div>
+
           </div>
         </div>
       </div>
@@ -227,8 +231,8 @@
             <input v-for="(s,i) in photos.sub" :key="'ps-'+i" v-model="photos.sub[i]" placeholder="보조 사진 URL" />
           </div>
           <div class="btn-row" style="margin-top:10px">
-            <button class="btn mini btn--ghost" @click="addSubPhoto">보조 사진 추가</button>
-            <button class="btn mini danger" @click="removeSubPhoto" :disabled="photos.sub.length===0">보조 사진 삭제</button>
+            <!-- <button class="btn mini btn--ghost" @click="addSubPhoto">보조 사진 추가</button> -->
+            <!-- <button class="btn mini danger" @click="removeSubPhoto" :disabled="photos.sub.length===0">보조 사진 삭제</button> -->
           </div>
         </div>
       </div>
@@ -247,7 +251,7 @@
                   <th>입학년도</th>
                   <th>졸업년도</th>
                   <th>소재지</th>
-                  <th>관리</th>
+                  <!-- <th>관리</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -258,7 +262,7 @@
                   <td><input v-model="it.enter"></td>
                   <td><input v-model="it.graduate"></td>
                   <td><input v-model="it.area"></td>
-                  <td><button class="btn mini danger" @click="educations.splice(idx,1)">삭제</button></td>
+                  <!-- <td><button class="btn mini danger" @click="educations.splice(idx,1)">삭제</button></td> -->
                 </tr>
                 <tr v-if="educations.length===0">
                   <td colspan="7">행이 없습니다. 추가를 눌러주세요.</td>
@@ -347,8 +351,11 @@
       data() {
         return {
           photos: { main: "", sub: [] },
-          profile: { memberNo: "", name: "", pr: "", address: "", email: "", phone: "", birthYear: null },
-          details: { height: null, weight: null, bloodType: "", religion: "", hobby: "", cert: "" },
+          profile: {
+            memberNo: "", name: "", pr: "", address: "", email: "", phone: "", birthYear: null,
+            sex: "", height: "", weight: ""
+          },
+          // details: { height: null, weight: null, bloodType: "", religion: "", hobby: "", cert: "" },
           educations: [],
           // jobs: [],
           // families: []
@@ -372,8 +379,15 @@
             birthYear: self.profile.birthYear ?? "",
 
             // photos: main은 그대로, sub는 콤마 문자열
-            mainPhoto: self.photos.main || "",
-            subPhotos: (self.photos.sub || []).join(","),
+            mainPhotoUrl: self.photos.main || "",
+            // subPhotos: (self.photos.sub || []).join(","),
+
+            height: self.profile.height || "",
+            weight: self.profile.weight || "",
+            gender: (self.profile.sex || "N"),
+
+            // ★ 입력자(직원ID)
+            createby: (sessionStorage.getItem("sessionId") || ""),
 
             // details/educations는 JSON 문자열
             details: JSON.stringify(self.details || {}),
