@@ -350,13 +350,13 @@
 
       <!-- 버튼 -->
       <div class="btn-row">
-        <button class="btn" @click="fnViewProfile(profile.memberNo)">프로필 수정하기</button>
+        <button class="btn" v-if="canEdit" @click="fnGoEdit">프로필 수정하기</button>
         <button class="btn" @click="fnGoList">목록으로</button>
       </div>
 
       <div class="text-muted">
         담당 데이터 입력자 : {{ info.CREATEBY }}
-         <!-- / {{ manager.phone }} / -->
+        <!-- / {{ manager.phone }} / -->
         <!-- <a :href="'mailto:'+manager.email">{{ manager.email }}</a> -->
       </div>
       <div class="text-muted copyright">Copyright © 전경환 All Rights Reserved.</div>
@@ -406,7 +406,10 @@
           // ],
           manager: {
             name: "더미테스터", phone: "더미02-123-1234", email: "더미test@naver.com"
-          }
+          },
+          sessionId: "",        // 현재 로그인 사용자
+          sessionStatus: "",    // 상태(필요시)
+          canEdit: false        // ⬅️ 작성자만 수정 가능 여부
         };
       },
       methods: {
@@ -425,6 +428,7 @@
                 // alert(JSON.stringify(data.info));
 
                 self.info = data.info;
+                self.canEdit = (self.sessionId === self.info.CREATEBY);
                 // alert("사진 띄우기 진입직전");
                 mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
                 // alert("사진 띄우기 탈출");
@@ -481,7 +485,13 @@
         },
         fnGoList: function () {
           location.href = "cms_customer_list.html";
-        }
+        },
+        // 수정 페이지로 이동
+        fnGoEdit: function () {
+          self = this;
+          // self.memberNo는 쿼리에서 뽑아온 값, info.MEMBER_NO를 써도 OK
+          location.href = `cms_customer_update.html?memberNo=${encodeURIComponent(self.memberNo)}`;
+        },
       },
       mounted() {
         // 처음 시작할 때 실행되는 부분
@@ -493,9 +503,9 @@
 
 
         //세션정보 꺼냄 꺼내자 마자 위에 선언한 변수 sessionId에 넣어버림 세션아이디의 값하고 info유저의 값하고 같을때만 버튼 보ㅈ줄꺼
-        this.sessionId = sessionStorage.getItem("sessionId"); //set할때 이름이 sessionID이었음 그걸 get으로 꺼냄
+        self.sessionId = sessionStorage.getItem("sessionId"); //set할때 이름이 sessionID이었음 그걸 get으로 꺼냄
 
-        this.sessionStatus = sessionStorage.getItem("sessionStatus"); //로그인 할때 set했는데 그때 이름이  sessionStatus였음
+        self.sessionStatus = sessionStorage.getItem("sessionStatus"); //로그인 할때 set했는데 그때 이름이  sessionStatus였음
 
 
 

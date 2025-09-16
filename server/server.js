@@ -1312,7 +1312,67 @@ app.get('/cms/customeredu', async (req, res) => {
 });
 
 
+// 1) 프로필 업데이트
+app.get('/cms/customerupdate', async (req, res) => {
+  const {
+    memberNo, name, pr, address, email, phone,
+    birthYear, height, weight, gender, mainPhotoUrl
+  } = req.query;
 
+  try {
+    await connection.execute(
+      `UPDATE TBL_CMS_CUST_PROFILE
+         SET NAME=:name, PR=:pr, ADDRESS=:address, EMAIL=:email, PHONE=:phone,
+             BIRTH_YEAR=:birthYear, HEIGHT=:height, WEIGHT=:weight,
+             GENDER=:gender, MAIN_PHOTO_URL=:mainPhotoUrl, UDATETIME=SYSDATE
+       WHERE MEMBER_NO=:memberNo`,
+      [
+        name||null, pr||null, address||null, email||null, phone||null,
+        birthYear?Number(birthYear):null, height?Number(height):null, weight?Number(weight):null,
+        (gender||'N').toUpperCase(), mainPhotoUrl||null, memberNo
+      ],
+      { autoCommit:true }
+    );
+    res.json({result:'success'});
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Error executing update');
+  }
+});
+
+// 2) 학력은 전체를 갈아끼우기(전체 delete 후 insert)
+app.get('/cms/customeredu/replace', async (req, res) => {
+  const { memberNo, list } = req.query;
+  if(!memberNo) return res.status(400).send('memberNo required');
+
+  try {
+    const rows = list ? JSON.parse(list) : [];
+    await connection.execute(`DELETE FROM TBL_CMS_CUST_EDU WHERE MEMBER_NO=:m`, [memberNo]);
+
+    for (const r of rows) {
+      await connection.execute(
+        `INSERT INTO TBL_CMS_CUST_EDU
+          (EDU_ID, MEMBER_NO, EDU_LEVEL, SCHOOLNO, SCHOOLNAME, MAJOR, ENTER_YEAR, GRAD_YEAR, AREA)
+         VALUES (NULL, :m, :lvl, NULL, :sch, :maj, :ent, :grd, :area)`,
+        [
+          memberNo,
+          r.EDU_LEVEL || null,
+          r.SCHOOLNAME || null,
+          r.MAJOR || null,
+          r.ENTER_YEAR || null,
+          r.GRAD_YEAR || null,
+          r.AREA || null
+        ]
+      );
+    }
+    await connection.commit();
+    res.json({result:'success'});
+  } catch (e) {
+    try { await connection.rollback(); } catch(_) {}
+    console.error(e);
+    res.status(500).send('Error executing replace');
+  }
+});
 
 
 
