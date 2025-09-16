@@ -357,7 +357,7 @@
       <!-- 버튼 -->
       <div class="btn-row">
         <button class="btn" @click="save" :disabled="!canEdit">저장(수정)</button>
-        <button class="btn btn--ghost" @click="goDetail">상세로</button>
+        <button class="btn btn--ghost" @click="goDetail">고객정보상세 페이지로 이동</button>
         <div class="text-muted" v-if="!canEdit" style="margin-top:8px;">작성자만 수정할 수 있습니다. (작성자: {{ ownerId || '-' }})
         </div>
       </div>
