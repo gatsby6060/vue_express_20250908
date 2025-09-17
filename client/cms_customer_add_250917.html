@@ -239,8 +239,7 @@
       </div>
       <div>
         <h2>이미지 업로드</h2>
-        <!-- <form @submit.prevent="fnUpload"> -->
-          <!-- <input type="file" ref="fileInput" accept="image/*" /> -->
+        <form @submit.prevent="fnUpload">
           <input type="file" ref="fileInput" accept="image/*" required />
           <button type="submit" hidden>업로드</button>
         </form>
@@ -385,100 +384,79 @@
       },
       methods: {
 
-        // 저장 버튼
         save: function () {
-          var self = this;
-          self.fnUploadImg(function (uploadedPath) {
-            const param = self.makeParam(uploadedPath);
-            self.submitInsert(param);
-          });
-        },
+          let self = this;
+          let param = {
+            // profile은 단순 키-값이라 그대로
 
-        // 업로드 → 경로 콜백
-        fnUploadImg: function (cb) {
-          var fileInput = this.$refs.fileInput;
-          if (!fileInput || fileInput.files.length === 0) { cb(null); return; }
+            name: self.profile.name || "",
+            pr: self.profile.pr || "",
+            address: self.profile.address || "",
+            email: self.profile.email || "",
+            phone: self.profile.phone || "",
+            birthYear: self.profile.birthYear ?? "",
 
-          var fd = new FormData();
-          fd.append('image', fileInput.files[0]);
+            // photos: main은 그대로, sub는 콤마 문자열
+            mainPhotoUrl: self.photos.main || "",
+            // subPhotos: (self.photos.sub || []).join(","),
 
-          $.ajax({
-            url: 'http://localhost:3009/upload',
-            method: 'POST',
-            data: fd,
-            processData: false,
-            contentType: false,
-            success: (res) => {
-              var path = (res && res.path) ? String(res.path).replace(/\\/g, '/') : null;
-              this.uploadResult = res;
-              this.photos.main = path || this.photos.main;
-              cb(path);
-            },
-            error: (err) => { console.error(err); alert('업로드 실패(이미지 없이 저장 진행)'); cb(null); }
-          });
-        },
+            height: self.profile.height || "",
+            weight: self.profile.weight || "",
+            gender: (self.profile.sex || "N"),
 
-        // INSERT에 보낼 파라미터 만들기
-        makeParam: function (uploadedPath) {
-          return {
-            name: this.profile.name || "",
-            pr: this.profile.pr || "",
-            address: this.profile.address || "",
-            email: this.profile.email || "",
-            phone: this.profile.phone || "",
-            birthYear: this.profile.birthYear ?? "",
-            mainPhotoUrl: (uploadedPath || this.photos.main || ""),
-            height: this.profile.height || "",
-            weight: this.profile.weight || "",
-            gender: (this.profile.sex || "N"),
+            // ★ 입력자(직원ID)
             createby: (sessionStorage.getItem("sessionId") || ""),
-            // details: JSON.stringify(this.details || {}), // 안 쓰면 제거
-            educations: JSON.stringify(this.educations || [])
-          };
-        },
 
-        // 서버 전송
-        submitInsert: function (param) {
+            // details/educations는 JSON 문자열
+            details: JSON.stringify(self.details || {}),
+            educations: JSON.stringify(self.educations || [])
+          };
+
           $.ajax({
             url: "http://localhost:3009/cms/customerinsert",
             dataType: "json",
-            type: "GET",        
+            type: "GET",
             data: param,
-            success: () => { alert("등록되었습니다."); this.goList(); },
-            error: (e) => { console.error(e); alert("등록 실패"); }
+            success: function (data) {
+              alert("등록되었습니다.");
+              self.goList();
+              self.fnUpload(); // 저장버튼 누르면 이미지 버튼도 동작하도록설정
+            }
           });
         },
-
         goList: function () {
           location.href = "cms_customer_list.html";
         },
-
         addEdu() {
           this.educations.push({ level: "", school: "", major: "", enter: "", graduate: "", area: "" });
         },
-        // 업로드 → 경로 콜백
-        fnUploadImg: function (cb) {              // ← 여기 이름만 변경
-          var fileInput = this.$refs.fileInput;
-          if (!fileInput || fileInput.files.length === 0) { cb(null); return; }
+        fnUpload: function () {
+          let self = this;
+          let formData = new FormData();
+          let fileInput = this.$refs.fileInput;
 
-          var fd = new FormData();
-          fd.append('image', fileInput.files[0]);
+          if (fileInput.files.length === 0) {
+            alert("이미지를 선택해주세요.");
+            return;
+          }
+
+          formData.append('image', fileInput.files[0]);
 
           $.ajax({
             url: 'http://localhost:3009/upload',
             method: 'POST',
-            data: fd,
+            data: formData,
             processData: false,
             contentType: false,
-            success: (res) => {
-              var path = (res && res.path) ? String(res.path).replace(/\\/g, '/') : null;
-              this.uploadResult = res;
-              this.photos.main = path || this.photos.main;
-              cb(path);
+            success: function (res) {
+              self.uploadResult = res;
             },
-            error: (err) => { console.error(err); alert('업로드 실패(이미지 없이 저장 진행)'); cb(null); }
+            error: function (err) {
+              alert("업로드 실패");
+              console.error(err);
+            }
           });
-        },
+        }
 
       },// methods
 

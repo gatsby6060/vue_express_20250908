@@ -227,6 +227,7 @@
 
       <h2 class="title">고객 목록 및 검색
         <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
+        <span class="login-id" v-if="sName">로그인 성함 : {{ sName }}</span>
         <button class="btn" @click="fnUserInfoUpdate" v-if="isEmpActive">사원본인정보수정</button>
         <button class="btn" @click="fnLogout">로그아웃</button>
       </h2>
@@ -270,7 +271,10 @@
 
             <tbody v-if="list.length > 0">
               <tr v-for="item in list" :key="item.MEMBER_NO" @click="onRowClick(item)" style="cursor:pointer;">
-                <td class="photo-cell"><img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"></td>
+                <td class="photo-cell">
+                  <!-- <img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"> -->
+                   <img :src="pfx(item.MAIN_PHOTO_URL)" :alt="item.MEMBER_NO" @error="onImgError">
+                </td>
                 <td>{{ item.MEMBER_NO }}</td>
                 <td>{{ item.NAME || '-' }}</td>
                 <td>{{ item.BIRTH_YEAR || '-' }}</td>
@@ -333,6 +337,8 @@
           defaultPhoto: "../photos/noimg.jpg",
           loginId: "",
           sStatus: "",
+          sName: "", //250917 세션에 이름추가
+
           isEmpActive: false,
           ageLabel: "무관",     // computed 대신 문자열
           isPaying: false      // 매우 기본적인 중복 방지
@@ -355,6 +361,7 @@
             type: "GET",
             data: param,
             success: (data) => {
+              // alert("서버에서 받은 데이터는 " + JSON.stringify(data));
               this.list = data.list || data.boardList || [];
               this.count = data.count || 0;
               this.index = Math.ceil(this.count / this.pageSize) || 1;
@@ -418,7 +425,7 @@
           location.href = `cms_customer_update.html?memberNo=${memberNo}`;
         },
 
-        // 행 클릭: 결제 → 성공 시 상세 이동 (아주 기본 콜백 방식)
+        // 행 클릭: 결제 → 성공 시 상세 이동 ( 기본 콜백 방식)
         onRowClick(item) {
           // alert("클릭시 item 자료는 " + JSON.stringify(item));
           // 1) 직원이면 바로 진입
@@ -454,9 +461,9 @@
 
           // >>> 여기서만 한 번만 선언 (중복 선언 금지)
           const memberNo = String(item.MEMBER_NO || '').trim();
-          const buyerName = String(item.NAME || this.loginId || '고객').trim();
-          const buyerEmail = String(item.EMAIL || '').trim();              // 없으면 빈 문자열
-          const buyerTel = String(item.PHONE || '010-0000-0000').trim(); // 기본값
+          const buyerName = sessionStorage.getItem("sessionName"); //로그인 순간 세션에서부터 넣어버림  //String(item.NAME || this.loginId || '고객').trim();
+          const buyerEmail = "";//String(item.EMAIL || '').trim();              // 없으면 빈 문자열
+          const buyerTel = "";//String(item.PHONE || '010-0000-0000').trim(); // 기본값
           const merchantUid = `cust_${memberNo}_${Date.now()}`;
 
           window.IMP.request_pay({
@@ -478,14 +485,26 @@
               done(false);
             }
           });
-        }
+        },
+
+        pfx(p) {
+          if (!p) return this.defaultPhoto;
+          p = String(p).replace(/\\/g, '/');               // \ → /
+          return `/server${p.startsWith('/') ? '' : '/'}${p}`;
+        },
+        onImgError(e) { e.target.onerror = null; e.target.src = this.defaultPhoto; }
+
       },
       mounted() {
         // 세션
+        self = this;
         const sId = sessionStorage.getItem("sessionId");
         const sStatus = sessionStorage.getItem("sessionStatus");
-        this.loginId = sId || "";
-        this.sStatus = sStatus || "";
+        let sName = sessionStorage.getItem("sessionName");
+
+        self.loginId = sId || "";
+        self.sStatus = sStatus || "";
+        self.sName = sName || "";
 
         if (!this.loginId) {
           alert("로그인이 필요합니다.");
@@ -495,18 +514,18 @@
         this.isEmpActive = (this.sStatus === 'active');
 
         // 아주 단순한 ageLabel 계산(초기 한 번)
-        const { ageMin, ageMax } = this.condition || {};
-        if (ageMin && ageMax) this.ageLabel = ageMin + "~" + ageMax;
-        else if (ageMin && !ageMax) this.ageLabel = ageMin + "+";
-        else if (!ageMin && ageMax) this.ageLabel = "~" + ageMax;
-        else this.ageLabel = "무관";
+        // const { ageMin, ageMax } = this.condition || {};
+        // if (ageMin && ageMax) this.ageLabel = ageMin + "~" + ageMax;
+        // else if (ageMin && !ageMax) this.ageLabel = ageMin + "+";
+        // else if (!ageMin && ageMax) this.ageLabel = "~" + ageMax;
+        // else this.ageLabel = "무관";
 
         // 아임포트 초기화
         if (window.IMP && window.IMP.init) {
           window.IMP.init(userCode);
         }
 
-        this.fnList();
+        self.fnList();
       }
     });
 

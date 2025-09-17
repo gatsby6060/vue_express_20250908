@@ -219,8 +219,11 @@
       <div class="profile">
         <div class="card">
           <!-- <img :src="photos.main" alt="메인 사진" class="photo-main"> -->
-          <img class="box2" :src="mainPhotoSrc()" width="170" height="200" style="cursor: pointer;"
-            onclick="fnPopup2()">
+          <!-- <img class="box2" :src="mainPhotoSrc()" width="170" height="200" style="cursor: pointer;"
+            onclick="fnPopup2()"> -->
+          <!-- 변경: 리스트와 동일 규칙(/server 접두) + 에러시 기본이미지 -->
+          <img class="photo-main" :src="pfx(info.MAIN_PHOTO_URL)" @error="onImgError" alt="메인 사진">
+
           <!-- <div class="photo-sub">
             <img v-for="(s,i) in photos.sub" :key="'sub-'+i" :src="s" alt="보조 사진">
           </div> -->
@@ -409,7 +412,8 @@
           },
           sessionId: "",        // 현재 로그인 사용자
           sessionStatus: "",    // 상태(필요시)
-          canEdit: false        // ⬅️ 작성자만 수정 가능 여부
+          canEdit: false,       // ⬅️ 작성자만 수정 가능 여부
+          defaultPhoto: "../sever/uploads/nouploadimg.png"   // 리스트에서 쓰던 거 그대로
         };
       },
       methods: {
@@ -492,6 +496,20 @@
           // self.memberNo는 쿼리에서 뽑아온 값, info.MEMBER_NO를 써도 OK
           location.href = `cms_customer_update.html?memberNo=${encodeURIComponent(self.memberNo)}`;
         },
+
+        //사진관련250917----------------------------------------S
+        // 리스트 화면과 동일: /server + 원본 경로
+        pfx(p) {
+          if (!p) return this.defaultPhoto;
+          p = String(p).replace(/\\/g, '/');
+          return `/server${p.startsWith('/') ? '' : '/'}${p}`;
+        },
+        onImgError(e) {
+          e.target.onerror = null;
+          e.target.src = this.defaultPhoto;
+        }
+        //사진관련250917----------------------------------------E
+
       },
       mounted() {
         // 처음 시작할 때 실행되는 부분

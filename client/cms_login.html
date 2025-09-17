@@ -94,8 +94,9 @@
                     <td valign="top">
                         <div class="login-layout">
                             <h2>고객관리프로그램 로그인</h2>
-                            <div>emp01 pass1234</div>
-                            <div>C2025-000005 VgqTYtWm85</div>
+                            <div>emp01 pass1234 emp03 4r5t6y7u</div>
+                            <div>C2025-000005 VgqTYtWm85 C2025-000007 zVodEkpq15</div>
+
                             <div class="login-form">
                                 <div class="login-input">
                                     <div>
@@ -218,6 +219,7 @@
 
                             sessionStorage.setItem("sessionId", data[0].LOGIN_ID);
                             sessionStorage.setItem("sessionStatus", data[0].STATUS); //관리자권한부분같음
+                            sessionStorage.setItem("sessionName", data[0].NAME); 
                             // alert("sessionId는 "+ sessionStorage.getItem("sessionId"));
                             // location.href = "board-list.html" //리스트로 이동
                             location.href = "cms_customer_list.html";

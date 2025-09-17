@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const oracledb = require('oracledb');
+const multer = require('multer'); //250917추가
 
 
 const app = express();
@@ -991,7 +992,7 @@ app.get('/cms/customerinsert', async (req, res) => {
     // 2) 학력들 INSERT (있을 때만)
     let insertedEdu = 0;
     let eduArr = [];
-    try { eduArr = JSON.parse(educations || '[]'); } catch (_) {}
+    try { eduArr = JSON.parse(educations || '[]'); } catch (_) { }
 
     if (Array.isArray(eduArr) && eduArr.length > 0) {
       const sqlEdu = `
@@ -1016,7 +1017,7 @@ app.get('/cms/customerinsert', async (req, res) => {
     await connection.commit();
     res.json({ result: "success", memberNo, eduInserted: insertedEdu });
   } catch (err) {
-    try { await connection.rollback(); } catch (_) {}
+    try { await connection.rollback(); } catch (_) { }
     console.error('customerinsert tx error', err);
     res.status(500).send('Error executing insert');
   }
@@ -1094,7 +1095,7 @@ app.get('/cms/customerinsert2', async (req, res) => {
     await connection.commit();
     res.json({ result: 'success', memberNo });
   } catch (e) {
-    try { await connection.rollback(); } catch (_) {}
+    try { await connection.rollback(); } catch (_) { }
     console.error('customerinsert2 error', e);
     res.status(500).send('Error executing insert');
   }
@@ -1327,13 +1328,13 @@ app.get('/cms/customerupdate', async (req, res) => {
              GENDER=:gender, MAIN_PHOTO_URL=:mainPhotoUrl, UDATETIME=SYSDATE
        WHERE MEMBER_NO=:memberNo`,
       [
-        name||null, pr||null, address||null, email||null, phone||null,
-        birthYear?Number(birthYear):null, height?Number(height):null, weight?Number(weight):null,
-        (gender||'N').toUpperCase(), mainPhotoUrl||null, memberNo
+        name || null, pr || null, address || null, email || null, phone || null,
+        birthYear ? Number(birthYear) : null, height ? Number(height) : null, weight ? Number(weight) : null,
+        (gender || 'N').toUpperCase(), mainPhotoUrl || null, memberNo
       ],
-      { autoCommit:true }
+      { autoCommit: true }
     );
-    res.json({result:'success'});
+    res.json({ result: 'success' });
   } catch (e) {
     console.error(e);
     res.status(500).send('Error executing update');
@@ -1343,7 +1344,7 @@ app.get('/cms/customerupdate', async (req, res) => {
 // 2) 학력은 전체를 갈아끼우기(전체 delete 후 insert)
 app.get('/cms/customeredu/replace', async (req, res) => {
   const { memberNo, list } = req.query;
-  if(!memberNo) return res.status(400).send('memberNo required');
+  if (!memberNo) return res.status(400).send('memberNo required');
 
   try {
     const rows = list ? JSON.parse(list) : [];
@@ -1366,15 +1367,50 @@ app.get('/cms/customeredu/replace', async (req, res) => {
       );
     }
     await connection.commit();
-    res.json({result:'success'});
+    res.json({ result: 'success' });
   } catch (e) {
-    try { await connection.rollback(); } catch(_) {}
+    try { await connection.rollback(); } catch (_) { }
     console.error(e);
     res.status(500).send('Error executing replace');
   }
 });
 
 
+
+
+//이미지 저장을 위해서 추가 250917-------------------------------S
+// 업로드된 파일의 저장 위치 및 이름 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // 업로드 경로
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+// 4. 이미지 업로드 라우터 추가
+app.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+  res.send({
+    message: 'Image uploaded successfully!',
+    filename: req.file.filename,
+    path: `/uploads/${req.file.filename}`
+  });
+});
+
+// 여기서 upload.single('image')에서 'image'는 <input type="file" name="image">의 name 속성과 일치해야 함
+
+// 5. 정적 파일 서빙 설정 (이미지 접근 가능하게)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+//이미지 저장을 위해서 추가 250917-------------------------------E
 
 
 
