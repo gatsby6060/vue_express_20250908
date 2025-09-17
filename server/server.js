@@ -1516,6 +1516,23 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 
+// POST 폼 파싱
+app.use(express.urlencoded({ extended: true }));
+// 주소API 결과 릴레이: POST -> 303 리다이렉트(GET)
+app.post('/juso/return', (req, res) => {
+  // JUSO가 보낸 모든 필드들을 쿼리스트링으로 변환
+  const params = new URLSearchParams(req.body).toString();
+
+  // 팝업용 정적 페이지로 이동(여기는 GET)
+  // 5501 포트/경로는 본인 환경에 맞게
+  const redirectUrl = `http://192.168.30.45:5501/client/jusoPopup.html?${params}`;
+
+  // 브라우저에서 확실히 이동하도록 스크립트 반환
+  res.status(200).send(`
+    <!doctype html><meta charset="utf-8">
+    <script>location.replace(${JSON.stringify(redirectUrl)});</script>
+  `);
+});
 
 
 

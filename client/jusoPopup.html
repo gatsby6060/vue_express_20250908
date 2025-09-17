@@ -1,74 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>주소 연동</title>
+  <meta charset="utf-8" />
+  <title>주소 연동</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 </head>
-<body onload="init();">
-    <form id="form" name="form" method="post">
-        <input type="hidden" id="confmKey" name="confmKey" value="" />
-        <input type="hidden" id="returnUrl" name="returnUrl" value="" />
-        <input type="hidden" id="resultType" name="resultType" value="" />
-    </form>
+<body>
+  <!-- 화면에 뭔가라도 보이게 -->
+  <div style="font:14px/1.4 sans-serif;padding:10px">주소창을 여는 중입니다...</div>
 
-    <script>
-        function getParam(name) {
-            return new URLSearchParams(window.location.search).get(name) || '';
+  <script>
+    // 1) 콜백 분기: JUSO에서 돌아온 경우
+    (function () {
+      const q = new URLSearchParams(location.search);
+      const inputYn = q.get("inputYn");
+
+      if (inputYn === "Y") {
+        // 필요한 파라미터들 (필요한 것만 꺼내 쓰세요)
+        const roadFullAddr   = q.get("roadFullAddr") || "";
+        const roadAddrPart1  = q.get("roadAddrPart1") || "";
+        const addrDetail     = q.get("addrDetail") || "";
+        const engAddr        = q.get("engAddr") || "";
+
+        try {
+          if (window.opener && typeof window.opener.jusoCallBack === "function") {
+            window.opener.jusoCallBack(roadFullAddr, roadAddrPart1, addrDetail, engAddr);
+          }
+        } catch (e) {
+          console.error("opener 접근 실패:", e);
         }
+        window.close();
+        return; // 여기서 끝
+      }
+    })();
+  </script>
 
-        function init() {
-            const inputYn = getParam("inputYn");
+  <!-- 2) 최초 진입: JUSO로 자동 POST -->
+  <form id="addrForm" name="addrForm" method="post"
+        action="https://business.juso.go.kr/addrlink/addrLinkUrl.do" accept-charset="utf-8">
+    <!-- 발급받은 키로 교체 -->
+    <input type="hidden" name="confmKey" value="devU01TX0FVVEgyMDI1MDkxMTExNTM0MzExNjE3MjE=" />
+    <!-- 결과 리턴은 같은 파일로 돌려받아 위의 분기에서 처리 -->
+    <input type="hidden" name="returnUrl" value="http://192.168.30.45:3009/juso/return" />
+    <!-- UI/결과 타입: 필요 시 문서의 가이드를 따라 값 조정 -->
+    <input type="hidden" name="resultType" value="4" />
+  </form>
 
-            if (inputYn !== "Y") {
-                const form = document.form;
-                const url = location.href;
-                const confmKey = "devU01TX0FVVEgyMDI1MDkxMTExNTM0MzExNjE3MjE="; // 승인키 입력
-                const resultType = "4"; // 1~4 유형
-
-                form.confmKey.value = confmKey;
-                form.returnUrl.value = url;
-                form.resultType.value = resultType;
-
-                form.action = "https://business.juso.go.kr/addrlink/addrLinkUrl.do"; // 인터넷망
-                // form.action = "https://business.juso.go.kr/addrlink/addrMobileLinkUrl.do"; // 모바일용
-                form.submit();
-            } else {
-                const params = new URLSearchParams(window.location.search);
-
-                // opener 함수 호출 (팝업에서 부모 창으로 값 전달)
-                if (window.opener && typeof window.opener.jusoCallBack === "function") {
-                    window.opener.jusoCallBack(
-                        params.get("roadFullAddr") || '',
-                        params.get("roadAddrPart1") || '',
-                        params.get("addrDetail") || '',
-                        params.get("roadAddrPart2") || '',
-                        params.get("engAddr") || '',
-                        params.get("jibunAddr") || '',
-                        params.get("zipNo") || '',
-                        params.get("admCd") || '',
-                        params.get("rnMgtSn") || '',
-                        params.get("bdMgtSn") || '',
-                        params.get("detBdNmList") || '',
-                        params.get("bdNm") || '',
-                        params.get("bdKdcd") || '',
-                        params.get("siNm") || '',
-                        params.get("sggNm") || '',
-                        params.get("emdNm") || '',
-                        params.get("liNm") || '',
-                        params.get("rn") || '',
-                        params.get("udrtYn") || '',
-                        params.get("buldMnnm") || '',
-                        params.get("buldSlno") || '',
-                        params.get("mtYn") || '',
-                        params.get("lnbrMnnm") || '',
-                        params.get("lnbrSlno") || '',
-                        params.get("emdNo") || ''
-                    );
-                }
-
-                window.close();
-            }
-        }
-    </script>
+  <script>
+    // 자동 제출 (최초 진입일 때만 실행됨)
+    (function () {
+      const q = new URLSearchParams(location.search);
+      if (q.get("inputYn") !== "Y") {
+        document.addrForm.submit();
+      }
+    })();
+  </script>
 </body>
 </html>

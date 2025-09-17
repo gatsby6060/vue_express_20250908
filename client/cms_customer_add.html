@@ -205,7 +205,12 @@
                   placeholder="예) 1986"></div>
               <div class="field"><label>전화번호</label><input v-model="profile.phone" placeholder="예) 010-0000-0000"></div>
               <div class="field"><label>이메일</label><input v-model="profile.email" placeholder="예) test@naver.com"></div>
-              <div class="field"><label>거주지</label><input v-model="profile.address" placeholder="예) 인천광역시 ..."></div>
+              <!-- <div class="field"><label>거주지</label><input v-model="profile.address" placeholder="예) 인천광역시 ..."></div> -->
+              <div class="field">
+                <label>거주지</label>
+                <input v-model="profile.address" placeholder="주소검색버튼이용하세요" readonly @click="fnSearchAddr" />
+                <button class="btn mini" type="button" @click="fnSearchAddr">주소검색</button>
+              </div>
             </div>
             <div>
               <div class="field" style="align-items:flex-start">
@@ -492,7 +497,21 @@
           sessionStorage.removeItem("sessionStatus");
           alert("로그아웃 되었습니다.");
           location.href = "cms_login.html";
-        }
+        },
+        // ⬇️ 팝업 열기
+        fnSearchAddr() {
+          // 팝업 차단 방지: 클릭 이벤트 안에서 호출됨
+        //  window.open('jusoPopup.html', 'addr', 'width=500,height=600,scrollbars=yes,resizable=yes');
+          window.open('/client/jusoPopup.html?v=' + Date.now(), 'addr',
+             'width=500,height=600,scrollbars=yes,resizable=yes');
+        },
+
+        // 선택: 팝업에서 받은 값 추가 가공이 필요하면 이 메서드로 통일
+        fnResult(roadFullAddr, roadAddrPart1, addrDetail, engAddr) {
+          this.profile.address = roadFullAddr || roadAddrPart1 || '';
+          // 상세주소 입력칸을 따로 두었다면 아래처럼:
+          // this.profile.addrDetail = addrDetail || '';
+        },
 
       },// methods
 
@@ -509,11 +528,25 @@
         if (!self.loginId) {
           alert("로그인이 필요합니다.");
           location.href = "cms_login.html"; // 실제 로그인 페이지 경로로 변경
-        }
+        };
+
+        // 주소관련 팝업에서 부모의 메서드를 호출할 수 있도록 전역에 할당
+        window.vueObj = this;
       }
     });
     app.mount("#app");
+
+
+
+
   </script>
+
+  <script>
+    function jusoCallBack(roadFullAddr, roadAddrPart1, addrDetail, engAddr) {
+      if (window.vueObj) window.vueObj.fnResult(roadFullAddr, roadAddrPart1, addrDetail, engAddr);
+    }
+  </script>
+
 </body>
 
 </html>
