@@ -242,7 +242,7 @@
         <!-- <form @submit.prevent="fnUpload"> -->
           <!-- <input type="file" ref="fileInput" accept="image/*" /> -->
           <input type="file" ref="fileInput" accept="image/*" required />
-          <button type="submit" hidden>업로드</button>
+          <!-- <button type="submit" hidden>업로드</button> --> <!-- 예가 뭔가 강제로 잡고 있어서 목록화면으로 안가는듯....-->
         </form>
 
         <div v-if="uploadResult">
@@ -387,7 +387,7 @@
 
         // 저장 버튼
         save: function () {
-          var self = this;
+          let self = this;
           self.fnUploadImg(function (uploadedPath) {
             const param = self.makeParam(uploadedPath);
             self.submitInsert(param);
@@ -439,12 +439,16 @@
 
         // 서버 전송
         submitInsert: function (param) {
+          let self = this;
           $.ajax({
             url: "http://localhost:3009/cms/customerinsert",
             dataType: "json",
             type: "GET",        
             data: param,
-            success: () => { alert("등록되었습니다."); this.goList(); },
+            success: () => {
+              alert("등록되었습니다."); 
+              self.goList(); 
+            },
             error: (e) => { console.error(e); alert("등록 실패"); }
           });
         },

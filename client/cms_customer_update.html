@@ -259,7 +259,10 @@
       <div class="profile">
         <!-- 사진 -->
         <div class="card">
-          <img :src="photoPreview" alt="메인 사진" class="photo-main" onerror="this.src='/photos/noimg.jpg'">
+          <!-- <img :src="photoPreview" alt="메인 사진" class="photo-main" onerror="this.src='/photos/noimg.jpg'"> -->
+          <!-- 변경: 리스트와 동일 규칙(/server 접두) + 에러시 기본이미지 -->
+          <img class="photo-main" :src="photoPreview" @error="onImgError" alt="메인 사진">
+
           <div class="field"><label>메인 사진 URL</label><input v-model="form.mainPhotoUrl" @input="updatePreview"
               placeholder="/photos/cust010.jpg 또는 http(s)://..."></div>
         </div>
@@ -402,10 +405,13 @@
           educations: [],
 
           // 미리보기
-          photoPreview: '/photos/noimg.jpg',
+          // photoPreview: '/photos/noimg.jpg',
 
           // 권한
-          canEdit: false
+          canEdit: false,
+
+          photoPreview: '../server/uploads/nouploadimg.png',   // 초기값 유지
+          defaultPhoto: '../server/uploads/nouploadimg.png', // 리스트에서 쓰던 경로와 맞춤
         }
       },
       mounted() {
@@ -424,10 +430,12 @@
       methods: {
         updatePreview() {
           const u = this.form.mainPhotoUrl || '';
-          if (!u) { this.photoPreview = '/photos/noimg.jpg'; return; }
+          // if (!u) { this.photoPreview = '/photos/noimg.jpg'; return; }
           // 상세처럼 상대경로면 앞에 .. 붙여 쓰고 싶다면 아래 한 줄을 켜도 됨
           // this.photoPreview = u.startsWith('http') || u.startsWith('/') ? u : ('..' + u);
-          this.photoPreview = u;
+          // this.photoPreview = u;
+
+          this.photoPreview = u ? this.pfx(u) : this.defaultPhoto;
         },
         addEdu() { this.educations.push({ level: '', school: '', major: '', enter: '', graduate: '', area: '' }); },
 
@@ -549,7 +557,19 @@
 
         goDetail() {
           location.href = `cms_customer_view.html?memberNo=${encodeURIComponent(this.form.memberNo)}`;
-        }
+        },
+
+        // 리스트 화면과 같은 규칙: \ → / 정리 후 /server 접두 붙이기
+        pfx(p) {
+          if (!p) return this.defaultPhoto;
+          p = String(p).replace(/\\/g, '/');
+          return `/server${p.startsWith('/') ? '' : '/'}${p}`;
+        },
+        onImgError(e) {
+          e.target.onerror = null;
+          e.target.src = this.defaultPhoto;
+        },
+
       }
     });
 

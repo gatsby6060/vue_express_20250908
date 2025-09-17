@@ -497,7 +497,7 @@ app.get('/cms/login', async (req, res) => {
     let columnNames = result.metaData.map(column => column.name);
 
     if (result.rows.length <= 0) {
-      console.log("진입");
+      // console.log("진입");
       query = `SELECT MEMBER_NO AS LOGIN_ID , NAME FROM tbl_cms_cust_profile WHERE MEMBER_NO = '${loginId}' AND PASSWORD = '${pwd}'`
       result = await connection.execute(query);
       columnNames = result.metaData.map(column => column.name);
