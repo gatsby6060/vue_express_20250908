@@ -294,13 +294,13 @@
         </div>
 
         <!-- 선택된 검색 조건 칩 표시 -->
-        <!-- <div class="chips" v-if="keyword">
+        <div class="chips" v-if="keyword">
           <span class="chip">
             <b>{{ searchOptionLabel }}</b> {{ keyword }}
           </span>
           <span style="flex:1 0 auto"></span>
           <button class="btn btn--ghost" @click="fnReset">지우기</button>
-        </div> -->
+        </div>
       </div>
 
 
@@ -442,13 +442,7 @@
         fnLoadMore() {
           if (this.page >= this.index) return;
           const next = this.page + 1;
-          const param = {
-            pageSize: this.pageSize, offset: (next - 1) * this.pageSize
-            ,    
-            sStatus: this.sStatus, // 👇 추가
-            loginId: this.loginId
-
-          };
+          const param = { pageSize: this.pageSize, offset: (next - 1) * this.pageSize };
           $.ajax({
             url: "http://localhost:3009/cms/custlist",
             dataType: "json",
@@ -593,10 +587,7 @@
             pageSize: this.pageSize,
             offset: (this.page - 1) * this.pageSize,
             option: this.searchOption,
-            keyword: this.keyword,
-            // 👇 추가
-            sStatus: this.sStatus,
-            loginId: this.loginId
+            keyword: this.keyword
           };
           $.ajax({
             url: "http://localhost:3009/cms/custlist",
@@ -607,6 +598,10 @@
               this.list = data.list || data.boardList || [];
               this.count = data.count || 0;
               this.index = Math.ceil(this.count / this.pageSize) || 1;
+            },
+            error: () => {
+              // 서버 없을 때를 위한 임시 처리(데모)
+              // this.list = []; this.count = 0; this.index = 1;
             }
           });
         },

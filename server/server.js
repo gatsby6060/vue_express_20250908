@@ -519,41 +519,142 @@ app.get('/cms/login', async (req, res) => {
   }
 });
 
+// 250917 18시48분 잠시 주석
+// app.get('/cms/custlist', async (req, res) => {
+//   const { pageSize = 5, offset = 0 } = req.query;
+//   try {
+//     const result = await connection.execute(
+//       `select * from TBL_CMS_CUST_PROFILE `
+//       + ` ORDER BY CDATETIME DESC NULLS LAST, MEMBER_NO DESC `
+//       + `OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
+//     );
+
+//     const columnNames = result.metaData.map(column => column.name);
+//     // 쿼리 결과를 JSON 형태로 변환
+//     const rows = result.rows.map(row => {
+//       // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
+//       const obj = {};
+//       columnNames.forEach((columnName, index) => {
+//         obj[columnName] = row[index];
+//       });
+//       return obj;
+//     });
+
+//     const count = await connection.execute(
+//       `SELECT COUNT(*) FROM TBL_CMS_CUST_PROFILE`
+//     );
+//     // console.log(count.rows[0][0]);
+//     // 리턴
+//     res.json({
+//       result: "success",
+//       list: rows,
+//       count: count.rows[0][0]
+//     });
+
+//   } catch (e) {
+//     console.error(e);
+//     res.status(500).send('Error executing query');
+//   }
+// });
+
 
 app.get('/cms/custlist', async (req, res) => {
-  const { pageSize = 5, offset = 0 } = req.query;
+  let {
+    option = 'all',
+    keyword = '',
+    pageSize = 10,
+    offset = 0,
+    sStatus = '',    // 'active'면 직원
+    loginId = ''     // 현재 로그인 ID
+  } = req.query;
+
+  const isEmpActive = String(sStatus).trim() === 'active';
+
+  // 보드 스타일: 문자열로 WHERE 구성 (초간단)
+  // 최소 인젝션 회피: 작은따옴표만 이스케이프
+  const kw = String(keyword || '').trim().toLowerCase().replace(/'/g, "''");
+
+  // 고객이 name 검색 시도하면 이름 제외(all처럼 동작)
+  if (!isEmpActive && option === 'name') option = 'all';
+
+  // 공개 동의 필터(없으면 지워도 됨)
+  // const where = [`B.IS_PUBLIC = 'Y'`];
+  let where = [];
+  console.log(kw);
+  console.log(option);
+  if (kw) {
+    if (option === 'name' && isEmpActive) {
+      where.push(`LOWER(B.NAME) LIKE '%${kw}%' `);
+    } else if (option === 'region') {
+      where.push(`LOWER(B.ADDRESS) LIKE '%${kw}%' `);
+    } else if (option === 'job') {
+      where.push(`LOWER(B.PR) LIKE '%${kw}%' `);
+    } else if (option === 'birthYear') {
+      // 숫자면 = 비교, 아니면 LIKE
+      const onlyNum = kw.replace(/\D/g, '');
+      if (onlyNum) where.push(`B.BIRTH_YEAR = ${onlyNum}`);
+      else where.push(`CAST(B.BIRTH_YEAR AS VARCHAR2(10)) LIKE '%${kw}%' `);
+    } else {
+      // all: 직원은 이름 포함, 고객은 이름 제외
+      const parts = [];
+      if (isEmpActive) parts.push(`LOWER(B.NAME) LIKE '%${kw}%' `);
+      parts.push(`LOWER(B.MEMBER_NO) LIKE '%${kw}%' `);
+      parts.push(`LOWER(B.ADDRESS) LIKE '%${kw}%' `);
+      parts.push(`LOWER(B.PR) LIKE '%${kw}%' `);
+      parts.push(`CAST(B.BIRTH_YEAR AS VARCHAR2(10)) LIKE '%${kw}%' `);
+      where.push(`(${parts.join(' OR ')}) `);
+    }
+  }
+
+  const subQuery = where.length ? `WHERE ${where.join(' AND ')} ` : '';
+
+  // 직원은 이름 그대로, 고객은 본인 작성만 이름 노출
+  const nameSelect = isEmpActive
+    ? `B.NAME `
+    : `(CASE WHEN B.CREATEBY = '${String(loginId || '').replace(/'/g, "''")}' THEN B.NAME ELSE NULL END) AS NAME `;
+
+  // 페이징 숫자형 보정
+  pageSize = Number(pageSize) || 10;
+  offset = Number(offset) || 0;
+
+  // Oracle 12c+ 기준 페이징. (MySQL이면 LIMIT ${pageSize} OFFSET ${offset})
+  const listQuery =
+    `SELECT
+       B.MEMBER_NO,
+       ${nameSelect},
+       B.BIRTH_YEAR,
+       B.HEIGHT,
+       B.WEIGHT,
+       B.GENDER,
+       B.MAIN_PHOTO_URL,
+       B.CREATEBY,
+       B.*
+     FROM TBL_CMS_CUST_PROFILE B
+     ${subQuery}
+     ORDER BY B.MEMBER_NO DESC
+     OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `;
+
+  const countQuery =
+    `SELECT COUNT(*) AS CNT
+     FROM TBL_CMS_CUST_PROFILE B
+     ${subQuery} `;
+
   try {
-    const result = await connection.execute(
-      `select * from TBL_CMS_CUST_PROFILE `
-      + ` ORDER BY CDATETIME DESC NULLS LAST, MEMBER_NO DESC `
-      + `OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY `
-    );
+    const countResult = await connection.execute(countQuery);
+    const total = (countResult.rows && countResult.rows[0] && countResult.rows[0][0]) || 0;
 
-    const columnNames = result.metaData.map(column => column.name);
-    // 쿼리 결과를 JSON 형태로 변환
-    const rows = result.rows.map(row => {
-      // 각 행의 데이터를 컬럼명에 맞게 매핑하여 JSON 객체로 변환
-      const obj = {};
-      columnNames.forEach((columnName, index) => {
-        obj[columnName] = row[index];
-      });
-      return obj;
+    const result = await connection.execute(listQuery);
+    const columnNames = result.metaData.map(c => c.name);
+    const rows = result.rows.map(r => {
+      const o = {};
+      columnNames.forEach((col, i) => o[col] = r[i]);
+      return o;
     });
 
-    const count = await connection.execute(
-      `SELECT COUNT(*) FROM TBL_CMS_CUST_PROFILE`
-    );
-    // console.log(count.rows[0][0]);
-    // 리턴
-    res.json({
-      result: "success",
-      list: rows,
-      count: count.rows[0][0]
-    });
-
-  } catch (e) {
-    console.error(e);
-    res.status(500).send('Error executing query');
+    res.json({ result: 'success', count: total, list: rows });
+  } catch (err) {
+    console.error('custlist error', err);
+    res.status(500).json({ result: 'error', message: 'Error executing query' });
   }
 });
 
