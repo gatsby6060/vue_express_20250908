@@ -413,7 +413,7 @@
           sessionId: "",        // 현재 로그인 사용자
           sessionStatus: "",    // 상태(필요시)
           canEdit: false,       // ⬅️ 작성자만 수정 가능 여부
-          defaultPhoto: "../sever/uploads/nouploadimg.png"   // 리스트에서 쓰던 거 그대로
+          defaultPhoto: "../server/uploads/nouploadimg.png"   // 리스트에서 쓰던 거 그대로
         };
       },
       methods: {
@@ -434,7 +434,7 @@
                 self.info = data.info;
                 self.canEdit = (self.sessionId === self.info.CREATEBY);
                 // alert("사진 띄우기 진입직전");
-                mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
+                // mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
                 // alert("사진 띄우기 탈출");
               }
 
