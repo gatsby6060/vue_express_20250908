@@ -279,15 +279,15 @@
         <div class="searchbar">
           <select v-model="searchOption">
             <option value="all">전체</option>
-            <option value="name">이름</option>
-            <option value="memberNo">회원번호</option>
+            <!-- <option value="name">이름</option> -->
+            <!-- <option value="memberNo">회원번호</option> -->
             <option value="region">거주지</option>
             <option value="job">직업</option>
-            <option value="gender">성별</option>
+            <!-- <option value="gender">성별</option> -->
             <option value="birthYear">출생년</option>
           </select>
 
-          <input type="text" v-model.trim="keyword" :placeholder="searchPlaceholder" @keyup.enter="fnSearch" />
+          <input type="text" v-model.trim="keyword" @keyup.enter="fnSearch" />
 
           <button class="btn" @click="fnSearch">검색</button>
           <button class="btn btn--ghost" @click="fnReset">초기화</button>
@@ -335,7 +335,8 @@
                     @click.stop="fnPopup(pfx(item.MAIN_PHOTO_URL))" />
                 </td>
                 <td>{{ item.MEMBER_NO }}</td>
-                <td>{{ item.NAME || '-' }}</td>
+                <!-- <td>{{ item.NAME || '-' }}</td> -->
+                <td>{{ displayName(item) }}</td>
                 <td>{{ item.BIRTH_YEAR || '-' }}</td>
                 <td>{{ item.HEIGHT || '-' }}</td>
                 <td>{{ item.WEIGHT || '-' }}</td>
@@ -403,7 +404,7 @@
           isPaying: false,      // 매우 기본적인 중복 방지
           searchOption: "all",
           keyword: "",
-          searchPlaceholder: "이름·회원번호·거주지 등으로 검색",
+          // searchPlaceholder: "이름·회원번호·거주지 등으로 검색",
         };
       },
       methods: {
@@ -604,18 +605,18 @@
             }
           });
         },
-        searchOptionLabel() {
-          const map = {
-            all: "전체",
-            name: "이름",
-            memberNo: "회원번호",
-            region: "거주지",
-            job: "직업",
-            gender: "성별",
-            birthYear: "출생년"
-          };
-          return map[this.searchOption] || "검색";
-        }
+        displayName(item) {
+          // 직원이면 이름 그대로 노출
+          if (this.isEmpActive) return item.NAME || '-';
+
+          // 고객이면: 본인이 작성한 프로필만 이름 노출, 그 외는 비공개
+          const my = (this.loginId || '').trim();
+          const owner = (String(item.CREATEBY || '')).trim();
+          if (my && my === owner) return item.NAME || '-';
+
+          // 다른 고객의 이름은 숨김
+          return '비공개';
+        },
 
 
       },
