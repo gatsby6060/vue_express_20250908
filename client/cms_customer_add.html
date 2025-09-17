@@ -285,7 +285,7 @@
                   <!-- <td><button class="btn mini danger" @click="educations.splice(idx,1)">삭제</button></td> -->
                 </tr>
                 <tr v-if="educations.length===0">
-                  <td colspan="7">행이 없습니다. 추가를 눌러주세요.</td>
+                  <td colspan="6">행이 없습니다. 추가를 눌러주세요.</td>
                 </tr>
               </tbody>
             </table>
@@ -398,28 +398,28 @@
         },
 
         // 업로드 → 경로 콜백
-        fnUploadImg: function (cb) {
-          var fileInput = this.$refs.fileInput;
-          if (!fileInput || fileInput.files.length === 0) { cb(null); return; }
+        // fnUploadImg: function (cb) {
+        //   var fileInput = this.$refs.fileInput;
+        //   if (!fileInput || fileInput.files.length === 0) { cb(null); return; }
 
-          var fd = new FormData();
-          fd.append('image', fileInput.files[0]);
+        //   var fd = new FormData();
+        //   fd.append('image', fileInput.files[0]);
 
-          $.ajax({
-            url: 'http://localhost:3009/upload',
-            method: 'POST',
-            data: fd,
-            processData: false,
-            contentType: false,
-            success: (res) => {
-              var path = (res && res.path) ? String(res.path).replace(/\\/g, '/') : null;
-              this.uploadResult = res;
-              this.photos.main = path || this.photos.main;
-              cb(path);
-            },
-            error: (err) => { console.error(err); alert('업로드 실패(이미지 없이 저장 진행)'); cb(null); }
-          });
-        },
+        //   $.ajax({
+        //     url: 'http://localhost:3009/upload',
+        //     method: 'POST',
+        //     data: fd,
+        //     processData: false,
+        //     contentType: false,
+        //     success: (res) => {
+        //       var path = (res && res.path) ? String(res.path).replace(/\\/g, '/') : null;
+        //       this.uploadResult = res;
+        //       this.photos.main = path || this.photos.main;
+        //       cb(path);
+        //     },
+        //     error: (err) => { console.error(err); alert('업로드 실패(이미지 없이 저장 진행)'); cb(null); }
+        //   });
+        // },
 
         // INSERT에 보낼 파라미터 만들기
         makeParam: function (uploadedPath) {
@@ -449,11 +449,11 @@
             type: "GET",
             data: param,
             success: () => {
+              alert('등록되었습니다.'); //이놈이 여기 있으면 고객리스트 이동을 못함 250917
+              setTimeout(() => { location.href = 'cms_customer_list.html'; }, 0);
+              // self.goList();
               // alert("등록되었습니다."); //이놈이 여기 있으면 고객리스트 이동을 못함 250917
-              self.goList();
-              // alert("등록되었습니다."); //이놈이 여기 있으면 고객리스트 이동을 못함 250917
-            },
-            error: (e) => { console.error(e); alert("등록 실패"); }
+            }
           });
         },
 

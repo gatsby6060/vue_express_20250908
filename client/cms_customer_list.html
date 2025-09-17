@@ -218,12 +218,38 @@
       font-size: 14px;
       color: #555
     }
+
+
+    .searchbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      background: #fbfdff;
+      border: 1px solid #eef1f5;
+      border-radius: 12px;
+    }
+
+    .searchbar select,
+    .searchbar input {
+      height: 38px;
+      border: 1px solid #c8d4ff;
+      border-radius: 8px;
+      padding: 0 10px;
+    }
+
+    .searchbar input {
+      flex: 1 0 auto;
+    }
   </style>
 </head>
 
 <body>
   <div id="app">
     <div class="container">
+
+
+
 
       <h2 class="title">고객 목록 및 검색
         <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
@@ -236,7 +262,7 @@
         고객 검색 목록은 <span class="warn">프로필 공개에 동의한 회원정보만 노출</span>됩니다.
       </div>
 
-      <div class="section">
+      <!-- <div class="section">
         <div class="section__hd">선택하신 조건</div>
         <div class="chips">
           <span class="chip"><b>연령</b> {{ ageLabel }}</span>
@@ -246,7 +272,38 @@
           <span style="flex:1 0 auto"></span>
           <button class="btn btn--ghost" @click="fnGoSearchPage">다시검색</button>
         </div>
+      </div> -->
+
+      <div class="section">
+        <div class="section__hd">검색</div>
+        <div class="searchbar">
+          <select v-model="searchOption">
+            <option value="all">전체</option>
+            <option value="name">이름</option>
+            <option value="memberNo">회원번호</option>
+            <option value="region">거주지</option>
+            <option value="job">직업</option>
+            <option value="gender">성별</option>
+            <option value="birthYear">출생년</option>
+          </select>
+
+          <input type="text" v-model.trim="keyword" :placeholder="searchPlaceholder" @keyup.enter="fnSearch" />
+
+          <button class="btn" @click="fnSearch">검색</button>
+          <button class="btn btn--ghost" @click="fnReset">초기화</button>
+        </div>
+
+        <!-- 선택된 검색 조건 칩 표시 -->
+        <div class="chips" v-if="keyword">
+          <span class="chip">
+            <b>{{ searchOptionLabel }}</b> {{ keyword }}
+          </span>
+          <span style="flex:1 0 auto"></span>
+          <button class="btn btn--ghost" @click="fnReset">지우기</button>
+        </div>
       </div>
+
+
 
       <div class="section">
         <div class="section__hd">
@@ -262,9 +319,9 @@
                 <th style="width:120px">회원번호</th>
                 <th style="width:120px">이름</th>
                 <th style="width:100px">출생년</th>
-                <th style="width:120px">결혼경력</th>
-                <th style="width:180px">직업</th>
-                <th style="width:120px">거주지</th>
+                <th style="width:120px">키(신장)</th>
+                <th style="width:180px">몸무게</th>
+                <th style="width:120px">성별</th>
                 <th style="width:100px" v-if="isEmpActive">수정</th>
               </tr>
             </thead>
@@ -273,14 +330,16 @@
               <tr v-for="item in list" :key="item.MEMBER_NO" @click="onRowClick(item)" style="cursor:pointer;">
                 <td class="photo-cell">
                   <!-- <img :src="item.MAIN_PHOTO_URL || defaultPhoto" :alt="item.MEMBER_NO"> -->
-                   <img :src="pfx(item.MAIN_PHOTO_URL)" :alt="item.MEMBER_NO" @error="onImgError">
+                  <!-- <img :src="pfx(item.MAIN_PHOTO_URL)" :alt="item.MEMBER_NO" @error="onImgError"> -->
+                  <img :src="pfx(item.MAIN_PHOTO_URL)" :alt="item.MEMBER_NO" @error="onImgError"
+                    @click.stop="fnPopup(pfx(item.MAIN_PHOTO_URL))" />
                 </td>
                 <td>{{ item.MEMBER_NO }}</td>
                 <td>{{ item.NAME || '-' }}</td>
                 <td>{{ item.BIRTH_YEAR || '-' }}</td>
-                <td>{{ item.MARITAL || '-' }}</td>
-                <td>{{ item.JOB || '-' }}</td>
-                <td>{{ item.ADDRESS || '-' }}</td>
+                <td>{{ item.HEIGHT || '-' }}</td>
+                <td>{{ item.WEIGHT || '-' }}</td>
+                <td>{{ item.GENDER || '-' }}</td>
                 <td v-if="isEmpActive">
                   <button class="btn btn--ghost" @click.stop="fnGoEdit(item.MEMBER_NO)" v-if="canEdit(item)">수정</button>
                 </td>
@@ -341,7 +400,10 @@
 
           isEmpActive: false,
           ageLabel: "무관",     // computed 대신 문자열
-          isPaying: false      // 매우 기본적인 중복 방지
+          isPaying: false,      // 매우 기본적인 중복 방지
+          searchOption: "all",
+          keyword: "",
+          searchPlaceholder: "이름·회원번호·거주지 등으로 검색",
         };
       },
       methods: {
@@ -492,7 +554,69 @@
           p = String(p).replace(/\\/g, '/');               // \ → /
           return `/server${p.startsWith('/') ? '' : '/'}${p}`;
         },
-        onImgError(e) { e.target.onerror = null; e.target.src = this.defaultPhoto; }
+        onImgError(e) {
+          e.target.onerror = null; e.target.src = this.defaultPhoto;
+        },
+        fnPopup: function (url) {
+          // 첫번째 파라미터 : 팝업을 띄울 주소(파일)
+          // 두번째 파라미터 : 팝업의 이름 같은 이름의 팝업은 2개이상 출력되지 않는다. (계속 클릭해도)
+          // 세번째 파라미터 : 크기(width, height) 및 위치(left, top)
+          let top = (screen.availHeight - 400) / 2
+          let left = (screen.availWidth - 400) / 2
+          // console.log("위아래중간", mh);
+          // console.log("좌우중간", mw);
+          // src="../media/skj_img.jpg"
+          window.open(url, "popup", `width=500, height=500, left=${left}, top=${top}`);
+        },
+
+        fnSearch() {
+          // 새 검색은 1페이지부터
+          this.page = 1;
+          this.fnList();
+        },
+        fnReset() {
+          this.searchOption = "all";
+          this.keyword = "";
+          this.page = 1;
+          this.fnList();
+        },
+        // 리스트 (검색 파라미터 포함)
+        fnList() {
+          const param = {
+            pageSize: this.pageSize,
+            offset: (this.page - 1) * this.pageSize,
+            option: this.searchOption,
+            keyword: this.keyword
+          };
+          $.ajax({
+            url: "http://localhost:3009/cms/custlist",
+            dataType: "json",
+            type: "GET",
+            data: param,
+            success: (data) => {
+              this.list = data.list || data.boardList || [];
+              this.count = data.count || 0;
+              this.index = Math.ceil(this.count / this.pageSize) || 1;
+            },
+            error: () => {
+              // 서버 없을 때를 위한 임시 처리(데모)
+              // this.list = []; this.count = 0; this.index = 1;
+            }
+          });
+        },
+        searchOptionLabel() {
+          const map = {
+            all: "전체",
+            name: "이름",
+            memberNo: "회원번호",
+            region: "거주지",
+            job: "직업",
+            gender: "성별",
+            birthYear: "출생년"
+          };
+          return map[this.searchOption] || "검색";
+        }
+
 
       },
       mounted() {
