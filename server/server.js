@@ -577,7 +577,7 @@ app.get('/cms/custlist', async (req, res) => {
   // 최소 인젝션 회피: 작은따옴표만 이스케이프
   const kw = String(keyword || '').trim().toLowerCase().replace(/'/g, "''");
 
-  const g  = String(gender || '').trim().toUpperCase(); // 'M' | 'F' | 'N' | ''
+  const g = String(gender || '').trim().toUpperCase(); // 'M' | 'F' | 'N' | ''
 
   // 고객이 name 검색 시도하면 이름 제외(all처럼 동작)
   if (!isEmpActive && option === 'name') option = 'all';
@@ -588,14 +588,14 @@ app.get('/cms/custlist', async (req, res) => {
   console.log(kw);
   console.log(option);
 
-    // ▼ 성별 전용 필터
+  // ▼ 성별 전용 필터
   if (option === 'gender') {
-    if (['M','F','N'].includes(g)) {
+    if (['M', 'F', 'N'].includes(g)) {
       where.push(`B.GENDER = '${g}'`);
     }
     // g가 빈값이면(=전체) 아무 필터도 추가하지 않음
   } else if (kw) {
-  // if (kw) {
+    // if (kw) {
     if (option === 'name' && isEmpActive) {
       where.push(`LOWER(B.NAME) LIKE '%${kw}%' `);
     } else if (option === 'region') {
@@ -1710,7 +1710,7 @@ app.get('/cms/access/check', async (req, res) => {
     res.json({ allowed: false });
   } catch (e) {
     console.error('access/check error', e);
-    res.status(500).json({ allowed:false, message:'check failed' });
+    res.status(500).json({ allowed: false, message: 'check failed' });
   }
 });
 
@@ -1740,7 +1740,7 @@ app.get('/cms/access/grant', async (req, res) => {
     res.json({ ok: true, rowsAffected: r.rowsAffected || 0 });
   } catch (e) {
     console.error('access/grant error', e);
-    res.status(500).json({ ok:false, message:'grant failed' });
+    res.status(500).json({ ok: false, message: 'grant failed' });
   }
 });
 
@@ -1802,6 +1802,110 @@ app.get('/cms/access/mylist', async (req, res) => {
 });
 
 //250918 타회원열람권 관련--------------------------------------------------E
+
+
+
+
+
+// ====================== 장바구니 (아주 단순 버전) ======================
+
+// 1) 담기: 이미 있으면 안 넣음 (한 번의 쿼리, MERGE 안씀)
+app.get('/cms/cart/add', async (req, res) => {
+  const { viewerId = '', memberNo = '' } = req.query;
+  try {
+    const r = await connection.execute(
+      `
+      INSERT INTO TBL_CMS_CART (VIEWER_ID, MEMBER_NO, CDATETIME, UDATETIME)
+      SELECT :v, :m, SYSDATE, SYSDATE FROM DUAL
+      WHERE NOT EXISTS (
+        SELECT 1 FROM TBL_CMS_CART
+         WHERE VIEWER_ID = :v AND MEMBER_NO = :m
+      )
+      `,
+      { v: viewerId, m: memberNo },
+      { autoCommit: true }
+    );
+    // rowsAffected 가 1이면 새로 담긴 것, 0이면 이미 있었던 것
+    res.json({ ok: true, added: !!(r.rowsAffected) });
+  } catch (e) {
+    console.error('cart/add error', e);
+    res.status(500).json({ ok: false, message: 'add failed' });
+  }
+});
+
+// 2) 빼기: 단순 삭제
+app.get('/cms/cart/remove', async (req, res) => {
+  const { viewerId = '', memberNo = '' } = req.query;
+  try {
+    const r = await connection.execute(
+      `DELETE FROM TBL_CMS_CART WHERE VIEWER_ID = :v AND MEMBER_NO = :m`,
+      { v: viewerId, m: memberNo },
+      { autoCommit: true }
+    );
+    res.json({ ok: true, removed: r.rowsAffected > 0 });
+  } catch (e) {
+    console.error('cart/remove error', e);
+    res.status(500).json({ ok: false, message: 'remove failed' });
+  }
+});
+
+// 3) 존재여부: 아이콘/버튼 상태 표시용(선택)
+app.get('/cms/cart/has', async (req, res) => {
+  const { viewerId = '', memberNo = '' } = req.query;
+  try {
+    const r = await connection.execute(
+      `SELECT 1 FROM TBL_CMS_CART WHERE VIEWER_ID=:v AND MEMBER_NO=:m`,
+      { v: viewerId, m: memberNo }
+    );
+    res.json({ inCart: (r.rows && r.rows.length > 0) });
+  } catch (e) {
+    console.error('cart/has error', e);
+    res.status(500).json({ inCart: false });
+  }
+});
+
+// 4) 목록: 내 장바구니에 담긴 프로필만(아주 단순)
+app.get('/cms/cart/list', async (req, res) => {
+  let { viewerId = '', pageSize = 10, offset = 0 } = req.query;
+
+  pageSize = Number(pageSize) || 10;
+  offset = Number(offset) || 0;
+
+  // 프로필과 조인해서 화면에 바로 쓸 수 있게 전달
+  const listSql = `
+    SELECT
+      B.MEMBER_NO, B.NAME, B.BIRTH_YEAR, B.HEIGHT, B.WEIGHT, B.GENDER,
+      B.MAIN_PHOTO_URL, B.CREATEBY
+    FROM TBL_CMS_CART C
+    JOIN TBL_CMS_CUST_PROFILE B ON B.MEMBER_NO = C.MEMBER_NO
+    WHERE C.VIEWER_ID = :v
+    ORDER BY C.CDATETIME DESC
+    OFFSET ${offset} ROWS FETCH NEXT ${pageSize} ROWS ONLY
+  `;
+
+  const countSql = `
+    SELECT COUNT(*) FROM TBL_CMS_CART WHERE VIEWER_ID = :v
+  `;
+
+  try {
+    const cnt = await connection.execute(countSql, { v: viewerId });
+    const total = (cnt.rows && cnt.rows[0] && cnt.rows[0][0]) || 0;
+
+    const rs = await connection.execute(listSql, { v: viewerId });
+    const cols = rs.metaData.map(c => c.name);
+    const rows = rs.rows.map(r => {
+      const o = {}; cols.forEach((c, i) => o[c] = r[i]); return o;
+    });
+
+    res.json({ result: 'success', count: total, list: rows });
+  } catch (e) {
+    console.error('cart/list error', e);
+    res.status(500).json({ result: 'error', message: 'list failed' });
+  }
+});
+
+// ==================== /장바구니 (아주 단순 버전) ====================
+
 
 
 

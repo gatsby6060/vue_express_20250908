@@ -247,6 +247,13 @@
       color: #fff;
       border-color: #3a7afe;
     }
+
+
+    .btn--ghost.active {
+      background: #e41a6e;
+      color: #fff;
+      border-color: #3a7afe;
+    }
   </style>
 </head>
 
@@ -285,6 +292,10 @@
           <div style="margin-left:auto; display:flex; gap:6px;">
             <button class="btn btn--ghost" v-if="!isEmpActive" @click="fnGoPurchased">
               내가 정보를 구매한 타회원
+            </button>
+            <!-- ▼ 장바구니 보기 -->
+            <button class="btn btn--ghost" v-if="!isEmpActive" @click="goCartPage">
+              장바구니
             </button>
           </div>
         </div>
@@ -344,6 +355,7 @@
                 <th style="width:180px">몸무게</th>
                 <th style="width:120px">성별</th>
                 <th style="width:100px" v-if="isEmpActive">수정</th>
+                <th style="width:120px" v-if="!isEmpActive">장바구니</th>
               </tr>
             </thead>
 
@@ -364,6 +376,14 @@
                 <td>{{ item.GENDER || '-' }}</td>
                 <td v-if="isEmpActive">
                   <button class="btn btn--ghost" @click.stop="fnGoEdit(item.MEMBER_NO)" v-if="canEdit(item)">수정</button>
+                </td>
+                <!-- ▼ 고객 전용: 장바구니 버튼 -->
+                <td v-if="!isEmpActive">
+                  <button class="btn btn--ghost" :class="{ active: isInCart(item.MEMBER_NO) }"
+                    :disabled="cartBusy[item.MEMBER_NO]" @click.stop="toggleCart(item)">
+                    <span v-if="isInCart(item.MEMBER_NO)">★ 담김</span>
+                    <span v-else>☆ 담기</span>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -426,9 +446,13 @@
           searchOption: "all",
           keyword: "",
           // searchPlaceholder: "이름·회원번호·거주지 등으로 검색",
-          gender: "", 
+          gender: "",
 
           viewMode: 'all',   // ★ 'all' | 'purchased'
+
+
+          inCartMap: {},         // { 'C2025-000047': true, ... }
+          cartBusy: {},          // { 'C2025-000047': true } 클릭중 잠금
         };
       },
       methods: {
@@ -679,7 +703,7 @@
         fnReset() {
           this.searchOption = "all";
           this.keyword = "";
-          this.gender = "";  
+          this.gender = "";
           this.page = 1;
           this.fnList();
         },
@@ -704,6 +728,9 @@
               this.list = data.list || data.boardList || [];
               this.count = data.count || 0;
               this.index = Math.ceil(this.count / this.pageSize) || 1;
+
+              // ▼ 목록이 바뀔 때마다 장바구니 상태 동기화
+              if (!this.isEmpActive) this.loadCartFlags();
             }
           });
         },
@@ -801,6 +828,55 @@
           // location.replace(url);
         },
 
+
+
+        // 장바구니 페이지 이동
+        goCartPage() {
+          if (!this.loginId) { alert('로그인이 필요합니다.'); return; }
+          location.href = 'cms_customer_cart.html?viewerId=' + encodeURIComponent(this.loginId);
+        },
+
+        // 현재 페이지의 목록을 불러온 뒤, 내 장바구니 항목들을 한 번에 받아와 매핑
+        loadCartFlags() {
+          if (!this.loginId) return;
+          $.ajax({
+            url: 'http://localhost:3009/cms/cart/list',
+            type: 'GET', dataType: 'json',
+            data: { viewerId: this.loginId, pageSize: 9999, offset: 0 },
+            success: (res) => {
+              const map = {};
+              (res.list || []).forEach(r => { map[String(r.MEMBER_NO)] = true; });
+              this.inCartMap = map;
+            }
+          });
+        },
+        isInCart(memberNo) {
+          return !!this.inCartMap[String(memberNo)];
+        },
+
+        // 담기/빼기 토글
+        toggleCart(item) {
+          const memberNo = String(item.MEMBER_NO);
+          if (!this.loginId) { alert('로그인이 필요합니다.'); return; }
+          if (this.cartBusy[memberNo]) return;
+
+          this.$set ? this.$set(this.cartBusy, memberNo, true) : (this.cartBusy[memberNo] = true);
+
+          const inCart = this.isInCart(memberNo);
+          const url = inCart ? 'http://localhost:3009/cms/cart/remove' : 'http://localhost:3009/cms/cart/add';
+          const params = { viewerId: this.loginId, memberNo };
+
+          $.ajax({
+            url, type: 'GET', dataType: 'json', data: params,
+            success: () => {
+              // 낙관적 업데이트
+              if (inCart) delete this.inCartMap[memberNo];
+              else this.inCartMap[memberNo] = true;
+            },
+            error: () => { alert('처리 중 오류가 발생했습니다.'); },
+            complete: () => { this.cartBusy[memberNo] = false; }
+          });
+        },
 
       },
       mounted() {
