@@ -1874,8 +1874,14 @@ app.get('/cms/cart/list', async (req, res) => {
   // 프로필과 조인해서 화면에 바로 쓸 수 있게 전달
   const listSql = `
     SELECT
-      B.MEMBER_NO, B.NAME, B.BIRTH_YEAR, B.HEIGHT, B.WEIGHT, B.GENDER,
-      B.MAIN_PHOTO_URL, B.CREATEBY
+      B.MEMBER_NO,
+      '비공개' AS NAME,             -- ★ 이름은 항상 비공개로 내려보냄
+      B.BIRTH_YEAR,
+      B.HEIGHT,
+      B.WEIGHT,
+      B.GENDER,
+      B.MAIN_PHOTO_URL,
+      B.CREATEBY
     FROM TBL_CMS_CART C
     JOIN TBL_CMS_CUST_PROFILE B ON B.MEMBER_NO = C.MEMBER_NO
     WHERE C.VIEWER_ID = :v
@@ -1913,6 +1919,48 @@ app.get('/cms/cart/list', async (req, res) => {
 
 
 
+// 모든/자기 고객 좌표만 내려주는 초간단 API
+app.get('/cms/coords', async (req, res) => {
+  const { loginId = '', sStatus = '' } = req.query;
+  const isAdmin = String(loginId).trim().toLowerCase() === 'admin';
+
+  try {
+    let sql, binds;
+    if (isAdmin) {
+      // admin: 전체 고객 좌표
+      sql = `
+        SELECT MEMBER_NO, NAME, GENDER, LATITUDE, LONGITUDE
+          FROM TBL_CMS_CUST_PROFILE
+         WHERE LATITUDE IS NOT NULL
+           AND LONGITUDE IS NOT NULL
+      `;
+      binds = {};
+    } else if (String(sStatus).trim() === 'active') {
+      // 직원: 내가 작성한 고객만
+      sql = `
+        SELECT MEMBER_NO, NAME, GENDER, LATITUDE, LONGITUDE
+          FROM TBL_CMS_CUST_PROFILE
+         WHERE CREATEBY = :loginId
+           AND LATITUDE IS NOT NULL
+           AND LONGITUDE IS NOT NULL
+      `;
+      binds = { loginId };
+    } else {
+      // 고객(일반 사용자): 지도 숨김 → 빈 목록
+      return res.json({ result: 'success', list: [] });
+    }
+
+    const r = await connection.execute(sql, binds);
+    const cols = r.metaData.map(c => c.name);
+    const rows = r.rows.map(row => {
+      const o = {}; cols.forEach((n, i) => o[n] = row[i]); return o;
+    });
+    res.json({ result: 'success', list: rows });
+  } catch (e) {
+    console.error('coords error', e);
+    res.status(500).json({ result: 'error', message: 'coords failed' });
+  }
+});
 
 
 

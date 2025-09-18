@@ -8,6 +8,10 @@
   <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.iamport.kr/v1/iamport.js"></script> <!-- 결제용 -->
+
+  <!-- <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID"></script> -->
+  <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=jquy82alxa"></script>
+
   <style>
     /* ===== 기존 디자인 그대로 ===== */
     body {
@@ -420,8 +424,17 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+
+
+      <!-- admin 또는 직원일 때만 보임 -->
+      <div class="section" v-if="isAdmin || isEmpActive">
+        <div class="section__hd">고객 위치 지도</div>
+        <div id="adminMap" style="height:420px;border:1px solid #e9edf3;border-radius:12px;"></div>
+      </div>
+
+
+    </div><!--컨테이너끝-->
+  </div><!--앱끝-->
 
   <script>
     const userCode = "imp03303441"; // 결제용 가맹점코드
@@ -453,6 +466,10 @@
 
           inCartMap: {},         // { 'C2025-000047': true, ... }
           cartBusy: {},          // { 'C2025-000047': true } 클릭중 잠금
+
+          isAdmin: false,
+          naverMap: null,
+          naverMarkers: [],
         };
       },
       methods: {
@@ -878,6 +895,68 @@
           });
         },
 
+        initNaverMap() {
+          if (this.naverMap) return;
+          // 기본 중심: 서울 시청 근처
+          this.naverMap = new naver.maps.Map('adminMap', {
+            center: new naver.maps.LatLng(37.5665, 126.9780),
+            zoom: 10
+          });
+        },
+
+        loadCoordsAndRender() {
+          $.ajax({
+            url: 'http://localhost:3009/cms/coords',
+            type: 'GET', dataType: 'json',
+            data: { loginId: this.loginId, sStatus: this.sStatus },
+            success: (res) => {
+              const rows = res.list || [];
+              this.renderNaverMarkers(rows);
+            }
+          });
+        },
+
+        renderNaverMarkers(rows) {
+          // 기존 마커 제거
+          this.naverMarkers.forEach(m => m.setMap(null));
+          this.naverMarkers = [];
+
+          const bounds = new naver.maps.LatLngBounds();
+          rows.forEach(r => {
+            const lat = Number(r.LATITUDE), lng = Number(r.LONGITUDE);
+            if (!isFinite(lat) || !isFinite(lng)) return;
+            const pos = new naver.maps.LatLng(lat, lng);
+
+            const marker = new naver.maps.Marker({
+              position: pos,
+              map: this.naverMap
+            });
+
+            const displayName = r.NAME || '비공개';
+            const html =
+              `<div style="font-size:13px;line-height:1.4">
+           <div><b>회원번호</b> ${r.MEMBER_NO}</div>
+           <div><b>성별</b> ${r.GENDER || '-'}</div>
+           <div><b>이름</b> ${displayName} </div>
+         </div>`;
+
+            const infowin = new naver.maps.InfoWindow({ content: html });
+            naver.maps.Event.addListener(marker, 'click', () => {
+              infowin.open(this.naverMap, marker);
+            });
+
+            this.naverMarkers.push(marker);
+            bounds.extend(pos);
+          });
+
+          if (!bounds.isEmpty()) {
+            this.naverMap.fitBounds(bounds);
+          } else {
+            this.naverMap.setCenter(new naver.maps.LatLng(37.5665, 126.9780));
+            this.naverMap.setZoom(10);
+          }
+        },
+
       },
       mounted() {
         // 세션
@@ -896,7 +975,7 @@
           return;
         }
         this.isEmpActive = (this.sStatus === 'active');
-
+        this.isAdmin = (String(this.loginId).toLowerCase() === 'admin'); // ★ 회장 판별
         // 아주 단순한 ageLabel 계산(초기 한 번)
         // const { ageMin, ageMax } = this.condition || {};
         // if (ageMin && ageMax) this.ageLabel = ageMin + "~" + ageMax;
@@ -910,6 +989,13 @@
         }
 
         self.fnList();
+        // ★ 지도: admin 또는 직원일 때만 초기화 + 데이터 로드
+        if (this.isAdmin || this.isEmpActive) {
+          this.$nextTick(() => {
+            this.initNaverMap();
+            this.loadCoordsAndRender();
+          });
+        }
       }
     });
 
