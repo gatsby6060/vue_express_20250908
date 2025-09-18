@@ -1047,31 +1047,24 @@ app.get('/cms/customerinsert', async (req, res) => {
     loginId, password, name, pr, address, email, phone,
     birthYear, height, weight, bloodType, religion, hobby,
     mainPhotoUrl, gender, certs, createby,
-    educations,   // ★ 프론트에서 JSON.stringify([...]) 로 보냄
-    lat, lng // ⬅️ 클라에서 온 좌표
+    educations   // ★ 프론트에서 JSON.stringify([...]) 로 보냄
   } = req.query;
 
   const toNum = v => (v === undefined || v === '' ? null : Number(v));
   const txOpts = { autoCommit: false };
 
   try {
-    // ⬇️ 클라에서 준 좌표만 사용
-    const latNum = toNum(lat);
-    const lngNum = toNum(lng);
-
+    
     // 1) 고객 INSERT + 새 MEMBER_NO 받기
-    // 1) 프로필 INSERT (좌표 포함)
     const r1 = await connection.execute(
       `INSERT INTO TBL_CMS_CUST_PROFILE
        ( LOGIN_ID, PASSWORD, NAME, PR, ADDRESS, EMAIL, PHONE,
          BIRTH_YEAR, HEIGHT, WEIGHT, BLOOD_TYPE, RELIGION, HOBBY,
-         MAIN_PHOTO_URL, GENDER, CERTS, CREATEBY,
-         LATITUDE, LONGITUDE )
+         MAIN_PHOTO_URL, GENDER, CERTS, CREATEBY )
        VALUES
        ( :loginId, :password, :name, :pr, :address, :email, :phone,
          :birthYear, :height, :weight, :bloodType, :religion, :hobby,
-         :mainPhotoUrl, :gender, :certs, :createby,
-         :lat, :lng )
+         :mainPhotoUrl, :gender, :certs, :createby )
        RETURNING MEMBER_NO INTO :out_member_no`,
       {
         loginId: loginId || null,
@@ -1091,8 +1084,6 @@ app.get('/cms/customerinsert', async (req, res) => {
         gender: (gender && String(gender).trim() !== '' ? String(gender).toUpperCase() : 'N'),
         certs: certs || null,
         createby: createby || null,
-        lat: latNum,          // ⬅️ 그대로 바인딩
-        lng: lngNum,          // ⬅️ 그대로 바인딩
         out_member_no: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 64 }
       },
       txOpts
@@ -1427,123 +1418,32 @@ app.get('/cms/customeredu', async (req, res) => {
 
 
 // 1) 프로필 업데이트
-// app.get('/cms/customerupdate', async (req, res) => {
-//   const {
-//     memberNo, name, pr, address, email, phone,
-//     birthYear, height, weight, gender, mainPhotoUrl
-//   } = req.query;
-
-//   try {
-//     // ⬇️ 필요 시 지오코딩
-//     let lat = null, lng = null;
-//     if (address) {
-//       const g = await geocodeByNaver(address);
-//       if (g) { lat = g.lat; lng = g.lng; }
-//     }
-//     await connection.execute(
-//       `UPDATE TBL_CMS_CUST_PROFILE
-//          SET NAME=:name, PR=:pr, ADDRESS=:address, EMAIL=:email, PHONE=:phone,
-//              BIRTH_YEAR=:birthYear, HEIGHT=:height, WEIGHT=:weight,
-//              GENDER=:gender, MAIN_PHOTO_URL=:mainPhotoUrl, UDATETIME=SYSDATE,
-//              LATITUDE = NVL(:lat, LATITUDE),   -- 새 좌표가 있으면 교체
-//              LONGITUDE = NVL(:lng, LONGITUDE)
-//        WHERE MEMBER_NO=:memberNo`,
-//       [
-//         name || null, pr || null, address || null, email || null, phone || null,
-//         birthYear ? Number(birthYear) : null, height ? Number(height) : null, weight ? Number(weight) : null,
-//         (gender || 'N').toUpperCase(), mainPhotoUrl || null,
-//         lat, lng,
-//         memberNo
-//       ],
-//       { autoCommit: true }
-//     );
-//     res.json({ result: 'success' });
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).send('Error executing update');
-//   }
-// });
-// 숫자/빈값 보정 유틸 (파일에 이미 있으면 중복 정의하지 마세요)
-function toNumOrNull(v) {
-  if (v === undefined || v === null) return null;
-  const s = String(v).trim().toLowerCase();
-  if (s === '' || s === 'null' || s === 'undefined') return null;
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
-function toNullIfEmpty(v) {
-  if (v === undefined || v === null) return null;
-  const s = String(v);
-  return s.trim() === '' ? null : v;
-}
-
 app.get('/cms/customerupdate', async (req, res) => {
+  const {
+    memberNo, name, pr, address, email, phone,
+    birthYear, height, weight, gender, mainPhotoUrl
+  } = req.query;
+
   try {
-    const q = req.query;
-    console.log("q는 " + JSON.stringify(q));
-    const binds = {
-      memberNo: q.memberNo,
-      name: toNullIfEmpty(q.name) ?? '',
-      pr: toNullIfEmpty(q.pr),
-      address: toNullIfEmpty(q.address),
-      email: toNullIfEmpty(q.email),
-      phone: toNullIfEmpty(q.phone),
-      birthYear: toNumOrNull(q.birthYear),
-      height: toNumOrNull(q.height),
-      weight: toNumOrNull(q.weight),
-      gender: (q.gender || 'N').toUpperCase(),
-      mainPhotoUrl: toNullIfEmpty(q.mainPhotoUrl),
-      lat: toNumOrNull(q.lat),   // 안 오면 NULL 저장
-      lng: toNumOrNull(q.lng)    // 안 오면 NULL 저장
-    };
-
-    const sql = `
-      UPDATE TBL_CMS_CUST_PROFILE
-         SET NAME            = :name,
-             PR              = :pr,
-             ADDRESS         = :address,
-             EMAIL           = :email,
-             PHONE           = :phone,
-             BIRTH_YEAR      = :birthYear,
-             HEIGHT          = :height,
-             WEIGHT          = :weight,
-             GENDER          = :gender,
-             MAIN_PHOTO_URL  = :mainPhotoUrl,
-             LATITUDE        = :lat,
-             LONGITUDE       = :lng,
-             UDATETIME       = SYSDATE
-       WHERE MEMBER_NO       = :memberNo
-    `;
-
-    const result = await connection.execute(
-      sql,
-      {
-        memberNo: binds.memberNo,
-        name: binds.name,
-        pr: binds.pr,
-        address: binds.address,
-        email: binds.email,
-        phone: binds.phone,
-        birthYear: { val: binds.birthYear, type: oracledb.NUMBER },
-        height: { val: binds.height, type: oracledb.NUMBER },
-        weight: { val: binds.weight, type: oracledb.NUMBER },
-        gender: binds.gender,
-        mainPhotoUrl: binds.mainPhotoUrl,
-        lat: { val: binds.lat, type: oracledb.NUMBER },
-        lng: { val: binds.lng, type: oracledb.NUMBER }
-      },
+    await connection.execute(
+      `UPDATE TBL_CMS_CUST_PROFILE
+         SET NAME=:name, PR=:pr, ADDRESS=:address, EMAIL=:email, PHONE=:phone,
+             BIRTH_YEAR=:birthYear, HEIGHT=:height, WEIGHT=:weight,
+             GENDER=:gender, MAIN_PHOTO_URL=:mainPhotoUrl, UDATETIME=SYSDATE
+       WHERE MEMBER_NO=:memberNo`,
+      [
+        name || null, pr || null, address || null, email || null, phone || null,
+        birthYear ? Number(birthYear) : null, height ? Number(height) : null, weight ? Number(weight) : null,
+        (gender || 'N').toUpperCase(), mainPhotoUrl || null, memberNo
+      ],
       { autoCommit: true }
     );
-
-    res.json({ result: 'success', rowsAffected: result.rowsAffected });
-  } catch (err) {
-    console.error('customerupdate error', err);
-    res.status(500).json({ result: 'error', message: String(err) });
+    res.json({ result: 'success' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Error executing update');
   }
 });
-
-
-
 
 // 2) 학력은 전체를 갈아끼우기(전체 delete 후 insert)
 app.get('/cms/customeredu/replace', async (req, res) => {
@@ -1657,16 +1557,16 @@ const axios = require('axios');
 async function geocodeByNaver(addr) {
   if (!addr) return null;
   const url = 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode';
-
+  
   const keyId = process.env.NCP_KEY_ID;
   const key = process.env.NCP_KEY;
   console.log("Naver KeyId:", keyId);
   console.log("Naver key:", key);
   const { data } = await axios.get(url, {
-
+    
     params: { query: addr },
     headers: {
-
+      
       'X-NCP-APIGW-API-KEY-ID': process.env.NCP_KEY_ID,
       'X-NCP-APIGW-API-KEY': process.env.NCP_KEY
     }

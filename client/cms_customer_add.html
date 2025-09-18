@@ -10,6 +10,12 @@
     crossorigin="anonymous"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
+  <!--250918 지도용 좌표만들려고 추가-->
+  <!-- <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=jquy82alxa"></script> -->
+  <!-- 반드시 geocoder 서브모듈 추가 -->
+  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=jquy82alxa&submodules=geocoder"></script>
+
+
   <style>
     body {
       margin: 0;
@@ -395,39 +401,27 @@
 
         // 저장 버튼
         save: function () {
-          let self = this;
+          var self = this;
+
+          var addr = (self.profile && self.profile.address ? String(self.profile.address) : '').trim();
+          if (!addr) { alert('주소를 먼저 입력(검색)하세요.'); return; }
+
+          // 1) 이미지 업로드 끝나면
           self.fnUploadImg(function (uploadedPath) {
-            const param = self.makeParam(uploadedPath);
-            self.submitInsert(param);
+            // 2) 지오코딩 끝나면
+            self.geocodeClientCb(addr, function (geo) {
+              if (!geo) { alert('주소 지오코딩(위도/경도) 실패'); return; }
+
+              // 3) 이제 서버로 전송
+              var param = self.makeParam(uploadedPath, geo);
+              self.submitInsert(param);
+            });
           });
         },
 
-        // 업로드 → 경로 콜백
-        // fnUploadImg: function (cb) {
-        //   var fileInput = this.$refs.fileInput;
-        //   if (!fileInput || fileInput.files.length === 0) { cb(null); return; }
-
-        //   var fd = new FormData();
-        //   fd.append('image', fileInput.files[0]);
-
-        //   $.ajax({
-        //     url: 'http://localhost:3009/upload',
-        //     method: 'POST',
-        //     data: fd,
-        //     processData: false,
-        //     contentType: false,
-        //     success: (res) => {
-        //       var path = (res && res.path) ? String(res.path).replace(/\\/g, '/') : null;
-        //       this.uploadResult = res;
-        //       this.photos.main = path || this.photos.main;
-        //       cb(path);
-        //     },
-        //     error: (err) => { console.error(err); alert('업로드 실패(이미지 없이 저장 진행)'); cb(null); }
-        //   });
-        // },
 
         // INSERT에 보낼 파라미터 만들기
-        makeParam: function (uploadedPath) {
+        makeParam: function (uploadedPath, geo) {
           return {
             name: this.profile.name || "",
             pr: this.profile.pr || "",
@@ -440,21 +434,26 @@
             weight: this.profile.weight || "",
             gender: (this.profile.sex || "N"),
             createby: (sessionStorage.getItem("sessionId") || ""),
-            // details: JSON.stringify(this.details || {}), // 안 쓰면 제거
-            educations: JSON.stringify(this.educations || [])
+            educations: JSON.stringify(this.educations || []),
+
+            // ← 여기 좌표 포함 (클라에서 만든 값)
+            lat: geo.lat,
+            lng: geo.lng
           };
         },
+
 
         // 서버 전송
         submitInsert: function (param) {
           let self = this;
+          // alert('submitInsert함수진입'); 
           $.ajax({
             url: "http://localhost:3009/cms/customerinsert",
             dataType: "json",
             type: "GET",
             data: param,
             success: () => {
-              alert('등록되었습니다.'); //이놈이 여기 있으면 고객리스트 이동을 못함 250917
+              alert('등록되었습니다.'); //이놈이 그냥 여기 있으면 고객리스트 이동을 못함 250917
               setTimeout(() => { location.href = 'cms_customer_list.html'; }, 0);
               // self.goList();
               // alert("등록되었습니다."); //이놈이 여기 있으면 고객리스트 이동을 못함 250917
@@ -501,9 +500,9 @@
         // ⬇️ 팝업 열기
         fnSearchAddr() {
           // 팝업 차단 방지: 클릭 이벤트 안에서 호출됨
-        //  window.open('jusoPopup.html', 'addr', 'width=500,height=600,scrollbars=yes,resizable=yes');
+          //  window.open('jusoPopup.html', 'addr', 'width=500,height=600,scrollbars=yes,resizable=yes');
           window.open('/client/jusoPopup.html?v=' + Date.now(), 'addr',
-             'width=500,height=600,scrollbars=yes,resizable=yes');
+            'width=500,height=600,scrollbars=yes,resizable=yes');
         },
 
         // 선택: 팝업에서 받은 값 추가 가공이 필요하면 이 메서드로 통일
@@ -512,6 +511,23 @@
           // 상세주소 입력칸을 따로 두었다면 아래처럼:
           // this.profile.addrDetail = addrDetail || '';
         },
+
+        // 250918 주소 → 좌표(네이버 JS SDK)
+        // 주소 → 좌표 (네이버 JS SDK, 콜백 버전)
+        geocodeClientCb(addr, cb) {
+          
+          if (!addr || !(window.naver && naver.maps && naver.maps.Service)) {
+            cb(null); return;
+          }
+          naver.maps.Service.geocode({ query: addr }, function (status, res) {
+            if (status !== naver.maps.Service.Status.OK || !res || !res.v2 || !res.v2.addresses || !res.v2.addresses.length) {
+              cb(null); return;
+            }
+            var a = res.v2.addresses[0];
+            cb({ lat: parseFloat(a.y), lng: parseFloat(a.x) }); // y=위도, x=경도
+          });
+        }
+
 
       },// methods
 

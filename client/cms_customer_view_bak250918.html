@@ -3,22 +3,13 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-
-  <meta name="referrer" content="origin">
-
   <title>고객 상세 정보 보기</title>
   <!-- 베이스 기준: jQuery CDN + integrity 포함 -->
   <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
     crossorigin="anonymous"></script>
   <!-- 베이스 기준: Vue 3 CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-  <!-- 250918(추가) 네이버 지도 JS: 콘솔의 Client ID 사용 -->
-  <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=jquy82alxa"></script>
-
 
   <!-- 외부에 보이는 디자인(스타일) 유지 -->
   <style>
@@ -360,19 +351,9 @@
         </table>
       </div> -->
 
-
-      <!-- 지도 섹션 (상세 화면 중간 어딘가 적당한 위치) -->
-      <div class="section">
-        <div class="section__hd">위치</div>
-        <div id="map" style="width:100%;height:300px;border:1px solid #e9edf3;border-radius:10px;"></div>
-        <div id="mapAddr" style="margin-top:8px;color:#666;font-size:.95rem;"></div>
-      </div>
-
-
-
       <!-- 버튼 -->
       <div class="btn-row">
-        <button class="btn" v-if="canEdit" @click="fnGoEdit">프로필 수정하러 가기</button>
+        <button class="btn" v-if="canEdit" @click="fnGoEdit">프로필 수정하기</button>
         <button class="btn" @click="fnGoList">목록으로</button>
       </div>
 
@@ -385,18 +366,7 @@
     </div>
   </div>
 
-
-
-
-
   <script>
-
-    // SDK 준비 확인(예방)
-    function naverReady() {
-      return !!(window.naver && naver.maps);
-    }
-
-
     const app = Vue.createApp({
       data() {
         return {
@@ -466,9 +436,6 @@
                 // alert("사진 띄우기 진입직전");
                 // mainPhotoSrc(); //이게 두번쨰로 호출되는 순간임
                 // alert("사진 띄우기 탈출");
-
-                // ✅ 지도 그리기 (DOM이 준비된 뒤 실행)
-                self.$nextTick(() => self.drawMap());
               }
 
 
@@ -540,33 +507,8 @@
         onImgError(e) {
           e.target.onerror = null;
           e.target.src = this.defaultPhoto;
-        },
-        //사진관련250917----------------------------------------E
-
-        //네이버지도250918
-        drawMap() {
-          if (!naverReady()) {
-            // SDK가 아직이면 조금 뒤 재시도
-            setTimeout(() => this.drawMap(), 200);
-            return;
-          }
-          const lat = Number(this.info.LATITUDE || this.info.lat || this.info.latitude);
-          const lng = Number(this.info.LONGITUDE || this.info.lng || this.info.longitude);
-          if (isNaN(lat) || isNaN(lng)) {
-            const $addr = document.getElementById('mapAddr');
-            if ($addr) $addr.textContent = '좌표 정보가 없습니다.';
-            return;
-          }
-          const center = new naver.maps.LatLng(lat, lng);
-          const map = new naver.maps.Map('map', { center, zoom: 14 });
-          const marker = new naver.maps.Marker({ position: center, map });
-          const addrText = this.info.ADDRESS || '';
-          if (addrText) {
-            new naver.maps.InfoWindow({
-              content: `<div style="padding:6px 8px;font-size:12px;">${addrText}</div>`
-            }).open(map, marker);
-          }
         }
+        //사진관련250917----------------------------------------E
 
       },
       mounted() {
@@ -593,14 +535,6 @@
 
     app.mount('#app');
   </script>
-
-
-
-
-
-
-
-
 </body>
 
 </html>
