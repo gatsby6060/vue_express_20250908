@@ -564,7 +564,6 @@ app.get('/cms/custlist', async (req, res) => {
   let {
     option = 'all',
     keyword = '',
-    gender = '',
     pageSize = 10,
     offset = 0,
     sStatus = '',    // 'active'면 직원
@@ -577,8 +576,6 @@ app.get('/cms/custlist', async (req, res) => {
   // 최소 인젝션 회피: 작은따옴표만 이스케이프
   const kw = String(keyword || '').trim().toLowerCase().replace(/'/g, "''");
 
-  const g  = String(gender || '').trim().toUpperCase(); // 'M' | 'F' | 'N' | ''
-
   // 고객이 name 검색 시도하면 이름 제외(all처럼 동작)
   if (!isEmpActive && option === 'name') option = 'all';
 
@@ -587,15 +584,7 @@ app.get('/cms/custlist', async (req, res) => {
   let where = [];
   console.log(kw);
   console.log(option);
-
-    // ▼ 성별 전용 필터
-  if (option === 'gender') {
-    if (['M','F','N'].includes(g)) {
-      where.push(`B.GENDER = '${g}'`);
-    }
-    // g가 빈값이면(=전체) 아무 필터도 추가하지 않음
-  } else if (kw) {
-  // if (kw) {
+  if (kw) {
     if (option === 'name' && isEmpActive) {
       where.push(`LOWER(B.NAME) LIKE '%${kw}%' `);
     } else if (option === 'region') {
@@ -630,7 +619,7 @@ app.get('/cms/custlist', async (req, res) => {
   pageSize = Number(pageSize) || 10;
   offset = Number(offset) || 0;
 
-  // Oracle 12c+ 기준 페이징. 
+  // Oracle 12c+ 기준 페이징. (MySQL이면 LIMIT ${pageSize} OFFSET ${offset})
   const listQuery =
     `SELECT
        B.MEMBER_NO,
@@ -1690,129 +1679,6 @@ async function geocodeByNaver(addr) {
 }
 
 //250918 네이버지도관련------------------------------------------------------E
-
-//250918 타회원열람권 관련--------------------------------------------------S
-// [열람권 확인] 이미 구매했고 아직 유효하면 allowed:true
-app.get('/cms/access/check', async (req, res) => {
-  const { viewerId = '', memberNo = '' } = req.query;
-  try {
-    const r = await connection.execute(
-      `SELECT EXPIRE_AT
-         FROM TBL_CMS_VIEWPASS
-        WHERE VIEWER_ID = :viewer
-          AND MEMBER_NO = :member
-          AND EXPIRE_AT >= SYSDATE`,
-      [viewerId, memberNo]
-    );
-    if (r.rows && r.rows.length) {
-      return res.json({ allowed: true, expireAt: r.rows[0][0] });
-    }
-    res.json({ allowed: false });
-  } catch (e) {
-    console.error('access/check error', e);
-    res.status(500).json({ allowed:false, message:'check failed' });
-  }
-});
-
-// [열람권 부여/연장] 결제 성공 후 3일로 세팅(이미 있으면 갱신)
-app.get('/cms/access/grant', async (req, res) => {
-  const { viewerId = '', memberNo = '', orderId = '', amount = 0, days = 3 } = req.query;
-  try {
-    const r = await connection.execute(
-      `
-      MERGE INTO TBL_CMS_VIEWPASS t
-      USING (SELECT :viewerId AS VIEWER_ID, :memberNo AS MEMBER_NO FROM dual) s
-         ON (t.VIEWER_ID = s.VIEWER_ID AND t.MEMBER_NO = s.MEMBER_NO)
-      WHEN MATCHED THEN
-        UPDATE SET
-          ORDER_ID  = :orderId,
-          AMOUNT    = :amount,
-          PAID_AT   = SYSDATE,
-          EXPIRE_AT = SYSDATE + :days,
-          UDATETIME = SYSDATE
-      WHEN NOT MATCHED THEN
-        INSERT(VIEWER_ID, MEMBER_NO, ORDER_ID, AMOUNT, PAID_AT, EXPIRE_AT, CDATETIME, UDATETIME)
-        VALUES(:viewerId, :memberNo, :orderId, :amount, SYSDATE, SYSDATE + :days, SYSDATE, SYSDATE)
-      `,
-      { viewerId, memberNo, orderId, amount: Number(amount) || 0, days: Number(days) || 3 },
-      { autoCommit: true }
-    );
-    res.json({ ok: true, rowsAffected: r.rowsAffected || 0 });
-  } catch (e) {
-    console.error('access/grant error', e);
-    res.status(500).json({ ok:false, message:'grant failed' });
-  }
-});
-
-
-// [내가 구매해서 아직 유효한 타회원 목록]
-app.get('/cms/access/mylist', async (req, res) => {
-  try {
-    let { viewerId = '', pageSize = 10, offset = 0 } = req.query;
-    pageSize = Number(pageSize) || 10;
-    offset = Number(offset) || 0;
-
-    // 총건수
-    const countSql = `
-      SELECT COUNT(*)
-        FROM TBL_CMS_VIEWPASS v
-        JOIN TBL_CMS_CUST_PROFILE p ON p.MEMBER_NO = v.MEMBER_NO
-       WHERE v.VIEWER_ID = :viewerId
-         AND v.EXPIRE_AT >= SYSDATE
-    `;
-    const c = await connection.execute(countSql, [viewerId]);
-    const total = (c.rows && c.rows[0] && c.rows[0][0]) || 0;
-
-    // 목록 (이름/사진 등 포함)
-    const listSql = `
-      SELECT
-        p.MEMBER_NO,
-        p.NAME,
-        p.BIRTH_YEAR,
-        p.HEIGHT,
-        p.WEIGHT,
-        p.GENDER,
-        p.MAIN_PHOTO_URL,
-        p.CREATEBY,
-        TO_CHAR(v.EXPIRE_AT, 'YYYY-MM-DD HH24:MI:SS') AS EXPIRES_AT
-      FROM TBL_CMS_VIEWPASS v
-      JOIN TBL_CMS_CUST_PROFILE p ON p.MEMBER_NO = v.MEMBER_NO
-      WHERE v.VIEWER_ID = :viewerId
-        AND v.EXPIRE_AT >= SYSDATE
-      ORDER BY v.EXPIRE_AT DESC, p.MEMBER_NO DESC
-      OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY
-    `;
-    const r = await connection.execute(
-      listSql,
-      { viewerId, offset, pageSize }
-    );
-
-    const cols = r.metaData.map(c => c.name);
-    const rows = r.rows.map(row => {
-      const o = {};
-      cols.forEach((name, i) => o[name] = row[i]);
-      return o;
-    });
-
-    res.json({ result: 'success', count: total, list: rows });
-  } catch (e) {
-    console.error('access/mylist error', e);
-    res.status(500).json({ result: 'error', message: 'mylist failed' });
-  }
-});
-
-//250918 타회원열람권 관련--------------------------------------------------E
-
-
-
-
-
-
-
-
-
-
-
 
 
 

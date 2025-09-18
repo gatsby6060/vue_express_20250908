@@ -241,12 +241,6 @@
     .searchbar input {
       flex: 1 0 auto;
     }
-
-    .btn--ghost.active {
-      background: #3a7afe;
-      color: #fff;
-      border-color: #3a7afe;
-    }
   </style>
 </head>
 
@@ -281,13 +275,7 @@
       </div> -->
 
       <div class="section">
-        <div class="section__hd">검색
-          <div style="margin-left:auto; display:flex; gap:6px;">
-            <button class="btn btn--ghost" v-if="!isEmpActive" @click="fnGoPurchased">
-              내가 정보를 구매한 타회원
-            </button>
-          </div>
-        </div>
+        <div class="section__hd">검색</div>
         <div class="searchbar">
           <select v-model="searchOption">
             <option value="all">전체</option>
@@ -297,18 +285,9 @@
             <option value="job">직업</option>
             <!-- <option value="gender">성별</option> -->
             <option value="birthYear">출생년</option>
-            <option value="gender">성별</option>
           </select>
 
-          <!-- 성별이 아닐 때는 텍스트 인풋 -->
-          <input v-if="searchOption !== 'gender'" type="text" v-model.trim="keyword" @keyup.enter="fnSearch" />
-          <!-- 성별일 때는 드롭다운 -->
-          <select v-else v-model="gender">
-            <option value="">전체</option>
-            <option value="M">남자</option>
-            <option value="F">여자</option>
-            <option value="N">기타/미상</option>
-          </select>
+          <input type="text" v-model.trim="keyword" @keyup.enter="fnSearch" />
 
           <button class="btn" @click="fnSearch">검색</button>
           <button class="btn btn--ghost" @click="fnReset">초기화</button>
@@ -426,9 +405,6 @@
           searchOption: "all",
           keyword: "",
           // searchPlaceholder: "이름·회원번호·거주지 등으로 검색",
-          gender: "", 
-
-          viewMode: 'all',   // ★ 'all' | 'purchased'
         };
       },
       methods: {
@@ -440,21 +416,21 @@
         },
 
         // 리스트
-        // fnList() {
-        //   const param = { pageSize: this.pageSize, offset: (this.page - 1) * this.pageSize };
-        //   $.ajax({
-        //     url: "http://localhost:3009/cms/custlist",
-        //     dataType: "json",
-        //     type: "GET",
-        //     data: param,
-        //     success: (data) => {
-        //       // alert("서버에서 받은 데이터는 " + JSON.stringify(data));
-        //       this.list = data.list || data.boardList || [];
-        //       this.count = data.count || 0;
-        //       this.index = Math.ceil(this.count / this.pageSize) || 1;
-        //     }
-        //   });
-        // },
+        fnList() {
+          const param = { pageSize: this.pageSize, offset: (this.page - 1) * this.pageSize };
+          $.ajax({
+            url: "http://localhost:3009/cms/custlist",
+            dataType: "json",
+            type: "GET",
+            data: param,
+            success: (data) => {
+              // alert("서버에서 받은 데이터는 " + JSON.stringify(data));
+              this.list = data.list || data.boardList || [];
+              this.count = data.count || 0;
+              this.index = Math.ceil(this.count / this.pageSize) || 1;
+            }
+          });
+        },
         fnPage(num) {
           this.page = num;
           this.fnList();
@@ -679,7 +655,6 @@
         fnReset() {
           this.searchOption = "all";
           this.keyword = "";
-          this.gender = "";  
           this.page = 1;
           this.fnList();
         },
@@ -690,7 +665,6 @@
             offset: (this.page - 1) * this.pageSize,
             option: this.searchOption,
             keyword: this.keyword,
-            gender: this.gender,
             // 👇 추가
             sStatus: this.sStatus,
             loginId: this.loginId
@@ -707,36 +681,6 @@
             }
           });
         },
-        // fnList: function () {
-        //   var url = "http://localhost:3009/cms/custlist";   // 기본: 전체 목록
-        //   if (this.viewMode === 'purchased') {
-        //     // ★ “내가 결제해서 아직 유효한 회원들” 전용 API (백엔드에서 만들어둔 조인 결과)
-        //     //    응답 형태는 { list, count }를 custlist와 동일하게 맞춰두면 프론트 수정이 최소화됨
-        //     url = "http://localhost:3009/cms/access/mylist";
-        //   }
-
-        //   var param = {
-        //     pageSize: this.pageSize,
-        //     offset: (this.page - 1) * this.pageSize,
-        //     option: this.searchOption,
-        //     keyword: this.keyword,
-        //     sStatus: this.sStatus,
-        //     loginId: this.loginId          // ★ viewerId 로 백엔드에서 사용
-        //   };
-
-        //   $.ajax({
-        //     url: url,
-        //     dataType: "json",
-        //     type: "GET",
-        //     data: param,
-        //     success: (data) => {
-        //       this.list = data.list || [];
-        //       this.count = data.count || 0;
-        //       this.index = Math.ceil(this.count / this.pageSize) || 1;
-        //     }
-        //   });
-        // },
-
         displayName(item) {
           // 직원이면 이름 그대로 노출
           if (this.isEmpActive) return item.NAME || '-';
@@ -771,36 +715,6 @@
             error: function () { cb(false); }
           });
         },
-
-
-        // setMode: function (mode) {
-        //   this.viewMode = mode;
-        //   this.page = 1;            // 첫 페이지부터
-        //   this.fnList();            // 목록 다시 로드
-        // },
-
-
-        // fnOpenPurchased: function () {
-        //   if (!this.loginId) { alert('로그인이 필요합니다.'); return; }
-
-        //   var w = 980, h = 720;
-        //   var left = (screen.availWidth - w) / 2;
-        //   var top = (screen.availHeight - h) / 2;
-
-        //   var url = 'cms_customer_purchased_list.html?viewerId=' + encodeURIComponent(this.loginId);
-        //   window.open(url, 'purchased_list',
-        //     'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
-        // },
-
-        fnGoPurchased: function () {
-          if (!this.loginId) { alert('로그인이 필요합니다.'); return; }
-          var url = 'cms_customer_purchased_list.html?viewerId=' + encodeURIComponent(this.loginId);
-          // 뒤로가기를 가능하게 하려면 ↓ (기본 추천)
-          location.href = url;
-          // 뒤로가기를 막고 싶으면 대신 ↓ 사용
-          // location.replace(url);
-        },
-
 
       },
       mounted() {
