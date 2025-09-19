@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>직원관리</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #f5f6f8;
+            font-family: Arial, sans-serif
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 24px 12px;
+            box-sizing: border-box
+        }
+
+        .container {
+            width: 900px;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
+            border: 1px solid #eef2f7
+        }
+
+        .title {
+            margin: 0 0 12px;
+            text-align: center;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #223;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 800;
+            background: #3a7afe;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(58, 122, 254, .18)
+        }
+
+        .btn--ghost {
+            background: #fff;
+            color: #3a7afe;
+            border: 1px solid #c8d4ff;
+            box-shadow: none
+        }
+
+        .btn:hover {
+            background: #2b68ea
+        }
+
+        .btn--ghost:hover {
+            background: #f4f7ff
+        }
+
+        .table-wrap {
+            border: 1px solid #e9edf3;
+            border-radius: 12px;
+            overflow: auto;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .03)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            border: 1px solid #e5e9f2;
+            padding: 8px 10px;
+            text-align: center;
+            white-space: nowrap
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: #f6f9ff;
+            color: #2b3a55;
+            z-index: 1;
+            font-weight: 800
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 800
+        }
+
+        .active {
+            background: #e7f5ff;
+            color: #1971c2;
+            border: 1px solid #b6dbff
+        }
+
+        .inactive {
+            background: #fff4e6;
+            color: #d9480f;
+            border: 1px solid #ffd8a8
+        }
+
+        .left {
+            background: #ffe3e3;
+            color: #c92a2a;
+            border: 1px solid #ffa8a8
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: center
+        }
+
+        .select {
+            border: 1px solid #c8d4ff;
+            border-radius: 8px;
+            padding: 6px 8px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <h2 class="title">
+                <span>직원관리</span>
+                <div>
+                    <button class="btn--ghost btn" @click="goBack">← 돌아가기</button>
+                </div>
+            </h2>
+
+            <div style="margin:10px 0;display:flex;gap:8px;align-items:center">
+                <span>로그인: <b>{{ loginId }}</b></span>
+                <select class="select" v-model="filter" @change="load">
+                    <option value="">전체</option>
+                    <option value="active">active</option>
+                    <option value="inactive">inactive</option>
+                    <option value="left">left</option>
+                </select>
+                <input class="select" v-model.trim="q" placeholder="이름/ID/이메일 검색" @keyup.enter="load"
+                    style="flex:1 0 auto" />
+                <button class="btn" @click="load">검색</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:140px">로그인ID</th>
+                            <th style="width:140px">이름</th>
+                            <th style="width:200px">이메일</th>
+                            <th style="width:120px">전화</th>
+                            <th style="width:120px">상태</th>
+                            <th style="width:220px">변경</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="u in list" :key="u.LOGIN_ID">
+                            <td>{{ u.LOGIN_ID }}</td>
+                            <td>{{ u.NAME || '-' }}</td>
+                            <td>{{ u.EMAIL || '-' }}</td>
+                            <td>{{ u.PHONE || '-' }}</td>
+                            <td>
+                                <span class="badge" :class="badgeClass(u.STATUS)">{{ u.STATUS || '-' }}</span>
+                            </td>
+                            <td class="row-actions">
+                                <select class="select" v-model="u._next" :disabled="busy[u.LOGIN_ID]">
+                                    <option value="active">active</option>
+                                    <option value="inactive">inactive</option>
+                                    <option value="left">left</option>
+                                </select>
+                                <button class="btn btn--ghost" :disabled="busy[u.LOGIN_ID] || u.STATUS===u._next"
+                                    @click="setStatus(u, u._next)">변경</button>
+                            </td>
+                        </tr>
+                        <tr v-if="list.length===0">
+                            <td colspan="6">직원 데이터가 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    loginId: sessionStorage.getItem('sessionId') || '',
+                    list: [],
+                    q: '',
+                    filter: '',
+                    busy: {}
+                }
+            },
+            computed: {
+                isAdmin() { return String(this.loginId).toLowerCase() === 'admin'; }
+            },
+            methods: {
+                goBack() { history.back(); },
+                badgeClass(s) {
+                    s = String(s || '').toLowerCase();
+                    if (s === 'active') return 'active badge';
+                    if (s === 'left') return 'left badge';
+                    return 'inactive badge';
+                },
+                load() {
+                    if (!this.isAdmin) { alert('최고사장만 접근 가능합니다.'); location.href = 'cms_customer_list.html'; return; }
+                    $.ajax({
+                        url: 'http://localhost:3009/cms/users',
+                        type: 'GET', dataType: 'json',
+                        data: { adminId: this.loginId, q: this.q, status: this.filter },
+                        success: (res) => {
+                            const rows = res.list || [];
+                            rows.forEach(r => r._next = r.STATUS || 'inactive'); // 기본 선택값
+                            this.list = rows;
+                        },
+                        error: () => { alert('목록 로드 실패'); }
+                    });
+                },
+                setStatus(u, status) {
+                    if (!confirm(`${u.LOGIN_ID}의 상태를 '${status}'로 변경할까요?`)) return;
+                    this.$set ? this.$set(this.busy, u.LOGIN_ID, true) : (this.busy[u.LOGIN_ID] = true);
+                    $.ajax({
+                        url: 'http://localhost:3009/cms/user/setstatus',
+                        type: 'GET', dataType: 'json',
+                        data: { adminId: this.loginId, targetId: u.LOGIN_ID, status },
+                        success: (res) => {
+                            if (res.result === 'success') { u.STATUS = status; }
+                            else { alert(res.message || '변경 실패'); }
+                        },
+                        error: () => { alert('변경 중 오류'); },
+                        complete: () => { this.busy[u.LOGIN_ID] = false; }
+                    });
+                }
+            },
+            mounted() {
+                if (!this.loginId) { alert('로그인이 필요합니다.'); location.href = 'cms_login.html'; return; }
+                this.load();
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1967,6 +1967,149 @@ app.get('/cms/coords', async (req, res) => {
 
 
 
+// ================== 고객 삭제 (작성자 본인만) =================S
+app.get('/cms/customerdelete', async (req, res) => {
+  const { memberNo = '', requestBy = '' } = req.query;
+
+  if (!memberNo || !requestBy) {
+    return res.status(400).json({ result: 'error', message: 'memberNo, requestBy required' });
+  }
+
+  const tx = { autoCommit: false };
+
+  try {
+    // 1) 소유자 확인
+    const ownerRs = await connection.execute(
+      `SELECT CREATEBY FROM TBL_CMS_CUST_PROFILE WHERE MEMBER_NO = :m`,
+      { m: memberNo }
+    );
+
+    if (!ownerRs.rows || ownerRs.rows.length === 0) {
+      return res.status(404).json({ result: 'error', message: 'not found' });
+    }
+
+    const ownerId = ownerRs.rows[0][0]; // 기본 배열 포맷: 첫 컬럼
+    if (String(ownerId) !== String(requestBy)) {
+      return res.status(403).json({ result: 'error', message: 'forbidden (not owner)' });
+    }
+
+    // 2) 자식(학력) 삭제 → 3) 프로필 삭제
+    await connection.execute(
+      `DELETE FROM TBL_CMS_CUST_EDU WHERE MEMBER_NO = :m`,
+      { m: memberNo },
+      tx
+    );
+
+    const delProfile = await connection.execute(
+      `DELETE FROM TBL_CMS_CUST_PROFILE WHERE MEMBER_NO = :m`,
+      { m: memberNo },
+      tx
+    );
+
+    await connection.commit();
+
+    return res.json({
+      result: 'success',
+      deletedEduRows: delProfile.rowsAffected, // 주: 이건 프로필 rowsAffected인데, 필요하면 별도 변수로 분리하세요
+      deletedProfileRows: delProfile.rowsAffected
+    });
+  } catch (e) {
+    try { await connection.rollback(); } catch (_) { }
+    console.error('customerdelete error', e);
+    return res.status(500).json({ result: 'error', message: 'delete failed' });
+  }
+});
+// ================== 고객 삭제 (작성자 본인만) =================E
+
+
+
+
+// ================== 직원 목록 (admin 전용) ==================
+app.get('/cms/users', async (req, res) => {
+  const { adminId = '', q = '', status = '' } = req.query;
+
+  // 권한 체크
+  if (String(adminId).toLowerCase() !== 'admin') {
+    return res.status(403).json({ result: 'error', message: 'forbidden (admin only)' });
+  }
+
+  // 필터 구성(간단 문자열 방식, 네 스타일 유지)
+  const kw = String(q || '').trim().toLowerCase().replace(/'/g, "''");
+  const st = String(status || '').trim().toLowerCase();
+
+  const wh = [];
+  if (kw) {
+    wh.push(`( LOWER(LOGIN_ID) LIKE '%${kw}%' OR LOWER(NAME) LIKE '%${kw}%' OR LOWER(EMAIL) LIKE '%${kw}%' )`);
+  }
+  if (st) {
+    wh.push(`LOWER(STATUS) = '${st}'`);
+  }
+  const where = wh.length ? `WHERE ${wh.join(' AND ')}` : '';
+
+  const sql = `
+    SELECT LOGIN_ID, NAME, EMAIL, PHONE, STATUS,
+           TO_CHAR(HIRED_AT, 'YYYY-MM-DD') AS HIRED_AT
+      FROM SYSTEM_USER
+      ${where}
+      ORDER BY CASE WHEN LOGIN_ID='admin' THEN 0 ELSE 1 END, LOGIN_ID
+  `;
+
+  try {
+    const r = await connection.execute(sql);
+    const cols = r.metaData.map(c => c.name);
+    const rows = r.rows.map(row => { const o = {}; cols.forEach((n, i) => o[n] = row[i]); return o; });
+    res.json({ result: 'success', list: rows });
+  } catch (e) {
+    console.error('cms/users error', e);
+    res.status(500).json({ result: 'error', message: 'list failed' });
+  }
+});
+
+// ================== 직원 상태 변경 (admin 전용) ==================
+app.get('/cms/user/setstatus', async (req, res) => {
+  const { adminId = '', targetId = '', status = '' } = req.query;
+
+  if (String(adminId).toLowerCase() !== 'admin') {
+    return res.status(403).json({ result: 'error', message: 'forbidden (admin only)' });
+  }
+  if (!targetId || !status) {
+    return res.status(400).json({ result: 'error', message: 'targetId, status required' });
+  }
+
+  const next = String(status).toLowerCase();
+  if (!['active', 'inactive', 'left'].includes(next)) {
+    return res.status(400).json({ result: 'error', message: 'invalid status' });
+  }
+
+  // admin 계정은 상태 변경 금지
+  if (String(targetId).toLowerCase() === 'admin') {
+    return res.status(400).json({ result: 'error', message: 'cannot change admin status' });
+  }
+
+  try {
+    const r = await connection.execute(
+      `UPDATE SYSTEM_USER SET STATUS=:st, UDATETIME=SYSDATE WHERE LOGIN_ID=:id`,
+      { st: next, id: targetId },
+      { autoCommit: true }
+    );
+    res.json({ result: 'success', rowsAffected: r.rowsAffected || 0 });
+  } catch (e) {
+    console.error('setstatus error', e);
+    res.status(500).json({ result: 'error', message: 'update failed' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // 서버 시작

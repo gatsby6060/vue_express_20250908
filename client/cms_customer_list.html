@@ -272,6 +272,7 @@
         <span class="login-id" v-if="loginId">로그인 ID : {{ loginId }}</span>
         <span class="login-id" v-if="sName">로그인 성함 : {{ sName }}</span>
         <button class="btn" @click="fnUserInfoUpdate" v-if="isEmpActive">사원본인정보수정</button>
+        <button class="btn btn--ghost" v-if="isAdmin" @click="goEmpManage">직원관리</button>
         <button class="btn" @click="fnLogout">로그아웃</button>
       </h2>
 
@@ -956,6 +957,7 @@
             this.naverMap.setZoom(10);
           }
         },
+        goEmpManage(){ location.href = 'cms_emp_manage.html'; },
 
       },
       mounted() {

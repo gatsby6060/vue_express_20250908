@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고객관리시스템</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        table,
+        tr,
+        td,
+        th {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: beige;
+        }
+
+        tr:nth-child(even) {
+            background-color: azure;
+        }
+
+
+
+        /* ---- Tables ---- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #e5e9f2;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        tbody tr:nth-child(even) td {
+            background: #edf4ff;
+        }
+
+
+        /* ---- Buttons ---- */
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            background: #3a7afe;
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(58, 122, 254, .18);
+            margin: 8px;
+        }
+
+
+
+        .btn:hover {
+            background: #2b68ea;
+        }
+
+        /* ---- Footer ---- */
+
+        .copyright {
+            color: #98a0aa;
+            font-size: .9rem;
+        }
+
+
+        /*동영상 관련*/
+        /* 배경 컨테이너 */
+        .video-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden
+        }
+
+        /* 실제 자르는 영역(뷰포트) */
+        .video-viewport {
+            position: absolute;
+            inset: 0;
+            /* 위 15%, 아래 15% 잘라 보여줌(총 30%) */
+            clip-path: inset(10% 0 10% 0);
+        }
+
+        /* 유튜브 영상: 중앙정렬 + 확대(1 / 0.7 ≈ 1.43배) */
+        .video-viewport iframe {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1.43);
+            /* 16:9로 화면을 가득 채우는 기준 크기 */
+            width: 100vw;
+            height: 56.25vw;
+            /* 100 / (16/9) */
+            min-width: 177.78vh;
+            min-height: 100vh;
+            /* 100 * (16/9) */
+            pointer-events: none;
+        }
+
+        /* 살짝 어둡게(선택) */
+        .video-dim {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .25)
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .video-bg {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <div id="app">
+        <div class="video-bg" aria-hidden="true">
+            <!-- 잘라서 보여줄 뷰포트 -->
+            <div class="video-viewport">
+                <iframe id="ytbg"
+                    src="https://www.youtube-nocookie.com/embed/_ObIkPEb138?autoplay=1&mute=1&loop=1&playlist=_ObIkPEb138&controls=0&playsinline=1&modestbranding=1&rel=0&enablejsapi=1"
+                    title="background video" frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+                    allowfullscreen></iframe>
+            </div>
+            <div class="video-dim"></div>
+        </div>
+
+        <table style="margin-top:50px">
+            <tbody>
+                <tr>
+                    <td colspan="3">
+                        <h1></h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top">
+                        <div class="login-layout">
+                            <h2>고객관리프로그램 로그인</h2>
+                            <div style="color:#74a0ff">emp01 pass1234 emp02 1q2w3e4r emp03 4r5t6y7u</div>
+                            <div style="color:#89abf5">C2025-000005 VgqTYtWm85 C2025-000014 byJXKXPF20 C2025-000007
+                                zVodEkpq15</div>
+
+                            <div class="login-form">
+                                <div class="login-input">
+                                    <div>
+                                        <input type="text" id="search" name="strSName" placeholder="ID"
+                                            class="form-control input-lg" style="margin-bottom:5px"
+                                            autocomplete="username" v-model="idd">
+
+                                    </div>
+                                    <div>
+                                        <input type="password" id="strLoginPwd" name="strLoginPwd" placeholder="비밀번호"
+                                            autocomplete="current-password" class="form-control input-lg"
+                                            v-model="pwdd">
+
+                                    </div>
+                                </div>
+                                <div class="login-bottom"
+                                    style="padding-bottom:20px;color:red;text-align:left ; text-align: center;">
+                                    *ID를 입력하시고 비밀번호를 입력하세요
+                                    <div class="login-btn" style="margin-top:10px">
+                                        <button class="btn" @click="fnLogin(idd,pwdd)">로그인</button>
+                                        <button class="btn" @click="">
+                                            <a href="cms_empuser_add.html" style="text-decoration:none; color:inherit;">
+                                                시스템사용자(직원용) 등록
+                                            </a>
+                                        </button>
+
+                                    </div>
+                                </div>
+                                <div class="login-bottom"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="copyright">
+                            <p class="m-t">Copyright © 전경환 All Rights Reserved.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                idd: "",
+                pwdd: "",
+                ngrok: "https://41e2aa10981b.ngrok-free.app",
+                status: "", // 사용자가 관리자인지 아닌지 확인 아래서 사용할꺼임
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnList: function () {
+                let self = this;
+                let param = {};
+                let ngrok = self.ngrok;
+                $.ajax({
+                    // url: "http://localhost:3009/emp/list",
+                    // url: ngrok + "/cms_customer_list.html",
+                    url: ngrok + "/cms_customer_list.html",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+
+                    }
+                });
+            },
+            fnLogin: function (id, pw) {
+                // alert("로그인함수 진입");
+                let self = this;
+                let ngrok = self.ngrok;
+                // alert("id "+id);
+                if (!id) {
+                    alert("아이디 입력!");
+                    return;
+                }
+                // alert("pw "+pw);
+                if (!pw) {
+                    alert("비밀번호 입력!");
+                    return;
+                }
+                // alert("self.id는 "+ id);
+                let param = {
+                    loginId: id,
+                    pwd: pw
+                };
+                // alert("param.idd_p1 " + param.loginId);
+                // alert("param.pwd " + param.pwd);
+                // alert("ngrok " + ngrok);
+                // alert("아작스요청직전");
+                $.ajax({
+                    // url: ngrok+"/cms_customer_list.html",
+                    // url: ngrok + "/cms/login",
+                    // url: "https://41e2aa10981b.ngrok-free.app/cms/login",
+                    url: "http://localhost:3009/cms/login",
+                    headers: {
+                        // ngrok 경고(인터스티셜) 우회 
+                        "ngrok-skip-browser-warning": "true", // 서버에게 JSON 원해요
+                        //  "Accept": "application/json" 
+                    },
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        // alert("로그인 잘됨");
+
+                        if (data.length > 0) {
+                            alert(data[0].NAME + "님 환영합니다.");
+                            // alert(JSON.stringify(data));
+
+                            sessionStorage.setItem("sessionId", data[0].LOGIN_ID);
+                            sessionStorage.setItem("sessionStatus", data[0].STATUS); //관리자권한부분같음
+                            sessionStorage.setItem("sessionName", data[0].NAME);
+                            // alert("sessionId는 "+ sessionStorage.getItem("sessionId"));
+                            // location.href = "board-list.html" //리스트로 이동
+                            location.href = "cms_customer_list.html";
+                        } else {
+                            alert("아이디/비밀번호를 확인해주세요.");
+                        }
+
+                        // location.href = "cms_customer_list.html";
+                    }
+                });
+                // const base = "https://41e2aa10981b.ngrok-free.app"; // 하나만 사용
+                // const base = "http://localhost:3009"; // 하나만 사용
+                // const url = base + "/cms/login";
+                // const params = { loginId: id, pwd: pw };
+                // console.log("→ AJAX", url + "?" + $.param(params));
+                // $.ajax({
+                //     url, type: "GET", dataType: "json", data: params,
+                //     crossDomain: true, cache: false, timeout: 10000
+                // })
+                //     .done(d => { console.log("✓ success", d); alert("로그인 잘됨"); })
+                //     .fail((xhr, status, err) => {
+                //         console.error("✗ fail", status, err, xhr.status, xhr.statusText, xhr.responseText);
+                //         alert(`AJAX 실패: ${xhr.status} ${xhr.statusText}\n${xhr.responseText || ""}`);
+                //     });
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+
+        }
+    });
+
+    app.mount('#app');
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    let player, loopTimer, loopArmed = true;
+    const LOOP_AT = 0.5; // 70%
+
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('ytbg', {
+            events: {
+                onReady: e => {
+                    e.target.mute();
+                    e.target.playVideo();
+                    // 300ms마다 진행률 체크
+                    loopTimer = setInterval(() => {
+                        if (!player || typeof player.getDuration !== 'function') return;
+                        const d = player.getDuration();
+                        if (d <= 0) return;
+                        const t = player.getCurrentTime();
+                        const p = t / d;
+
+                        // 80% 이상이면 처음으로 점프
+                        if (p >= LOOP_AT && loopArmed) {
+                            loopArmed = false;           // 연속 트리거 방지
+                            player.seekTo(0, true);
+                            player.playVideo();
+                        }
+                        // 처음으로 돌아오면 다시 무장
+                        if (t < 1) loopArmed = true;
+                    }, 300);
+                }
+            }
+        });
+    }
+    window.addEventListener('beforeunload', () => clearInterval(loopTimer));
+</script>
