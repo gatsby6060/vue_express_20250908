@@ -73,9 +73,9 @@
     <h4>고객 페이지</h4>    
     <div align="center">
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/fa2f9146e99aaed7641df2e94033321b4768bfea/resultphotos/%EA%B3%A0%EA%B0%9D%EC%9C%BC%EB%A1%9C%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%8B%9C.png" height="200px;" width="200px;" /> 
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/d4804224-2b2f-4110-b380-7260a0575810" width="200px;" />
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/fa0ba93e-45bc-4867-875e-a55295fb0abf" width="200px;" />
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/e0ea36c5-01f5-4bed-8968-b643a6d375e0" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%A0%95%EB%B3%B4%EA%B5%AC%EB%A7%A4%ED%99%94%EB%A9%B4.png" height="200px;" width="200px;" /><!--타고객정보구매순간 -->
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%EA%B5%AC%EB%A7%A4%ED%95%9C%EC%83%81%EB%8C%80%EA%B3%A0%EA%B0%9D%EB%B3%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!--구매한상태고객보기-->
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%9E%A5%EB%B0%94%EA%B5%AC%EB%8B%88%EB%8B%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!-- 타고객 장바구니 담기-->
     <h4>고객 페이지</h4>
     <div>회원가입 시 팝업창을 통한 아이디 중복체크와 패스워드는 정규식을 만족해야만 회원가입이 완료되게 구현하였고, 다음 API를 이용한 주소검색 팝업창을 통해 주소를 입력받게 구현하였습니다. 제품 페이지에서는 제품리스트를 선택할 수 있게 구현하였고, 제품 이미지와 수량, 제품 총액이 실시간으로 변경되게 구현하였습니다. 장바구니 버튼으로 장바구니로 이동을 통해 여러 제품을 한번에 구매 가능하게 구현하였고, 주문 완료시 제품 재고가 감소되게 구현하였습니다. 주문 내역 페이지에서는 총 주문내역이 모두 나오게 구현하였고, 프로필 수정페이지를 통한 개인정보를 수정할 수 있게 구현하였습니다. 로그아웃 클릭시에는 세션이 끊기고 메인페이지로 이동되게 구현하였습니다.</div>
     </div>
