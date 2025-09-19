@@ -253,7 +253,7 @@
                                 this.player.playVideo();
 
                                 // 76% 도달 시 5%로 루프
-                                const epsilon = 0.4; // 초 단위 완충
+                                const epsilon = 0.3; // 초 단위 완충
                                 this.loopTimer = setInterval(() => { //0.9초마다 상태확인
                                     if (!this.player) return;
                                     const dur = this.player.getDuration?.() || 0;
@@ -271,7 +271,7 @@
                                         this.player.seekTo(dur * this.START_AT, true);
                                         this.player.playVideo();
                                     }
-                                }, 900); //0.9초마다 상태확인
+                                }, 800); //0.초마다 상태확인
                             }
                         }
                     });
