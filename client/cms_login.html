@@ -39,7 +39,7 @@
         .video-viewport {
             position: absolute;
             inset: 0;
-            clip-path: inset(15% 0 15% 0)
+            clip-path: inset(17% 0 12% 0)
         }
 
         .video-viewport iframe {
@@ -143,7 +143,12 @@
 </head>
 
 <body>
+
+
+
+
     <div id="app">
+
         <!-- 배경 동영상 -->
         <div class="video-bg" aria-hidden="true">
             <div class="video-viewport">
@@ -155,6 +160,7 @@
             </div>
             <div class="video-dim"></div>
         </div>
+
 
         <!-- 로그인 카드 -->
         <div class="login-wrap">
@@ -196,8 +202,8 @@
                 return {
                     idd: "", pwdd: "", status: "",
                     player: null, loopTimer: null,
-                    START_AT: 0.06,   // 처음 6% 지점
-                    LOOP_TO: 0.77    // 77% 도달 시 다시 START_AT로
+                    START_AT: 0.05,   // 처음 5% 지점
+                    LOOP_TO: 0.76    // 76% 도달 시 다시 START_AT로
                 };
             },
             methods: {
@@ -246,7 +252,7 @@
                                 this.player.seekTo(startTime, true);
                                 this.player.playVideo();
 
-                                // 80% 도달 시 5%로 루프
+                                // 76% 도달 시 5%로 루프
                                 const epsilon = 0.4; // 초 단위 완충
                                 this.loopTimer = setInterval(() => { //1.2초마다 상태확인
                                     if (!this.player) return;
@@ -265,7 +271,7 @@
                                         this.player.seekTo(dur * this.START_AT, true);
                                         this.player.playVideo();
                                     }
-                                },1200); //1.2초마다 상태확인
+                                }, 1200); //1.2초마다 상태확인
                             }
                         }
                     });
