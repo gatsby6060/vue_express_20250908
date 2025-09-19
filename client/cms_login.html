@@ -203,7 +203,7 @@
                     idd: "", pwdd: "", status: "",
                     player: null, loopTimer: null,
                     START_AT: 0.05,   // 처음 5% 지점
-                    LOOP_TO: 0.76    // 76% 도달 시 다시 START_AT로
+                    LOOP_TO: 0.75    // 75% 도달 시 다시 START_AT로
                 };
             },
             methods: {
@@ -228,7 +228,7 @@
                     });
                 },
 
-                /* --- 유튜브 제어: 5%~80% 구간 루프 --- */
+                /* --- 유튜브 제어: 5%~75% 구간 루프 --- */
                 initYT() {
                     this.player = new YT.Player('ytbg', {
                         events: {
@@ -254,7 +254,7 @@
 
                                 // 76% 도달 시 5%로 루프
                                 const epsilon = 0.4; // 초 단위 완충
-                                this.loopTimer = setInterval(() => { //1.2초마다 상태확인
+                                this.loopTimer = setInterval(() => { //0.9초마다 상태확인
                                     if (!this.player) return;
                                     const dur = this.player.getDuration?.() || 0;
                                     const cur = this.player.getCurrentTime?.() || 0;
@@ -271,7 +271,7 @@
                                         this.player.seekTo(dur * this.START_AT, true);
                                         this.player.playVideo();
                                     }
-                                }, 1200); //1.2초마다 상태확인
+                                }, 900); //0.9초마다 상태확인
                             }
                         }
                     });
