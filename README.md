@@ -55,6 +55,7 @@
     </div>         
     <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;">  📑 페이지별 기능 </h2>
+    <h4>로그인 페이지</h4>
     <div align="center">
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login2.png" height="400px;" width="400px;" />
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login3.png" height="400px;" width="400px;" />
@@ -64,8 +65,14 @@
     <br/>
     <br/>
     <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <h4>고객 페이지</h4>    
     <div align="center">
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/7baf3554-2b6c-4bb0-97f0-a4a757764d86" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/fa2f9146e99aaed7641df2e94033321b4768bfea/resultphotos/%EA%B3%A0%EA%B0%9D%EC%9C%BC%EB%A1%9C%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%8B%9C.png" height="200px;" width="200px;" /> 
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/d4804224-2b2f-4110-b380-7260a0575810" width="200px;" />
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/fa0ba93e-45bc-4867-875e-a55295fb0abf" width="200px;" />
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/e0ea36c5-01f5-4bed-8968-b643a6d375e0" width="200px;" />
