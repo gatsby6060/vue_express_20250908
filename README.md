@@ -8,16 +8,18 @@
     </div> 
 <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;">💡 프로젝트 소개 </h2>
-    <li>Fitness Shop은 고객 관리 시스템을 목표로 설계한 운동기구 쇼핑몰 사이트입니다.</li>
-    <li>여러 종류의 운동기구와 수량을 선택하여 간편하게 주문이 가능합니다.</li>
-    <li>관리자 페이지에서 간편하게 제품, 고객, 주문 조회 수정 및 삭제가 가능합니다</li>
+    <li>고객 관리 시스템을 목표로 설계한 고객 소개 사이트입니다.</li>
+    <li>3종류(최고사장, 직원, 고객 ) 사람들이 로그인 가능하며 '고객'의 경우 다른 '고객'의 정보를 보려면 결재해야합니다.</li>
+    <li>고객은 직원이 가입을 시켜줘야만 시스템 로그인이 가능하며 아이디와 암호는 자동생성하여 담당직원이 고객에게 통보합니다</li>
+    <li>최고관리자가 로그인하면 직원정보 수정이 가능합니다</li>
+    <li>직원은 직원별로 고객정보 입력 및 수정이 가능합니다 다른 직원의 고객의 열람은 가능하나 정보수정은 불가합니다.</li>
     </div>
     <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;"> 🗓 개발 기간 </h2>  
         <ul>
-            <li> <h4>01/31 ~ 02/06</h4>
+            <li> <h4>09/12 ~ 09/19</h4>
                 <ul>
-                    <li>프로젝트 기획 구상, DB설계, 서비스 개발, 테스트 및 수정</li>
+                    <li>프로젝트 기획 구상, DB 테이블설계, 서비스 개발, 테스트 및 수정</li>
                 </ul>
             </li>
         </ul>
@@ -33,15 +35,15 @@
                 <th>GitHub 프로필</th>
             </tr>
             <tr>
-                <td>이진순</td>
-                <td>https://github.com/lsssssssssssssss</td>
+                <td>전경환</td>
+                <td>https://github.com/gatsby6060</td>
             </tr>
             </table>
         </div>
 <div style= "text-align:left;">
     <h2 style="color: #282d33;"> 🛠️ 사용 언어 </h2>
     <div style="margin: 0 auto; text-align: left;" align= "left">
-          <img src="https://img.shields.io/badge/JSP-007396?style=for-the-badge&logo=java&logoColor=white">
+          <img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D">
           <img src="https://img.shields.io/badge/Servlet-000000?style=for-the-badge&logo=java&logoColor=white">
           <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white">
           <img src="https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white">
