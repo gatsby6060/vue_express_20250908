@@ -108,6 +108,7 @@
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/emp%EB%A1%9C%EA%B7%B8%EC%9D%B8%ED%9B%84%EA%B3%A0%EA%B0%9D%EB%A6%AC%EC%8A%A4%ED%8A%B8.png" height="200px;" width="200px;" />
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/%ED%83%80%EC%A7%81%EC%9B%90%EA%B3%A0%EA%B0%9D%EC%9D%80%EB%B3%BC%EC%88%98%EB%A7%8C%EC%9E%88%EC%9D%8C.png" height="200px;" width="200px;" />
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/%EB%B3%B8%EC%9D%B8%EA%B3%A0%EA%B0%9D%EC%88%98%EC%A0%95.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/2e2edc18c62ac813c16b8dddec6dc23d19721fce/resultphotos/%EA%B3%A0%EA%B0%9D%EC%B6%94%EA%B0%802.png" height="200px;" width="200px;" />    
     <h4>직원ID 로그인 후 페이지</h4>
     <div>직원 로그인 후 페이지는 고객추가 버튼이 있습니다. 이 시스템은 고객이 스스로 가입을 못합니다. 직원이 판단하여 일정판단기준에 따라 고객을 가입(등록)시키는 형태입니다. 직원ID로만 고객을 가입시킬수 있으며 고객의 아이디와 암호는 자동부여됩니다. 아이디와 암호는 직원이 고객에게 통보하는 형태입니다. 직원본인이 등록한 고객정보는 직원본인이 수정할수있지만 다른 직원이 입력한 고객정보는 수정불가입니다. 단순히 타직원의 고객정보는 볼수만 있습니다. 지도상의 고객위치도 본인 고객만 좌표위치를 알수 있습니다. 좌표는 주소기반으로 자동으로 계산되어 프론트앤드에서 좌표생성후 백앤드로 전송됩니다. 회사직원ID는 본인이 등록한 고객을 삭제할 수 있습니다.
     </div>
