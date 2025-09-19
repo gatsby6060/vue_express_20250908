@@ -10,9 +10,9 @@
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;">💡 프로젝트 소개 </h2>
     <li>고객 관리 시스템을 목표로 설계한 고객 소개 사이트입니다.</li>
     <li>3종류(최고사장, 직원, 고객 ) 사람들이 로그인 가능하며 '고객'의 경우 다른 '고객'의 정보를 보려면 결재해야합니다.</li>
-    <li>고객은 직원이 가입을 시켜줘야만 시스템 로그인이 가능하며 아이디와 암호는 자동생성하여 담당직원이 고객에게 통보합니다</li>
-    <li>최고사장이 로그인하면 직원정보 수정이 가능합니다</li>
-    <li>직원은 직원별로 고객정보 입력 및 수정이 가능합니다 다른 직원의 고객을 열람은 가능하나 정보수정은 불가합니다.</li>
+    <li>고객은 직원이 가입을 시켜줘야만 시스템 로그인이 가능하며 아이디와 암호는 자동생성하여 담당직원이 고객에게 통보합니다.</li>
+    <li>최고사장이 로그인하면 직원정보 수정이 가능합니다.</li>
+    <li>직원은 직원별로 고객정보 입력 및 수정이 가능합니다. 다른 직원의 고객은 열람 가능하나 정보수정은 불가합니다.</li>
     </div>
     <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;"> 🗓 개발 기간 </h2>  
@@ -44,8 +44,8 @@
     <h2 style="color: #282d33;"> 🛠️ 사용 언어 </h2>
     <div style="margin: 0 auto; text-align: left;" align= "left">
           <img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D">
-          <img src="https://img.shields.io/badge/Servlet-000000?style=for-the-badge&logo=java&logoColor=white">
-          <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white">
+<!--           <img src="https://img.shields.io/badge/Servlet-000000?style=for-the-badge&logo=java&logoColor=white"> -->
+<!--           <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"> -->
           <img src="https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white">
           <img src="https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white">
           <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
@@ -58,7 +58,7 @@
     <div align="center">
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/edf81f10-cee7-4748-b86a-45a002c29a17" width="400px;" />
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/5b084d20-7999-447c-b7b9-e9e19f68410e" width="200px;" />
-    <h4>메인 페이지</h4>
+    <h4>로그인 페이지</h4>
     <div>미로그인 상태와 로그인 상태, 관리자 로그인 상태의 탭들을 달리하여 세션이 존재할 시에만 보이는 탭들을 구분했습니다. 관리자로 로그인 시 로고 텍스트와 내비게이션 바의 탭들을 수정해서 쉽게 관리할 수 있고, 일반 고객은 관리자 페이지에 접근할 수 없게 구현했고, 세션을 통해 관리자와 일반 고객을 구분하도록 구현하였습니다. BootStrap을 이용한 미디어쿼리를 적용해 상단 탭을 축소하여 구현했고, 클릭시 한눈에 볼 수 있게 탭 내비게이션을 적용했습니다. 섹션 부분에는 Bootstrap과 Jquery를 이용해 자동 슬라이드를 구현하였습니다.</div>
     </div>
     <br />
