@@ -59,10 +59,11 @@
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login2.png" height="400px;" width="400px;" />
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login3.png" height="400px;" width="400px;" />
     <h4>로그인 페이지</h4>
-    <div>로그인 페이지는 '최고사장(관리자)','직원(관리자)','고객'이 모두 사용 가능하도록 했습니다. '직원 테이블'과 '고객 테이블'로 크게 조회하여 구분했습니다. 뒷배경은 동영상을 사용하였습니다. 본인이 직원이라면 이화면에서 직원등록(가입)화면으로 넘어갈 수 있습니다.</div>
+    <div>로그인 페이지는 '최고사장(관리자)','직원(관리자)','고객'이 모두 사용 가능하도록 했습니다. '직원 테이블'과 '고객 테이블'로 크게 조회하여 구분했습니다. 뒷배경은 동영상을 사용하였습니다. 본인이 직원이라면 위 화면에서 직원등록(가입)화면으로 넘어갈 수 있습니다.</div>
     </div>
-    <br />
-    <br />
+    <br/>
+    <br/>
+    <br/>
     <div align="center">
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/7baf3554-2b6c-4bb0-97f0-a4a757764d86" width="200px;" />
     <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/d4804224-2b2f-4110-b380-7260a0575810" width="200px;" />
