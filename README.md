@@ -120,6 +120,25 @@
     <br/>
     <br/>
     <br/>
+    <br/>
+    <h4>직원 가입 페이지</h4>
+    <div align="center">
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/empadd.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/empadd4.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/empadd6.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/empadd7.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/emp8%EC%9D%B4%EB%A9%94%EC%9D%BC.png" height="200px;" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/75916828174810c80fdba88770844bef36b523d0/resultphotos/empadd%EC%99%84%EB%B2%BD2.png" height="200px;" width="200px;" />   
+    <h4>직원 가입 페이지</h4>
+    <div>직원 가입 페이지는 사장에게 가입신청을 하는 페이지입니다. 가입하고 나서 사장이 직원에게 "active"개념의 설정을 해줘야 직원으로서 다른 고객을 등록하고 모든 고객정보를 무료로 열람할 수 있습니다. 그전까지는 일반고객과 차이가 없습니다. 고객 등록페이지는 중복아이디 검사, 전화번호형식 검사, 메일형식 검사 등이 있습니다. 비밀번호중복입력확인 및 비밀번호마스킹해제하여 입력된 비밀번호확인도 가능합니다. 프론트앤드 상에서 모든 입력이 정상적으로 이라 판단되면 백앤드로 전송합니다. 
+    </div>
+    </div>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
     </div>
     <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;"> 🎇 프로젝트 후기 </h2>   
