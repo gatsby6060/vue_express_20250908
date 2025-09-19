@@ -70,23 +70,32 @@
     <br/>
     <br/>
     <br/>
-    <h4>고객 페이지</h4>    
+    <h4>고객 로그인후 페이지</h4>    
     <div align="center">
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/fa2f9146e99aaed7641df2e94033321b4768bfea/resultphotos/%EA%B3%A0%EA%B0%9D%EC%9C%BC%EB%A1%9C%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%8B%9C.png" height="200px;" width="200px;" /> 
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%A0%95%EB%B3%B4%EA%B5%AC%EB%A7%A4%ED%99%94%EB%A9%B4.png" height="200px;" width="200px;" /><!--타고객정보구매순간 -->
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%EA%B5%AC%EB%A7%A4%ED%95%9C%EC%83%81%EB%8C%80%EA%B3%A0%EA%B0%9D%EB%B3%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!--구매한상태고객보기-->
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%9E%A5%EB%B0%94%EA%B5%AC%EB%8B%88%EB%8B%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!-- 타고객 장바구니 담기-->
-    <h4>고객 페이지</h4>
+    <h4>고객 로그인후 페이지</h4>
     <div>고객으로 로그인시 타고객 목록만 보이게 했습니다. 사진을 누르면 사진만 확대된 창이 떠서보이고 행을 클릭시 결재창으로 넘어갑니다. 결재가 완료되면 타고객의 정보와 위도경도를 볼수 있습니다. 구매전에 장바구니에만 놓고 나중에 결재할 수도 있습니다. 이미 고객 본인이 결재한 타고객만 따로 볼수 있게 버튼을 만들었으며 구매한뒤 3일간만 정보를 볼수 있습니다. 이후에는 다시 구매해야지 정보가 보입니다.</div>
     </div>
     <br />
     <br />
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>    
     <div align="center">
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/52e3a790-267b-45b7-b79f-33eaa97faaf9" width="266px;" />
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/4f7af30a-7def-4298-8910-6e05b49ba91a" width="266px;" />
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/289e49b0-93e9-400e-b7bf-722aa157e324" width="266px;" />
-    <h4>관리자 페이지</h4>
-    <div>제품 관리 페이지에서는 제품 등록, 삭제, 수정 작업을 할 수 있게 구현하였고, 고객 관리 페이지에서도 고객정보 수정, 삭제와 관리자 계정은 삭제할 수 없게 구현하였습니다. 주문 내역 페이지에서는 전체 고객의 주문내역을 출력하도록 구현하였고, 관리자 페이지 각각의 검색기능을 추가해 관리의 편의성을 제공하여 구현하였습니다.</div>
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/emp%EB%A1%9C%EA%B7%B8%EC%9D%B8%ED%9B%84%EA%B3%A0%EA%B0%9D%EB%A6%AC%EC%8A%A4%ED%8A%B8.png" width="266px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/%ED%83%80%EC%A7%81%EC%9B%90%EA%B3%A0%EA%B0%9D%EC%9D%80%EB%B3%BC%EC%88%98%EB%A7%8C%EC%9E%88%EC%9D%8C.png" width="266px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/5156d814f6df848d42f8e984c1ccd1f6217e7f1d/resultphotos/%EB%B3%B8%EC%9D%B8%EA%B3%A0%EA%B0%9D%EC%88%98%EC%A0%95.png" width="266px;" />
+    <h4>직원 로그인 후 페이지</h4>
+    <div>직원 로그인 후 페이지는 고객추가 버튼이 있습니다. 이 시스템은 고객이 스스로 가입을 못합니다. 직원이 판단하여 일정판단기준에 따라 고객을 가입(등록)시키는 형태입니다. 직원ID로만 고객을 가입시킬수 있으며 고객의 아이디와 암호는 자동부여됩니다. 아이디와 암호는 직원이 고객에게 통보하는 형태입니다. 직원본인이 등록한 고객정보는 직원본인이 수정할수있지만 다른 직원이 입력한 고객정보는 수정불가입니다. 단순히 타직원의 고객정보는 볼수만 있습니다. 지도상의 고객위치도 본인 고객만 좌표위치를 알수 있습니다. 좌표는 주소기반으로 자동으로 계산되어 프론트앤드에서 좌표생성후 백앤드로 전송됩니다.
+    </div>
     </div>
     </div>
     <div style= "text-align:left;">
