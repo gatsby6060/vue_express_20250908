@@ -338,9 +338,9 @@
                 <th>상태</th>
                 <td>
                   <select class="field select" v-model="form.status">
-                    <!-- <option value="active">재직</option> -->
-                    <option value="inactive">직원가입신청</option><!--'휴직'에서 테스트 바꿈-->
-                    <!-- <option value="left">퇴사</option> -->
+                    <option value="active">재직</option>
+                    <option value="inactive">휴직</option>
+                    <option value="left">퇴사</option>
                   </select>
                 </td>
               </tr>
@@ -387,7 +387,7 @@
             branch: "",
             role: "",
             hiredAt: new Date().toISOString().slice(0, 10),
-            status: "inactive", //기본값으로 일단 비활성화 개념(휴직, 직원가입신청)
+            status: "active",
             note: "",
             permissions: { customerWrite: true, customerEdit: true, customerDelete: false }
           }
