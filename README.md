@@ -90,9 +90,10 @@
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%A0%95%EB%B3%B4%EA%B5%AC%EB%A7%A4%ED%99%94%EB%A9%B4.png" height="200px;" width="200px;" /><!--타고객정보구매순간 -->
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%EA%B5%AC%EB%A7%A4%ED%95%9C%EC%83%81%EB%8C%80%EA%B3%A0%EA%B0%9D%EB%B3%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!--구매한상태고객보기-->
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/7a652804a46d7f72599f7c42027ac875486991a8/resultphotos/%ED%83%80%EA%B3%A0%EA%B0%9D%EC%9E%A5%EB%B0%94%EA%B5%AC%EB%8B%88%EB%8B%B4%EA%B8%B0.png" height="200px;" width="200px;" /><!-- 타고객 장바구니 담기-->
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/55e7492451dce736ce7dc0600b7cdd5811d4c3d4/resultphotos/%EC%9E%A5%EB%B0%94%EA%B5%AC%EB%8B%88%EB%B3%B4%EA%B8%B0.png" height="200px;" width="200px;"/><!--장바구니 보기-->
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/3bf2c369d63612d0b7d80117b8e2734fd47fe69e/resultphotos/%EA%B2%B0%EC%A0%9C%EB%90%9C%EB%AA%A9%EB%A1%9D.png" height="200px;" width="200px;" /><!--결제된목록-->
     <h4>고객 로그인후 페이지(고객목록, 검색, 장바구니, 결재)</h4>
-    <div>고객으로 로그인시 타고객 목록만 보이게 했습니다. 사진을 누르면 사진만 확대된 창이 떠서보이고 행을 클릭시 결재창으로 넘어갑니다. 결재가 완료되면 타고객의 정보와 위도경도를 볼수 있습니다. 구매전에 장바구니에만 놓고 나중에 결재할 수도 있습니다. 이미 고객 본인이 결재한 타고객만 따로 볼수 있게 버튼을 만들었으며 구매한뒤 3일간만 정보를 볼수 있습니다. 이후에는 다시 구매해야지 정보가 보입니다.</div>
+    <div>고객으로 로그인시 타고객 목록만 보이게 했습니다. 사진을 누르면 사진만 확대된 창이 떠서보이고 행을 클릭시 결재창으로 넘어갑니다. 결재가 완료되면 타고객의 정보와 위도경도를 볼수 있습니다. 구매전에 장바구니에만 놓고 나중에 결재할 수도 있습니다. 장바구니에 들어간 타고객은 주황색 버튼이 보입니다. 이미 고객 본인이 결재한 타고객만 따로 볼수 있게 버튼을 만들었으며 구매한뒤 3일간만 정보를 볼수 있습니다. 이후에는 다시 구매해야지 정보가 보입니다.</div>
     </div>
     <br/>
     <br/>
