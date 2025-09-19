@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/lsssssssssssssss/miniProject1/assets/153085551/99e18480-bcf9-4059-b0cd-75f2e4236621" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/e52901116fc5f15f317e10519e7863dbf5f27275/resultphotos/login.png" />
     </div>
     
 <div align="center">
@@ -11,8 +11,8 @@
     <li>고객 관리 시스템을 목표로 설계한 고객 소개 사이트입니다.</li>
     <li>3종류(최고사장, 직원, 고객 ) 사람들이 로그인 가능하며 '고객'의 경우 다른 '고객'의 정보를 보려면 결재해야합니다.</li>
     <li>고객은 직원이 가입을 시켜줘야만 시스템 로그인이 가능하며 아이디와 암호는 자동생성하여 담당직원이 고객에게 통보합니다</li>
-    <li>최고관리자가 로그인하면 직원정보 수정이 가능합니다</li>
-    <li>직원은 직원별로 고객정보 입력 및 수정이 가능합니다 다른 직원의 고객의 열람은 가능하나 정보수정은 불가합니다.</li>
+    <li>최고사장이 로그인하면 직원정보 수정이 가능합니다</li>
+    <li>직원은 직원별로 고객정보 입력 및 수정이 가능합니다 다른 직원의 고객을 열람은 가능하나 정보수정은 불가합니다.</li>
     </div>
     <div style= "text-align:left;">
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;"> 🗓 개발 기간 </h2>  
