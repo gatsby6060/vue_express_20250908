@@ -57,9 +57,11 @@
     <h2 style="border-bottom: 1px solid #d8dee4; color: #282d33;">  📑 페이지별 기능 </h2>
     <div align="center">
     <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login2.png" width="400px;" />
-    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login3.png" width="200px;" />
+    <img src="https://github.com/gatsby6060/vue_express_20250908/blob/da6f5b55595951a58cc416f89468a92e83c45955/resultphotos/login3.png" width="400px;" />
     <h4>로그인 페이지</h4>
-    <div>미로그인 상태와 로그인 상태, 관리자 로그인 상태의 탭들을 달리하여 세션이 존재할 시에만 보이는 탭들을 구분했습니다. 관리자로 로그인 시 로고 텍스트와 내비게이션 바의 탭들을 수정해서 쉽게 관리할 수 있고, 일반 고객은 관리자 페이지에 접근할 수 없게 구현했고, 세션을 통해 관리자와 일반 고객을 구분하도록 구현하였습니다. BootStrap을 이용한 미디어쿼리를 적용해 상단 탭을 축소하여 구현했고, 클릭시 한눈에 볼 수 있게 탭 내비게이션을 적용했습니다. 섹션 부분에는 Bootstrap과 Jquery를 이용해 자동 슬라이드를 구현하였습니다.</div>
+    <div>
+        로그인 페이지는 '최고사장(관리자)','직원(관리자)','고객'이 모두 사용 가능하도록 했습니다. '직원 테이블'과 '고객 테이블'로 크게 조회하여 구분했습니다. 뒷배경은 동영상을 사용하였습니다. 직원이라면 이화면에서 가입화면으로 넘어갈 수 있습니다.
+    </div>
     </div>
     <br />
     <br />
